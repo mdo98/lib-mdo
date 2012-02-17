@@ -1,0 +1,64 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestLoader", "TestLoader\TestLoader.csproj", "{B9E89E6F-4AB0-4DD3-AB38-0FA7F578234B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.IO", "IO\Common.IO.csproj", "{E08B4654-FBCA-4C9D-9F20-35136D6AD344}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.IO.Test", "IO.Test\Common.IO.Test.csproj", "{DD50AD0F-E204-48A7-A4B9-9DFD61C39AA4}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{CD6E2084-EE57-4CF1-84A8-5A33249AA030}"
+	ProjectSection(SolutionItems) = preProject
+		Common.vsmdi = Common.vsmdi
+		Local.testsettings = Local.testsettings
+		TraceAndTestImpact.testsettings = TraceAndTestImpact.testsettings
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.App", "App\Common.App.csproj", "{977159D4-FDB7-447E-8D09-04C4A7F88E52}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.Numerics", "Numerics\Common.Numerics.csproj", "{32B7261A-CF53-4A10-AA11-FB3C5755BCD6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.Numerics.Test", "Numerics.Test\Common.Numerics.Test.csproj", "{98A1EB7A-E1E6-44C8-986C-04F539C745B8}"
+EndProject
+Global
+	GlobalSection(SubversionScc) = preSolution
+		Svn-Managed = True
+		Manager = AnkhSVN - Subversion Support for Visual Studio
+	EndGlobalSection
+	GlobalSection(TestCaseManagementSettings) = postSolution
+		CategoryFile = Common.vsmdi
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B9E89E6F-4AB0-4DD3-AB38-0FA7F578234B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B9E89E6F-4AB0-4DD3-AB38-0FA7F578234B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B9E89E6F-4AB0-4DD3-AB38-0FA7F578234B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B9E89E6F-4AB0-4DD3-AB38-0FA7F578234B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E08B4654-FBCA-4C9D-9F20-35136D6AD344}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E08B4654-FBCA-4C9D-9F20-35136D6AD344}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E08B4654-FBCA-4C9D-9F20-35136D6AD344}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E08B4654-FBCA-4C9D-9F20-35136D6AD344}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DD50AD0F-E204-48A7-A4B9-9DFD61C39AA4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DD50AD0F-E204-48A7-A4B9-9DFD61C39AA4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DD50AD0F-E204-48A7-A4B9-9DFD61C39AA4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DD50AD0F-E204-48A7-A4B9-9DFD61C39AA4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{977159D4-FDB7-447E-8D09-04C4A7F88E52}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{977159D4-FDB7-447E-8D09-04C4A7F88E52}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{977159D4-FDB7-447E-8D09-04C4A7F88E52}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{977159D4-FDB7-447E-8D09-04C4A7F88E52}.Release|Any CPU.Build.0 = Release|Any CPU
+		{32B7261A-CF53-4A10-AA11-FB3C5755BCD6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{32B7261A-CF53-4A10-AA11-FB3C5755BCD6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{32B7261A-CF53-4A10-AA11-FB3C5755BCD6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{32B7261A-CF53-4A10-AA11-FB3C5755BCD6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{98A1EB7A-E1E6-44C8-986C-04F539C745B8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{98A1EB7A-E1E6-44C8-986C-04F539C745B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{98A1EB7A-E1E6-44C8-986C-04F539C745B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{98A1EB7A-E1E6-44C8-986C-04F539C745B8}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
