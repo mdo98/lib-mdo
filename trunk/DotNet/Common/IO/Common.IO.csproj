@@ -1,0 +1,112 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{E08B4654-FBCA-4C9D-9F20-35136D6AD344}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MDo.Common.IO</RootNamespace>
+    <AssemblyName>MDo.Common.IO</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <SccProjectName>Svn</SccProjectName>
+    <SccLocalPath>Svn</SccLocalPath>
+    <SccAuxPath>Svn</SccAuxPath>
+    <SccProvider>SubversionScc</SccProvider>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;NATIVE64</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE;NATIVE64</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Ionic.Zip">
+      <HintPath>lib\Ionic.Zip.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="DeflateStream.cs" />
+    <Compile Include="DotZLib\ChecksumImpl.cs" />
+    <Compile Include="DotZLib\CircularBuffer.cs" />
+    <Compile Include="DotZLib\CodecBase.cs" />
+    <Compile Include="DotZLib\Deflater.cs" />
+    <Compile Include="DotZLib\DotZLib.cs" />
+    <Compile Include="DotZLib\GZipFileStream.cs" />
+    <Compile Include="DotZLib\Inflater.cs" />
+    <Compile Include="FileSystem.cs" />
+    <Compile Include="Lzma\Common\CommandLineParser.cs" />
+    <Compile Include="Lzma\Common\CRC.cs" />
+    <Compile Include="Lzma\Common\InBuffer.cs" />
+    <Compile Include="Lzma\Common\OutBuffer.cs" />
+    <Compile Include="Lzma\Compress\LZMA\LzmaBase.cs" />
+    <Compile Include="Lzma\Compress\LZMA\LzmaDecoder.cs" />
+    <Compile Include="Lzma\Compress\LZMA\LzmaEncoder.cs" />
+    <Compile Include="Lzma\Compress\LZ\IMatchFinder.cs" />
+    <Compile Include="Lzma\Compress\LZ\LzBinTree.cs" />
+    <Compile Include="Lzma\Compress\LZ\LzInWindow.cs" />
+    <Compile Include="Lzma\Compress\LZ\LzOutWindow.cs" />
+    <Compile Include="Lzma\Compress\RangeCoder\RangeCoder.cs" />
+    <Compile Include="Lzma\Compress\RangeCoder\RangeCoderBit.cs" />
+    <Compile Include="Lzma\Compress\RangeCoder\RangeCoderBitTree.cs" />
+    <Compile Include="Lzma\ICoder.cs" />
+    <Compile Include="DataStream.cs" />
+    <Compile Include="Crc\CrcCalc.cs" />
+    <Compile Include="LzmaStream.cs" />
+    <Compile Include="LzmaCoder.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SerializationExtension.cs" />
+    <Compile Include="StreamExtension.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="lib\LZMA32.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="lib\LZMA64.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="lib\LZMA\Lzma86.h" />
+    <Content Include="lib\LZMA\LzmaDec.h" />
+    <Content Include="lib\LZMA\LzmaEnc.h" />
+    <Content Include="lib\LZMA\LzmaLib.h" />
+    <Content Include="lib\ZLIB\zlib.h" />
+    <Content Include="lib\ZLIB\ZLIB1.dll" />
+    <Content Include="lib\ZLIB32.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="lib\ZLIB64.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
