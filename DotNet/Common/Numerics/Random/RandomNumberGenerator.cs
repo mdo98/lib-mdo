@@ -11,9 +11,9 @@ namespace MDo.Common.Numerics.Random
         #region Abstract Members
 
 #if !X86
-        protected abstract ulong Sample();
+        protected abstract ulong InternalSample();
 #else
-        protected abstract uint Sample();
+        protected abstract uint InternalSample();
 #endif
 
         #endregion Abstract Members
@@ -24,44 +24,55 @@ namespace MDo.Common.Numerics.Random
         private readonly object SyncRoot = new object();
 
 #if !X86
-        private const double SampleToUnitDoubleMultiplier = 1.0D / (double)ulong.MaxValue;
-        private const decimal SampleToUnitDecimalMultiplier = 1.0M / (decimal)ulong.MaxValue;
-
-        private decimal SampleToUnitDecimal()
-        {
-            return (SampleToUnitDecimalMultiplier * (decimal)this.Sample());
-        }
+        private const decimal SampleToUnitDecimalMultiplier = 1.0M / ((decimal)ulong.MaxValue + 1.0M);
+        private const double SampleToUnitDoubleMultiplier = (double)SampleToUnitDecimalMultiplier;
 
         protected virtual ulong SampleBits(int numBits)
         {
             ulong mask = (1UL << numBits) - 1UL;
-            return (this.SampleHelper() & mask);
+            return (this.Sample() & mask);
         }
 
-        private ulong SampleHelper()
+        private decimal SampleToUnitDecimal()
+        {
+            return (SampleToUnitDecimalMultiplier * (decimal)this.InternalSample());
+        }
+
+        protected static ulong[] GetSeedArray(int length, ulong seed)
+        {
+            ulong[] seeds = new ulong[length];
+            seeds[0] = seed;
+            for (int i = 1; i < length; i++)
+            {
+                unchecked { seeds[i] = 6364136223846793005UL * (seeds[i - 1] ^ (seeds[i - 1] >> 60)); }
+            }
+            return seeds;
+        }
+
+        internal ulong Sample()
         {
             ulong val;
             lock (SyncRoot)
             {
-                val = this.Sample();
+                val = this.InternalSample();
             }
             return val;
         }
 #else
-        private const double SampleToUnitDoubleMultiplier = 1.0/(double)uint.MaxValue;
+        private const double SampleToUnitDoubleMultiplier = 1.0 / ((double)uint.MaxValue + 1.0D);
 
         protected virtual uint SampleBits(int numBits)
         {
             uint mask = (1U << numBits) - 1U;
-            return (this.SampleHelper() & mask);
+            return (this.Sample() & mask);
         }
 
-        private uint SampleHelper()
+        internal uint Sample()
         {
             uint val;
             lock (SyncRoot)
             {
-                val = this.Sample();
+                val = this.InternalSample();
             }
             return val;
         }
@@ -69,7 +80,18 @@ namespace MDo.Common.Numerics.Random
 
         private double SampleToUnitDouble()
         {
-            return (SampleToUnitDoubleMultiplier * (double)this.Sample());
+            return (SampleToUnitDoubleMultiplier * (double)this.InternalSample());
+        }
+
+        protected static uint[] GetSeedArray(int length, uint seed)
+        {
+            uint[] seeds = new uint[length];
+            seeds[0] = seed;
+            for (int i = 1; i < length; i++)
+            {
+                unchecked { seeds[i] = 1664525U * (seeds[i - 1] ^ (seeds[i - 1] >> 30)); }
+            }
+            return seeds;
         }
 
         protected static byte[] GetSeed(int numBytes)
@@ -82,10 +104,20 @@ namespace MDo.Common.Numerics.Random
             return seed;
         }
 
+        public override string ToString()
+        {
+            return this.Name;
+        }
+
         #endregion Internal Operations
 
 
         #region IRandom
+
+        public virtual string Name
+        {
+            get { return this.GetType().Name; }
+        }
 
         public virtual void GetBytes(byte[] b)
         {

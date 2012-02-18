@@ -13,25 +13,25 @@ namespace MDo.Common.TestLoader
     [TestClass]
     public class IO_Test
     {
-        [TestMethod]
+        [TestCategory("IO_Test"), TestMethod]
         public void DeflateStream_EncodeDecodeInvariant()
         {
             TestDeflateStream.EncodeDecodeInvariant();
         }
 
-        [TestMethod]
+        [TestCategory("IO_Test"), TestMethod]
         public void LzmaStream_EncodeDecodeInvariant()
         {
             TestLzmaStream.EncodeDecodeInvariant();
         }
 
-        [TestMethod]
+        [TestCategory("IO_Test"), TestMethod]
         public void LzmaStream_BufferedEncodeDecodeInvariant()
         {
             TestLzmaStream.BufferedEncodeDecodeInvariant();
         }
 
-        [TestMethod]
+        [TestCategory("IO_Test"), TestMethod]
         public void DataStream_CompressionAlgorithmPerformanceComparison()
         {
             TestDataStream.CompressionAlgorithmPerformanceComparison();

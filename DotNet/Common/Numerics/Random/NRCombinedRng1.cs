@@ -25,6 +25,7 @@ namespace MDo.Common.Numerics.Random
 
         #region Fields
 
+        private readonly ulong Seed;
         private ulong
             U,
             V = V_SEED,
@@ -38,13 +39,17 @@ namespace MDo.Common.Numerics.Random
         public NRCombinedRng1() : this(BitConverter.ToUInt64(GetSeed(8), 0))
         { }
 
+        public NRCombinedRng1(int seed) : this((ulong)((long)seed - (long)int.MinValue))
+        { }
+
         public NRCombinedRng1(ulong seed)
         {
+            Seed = seed;
             if (seed == V_SEED)
                 seed--;
-            U = seed ^ V;   Sample();
-            V = U;          Sample();
-            W = V;          Sample();
+            U = seed ^ V;   InternalSample();
+            V = U;          InternalSample();
+            W = V;          InternalSample();
         }
 
         #endregion Constructors
@@ -52,7 +57,18 @@ namespace MDo.Common.Numerics.Random
 
         #region RandomNumberGenerator
 
-        protected override ulong Sample()
+        public override string Name
+        {
+            get
+            {
+                return string.Format(
+                    "{0} (Seed = {1})",
+                    base.Name,
+                    this.Seed);
+            }
+        }
+
+        protected override ulong InternalSample()
         {
             unchecked
             {
