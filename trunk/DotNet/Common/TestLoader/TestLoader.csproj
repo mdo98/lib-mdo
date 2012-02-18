@@ -52,9 +52,14 @@
     <ProjectReference Include="..\IO\Common.IO.csproj">
       <Name>Common.IO</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Numerics.Test\Common.Numerics.Test.csproj">
+      <Project>{98A1EB7A-E1E6-44C8-986C-04F539C745B8}</Project>
+      <Name>Common.Numerics.Test</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="IO_Test.cs" />
+    <Compile Include="Numerics_Test.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

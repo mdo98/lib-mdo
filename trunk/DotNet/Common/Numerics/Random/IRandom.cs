@@ -7,6 +7,7 @@ namespace MDo.Common.Numerics.Random
 {
     public interface IRandom
     {
+        string Name { get; }
         void GetBytes(byte[] b);
         bool Bool();
         double Double();

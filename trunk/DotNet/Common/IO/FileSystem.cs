@@ -22,6 +22,11 @@ namespace MDo.Common.IO
 
         public static FileStream OpenWrite(string filePath)
         {
+            return new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.Read);
+        }
+
+        public static FileStream OpenReadWrite(string filePath)
+        {
             return new FileStream(filePath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.Read);
         }
 

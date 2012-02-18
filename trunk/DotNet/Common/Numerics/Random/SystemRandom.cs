@@ -7,10 +7,28 @@ namespace MDo.Common.Numerics.Random
 {
     public sealed class SystemRandom : System.Random, IRandom
     {
-        public SystemRandom() : base() { }
-        public SystemRandom(int seed) : base(seed) { }
+        private readonly int Seed;
+
+        public SystemRandom() : this(Environment.TickCount) { }
+        public SystemRandom(int seed) : base(seed) { Seed = seed; }
+
+        public override string ToString()
+        {
+            return this.Name;
+        }
 
         #region IRandom
+
+        public string Name
+        {
+            get
+            {
+                return string.Format(
+                    "{0} (Seed = {1})",
+                    this.GetType().Name,
+                    this.Seed);
+            }
+        }
 
         public void GetBytes(byte[] b)
         {

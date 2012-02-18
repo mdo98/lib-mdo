@@ -44,6 +44,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Random\MT19937Rng.cs" />
     <Compile Include="Random\NRCombinedRng2.cs" />
     <Compile Include="Random\IRandom.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
