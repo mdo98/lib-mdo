@@ -27,6 +27,16 @@ namespace MDo.Common.Numerics.Random
         private const decimal SampleToUnitDecimalMultiplier = 1.0M / ((decimal)ulong.MaxValue + 1.0M);
         private const double SampleToUnitDoubleMultiplier = (double)SampleToUnitDecimalMultiplier;
 
+        internal ulong Sample()
+        {
+            ulong val;
+            lock (SyncRoot)
+            {
+                val = this.InternalSample();
+            }
+            return val;
+        }
+
         protected virtual ulong SampleBits(int numBits)
         {
             ulong mask = (1UL << numBits) - 1UL;
@@ -48,24 +58,8 @@ namespace MDo.Common.Numerics.Random
             }
             return seeds;
         }
-
-        internal ulong Sample()
-        {
-            ulong val;
-            lock (SyncRoot)
-            {
-                val = this.InternalSample();
-            }
-            return val;
-        }
 #else
         private const double SampleToUnitDoubleMultiplier = 1.0 / ((double)uint.MaxValue + 1.0D);
-
-        protected virtual uint SampleBits(int numBits)
-        {
-            uint mask = (1U << numBits) - 1U;
-            return (this.Sample() & mask);
-        }
 
         internal uint Sample()
         {
@@ -76,11 +70,11 @@ namespace MDo.Common.Numerics.Random
             }
             return val;
         }
-#endif
 
-        private double SampleToUnitDouble()
+        protected virtual uint SampleBits(int numBits)
         {
-            return (SampleToUnitDoubleMultiplier * (double)this.InternalSample());
+            uint mask = (1U << numBits) - 1U;
+            return (this.Sample() & mask);
         }
 
         protected static uint[] GetSeedArray(int length, uint seed)
@@ -92,6 +86,12 @@ namespace MDo.Common.Numerics.Random
                 unchecked { seeds[i] = 1664525U * (seeds[i - 1] ^ (seeds[i - 1] >> 30)); }
             }
             return seeds;
+        }
+#endif
+
+        private double SampleToUnitDouble()
+        {
+            return (SampleToUnitDoubleMultiplier * (double)this.InternalSample());
         }
 
         protected static byte[] GetSeed(int numBytes)

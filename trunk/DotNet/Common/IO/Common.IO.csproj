@@ -82,6 +82,7 @@
     <Compile Include="StreamExtension.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="lib\Ionic.Zip.dll" />
     <Content Include="lib\LZMA32.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
