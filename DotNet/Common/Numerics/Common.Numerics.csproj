@@ -44,6 +44,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="LinearAlgebra\Matrix.cs" />
     <Compile Include="Random\MT19937Rng.cs" />
     <Compile Include="Random\NRCombinedRng2.cs" />
     <Compile Include="Random\IRandom.cs" />
@@ -52,6 +53,8 @@
     <Compile Include="Random\RandomNumberGenerator.cs" />
     <Compile Include="Random\LaggedFibonacciRng.cs" />
     <Compile Include="Random\SystemRandom.cs" />
+    <Compile Include="Statistics\IDistribution.cs" />
+    <Compile Include="Statistics\Distributions\KolmogorovSmirnov.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
