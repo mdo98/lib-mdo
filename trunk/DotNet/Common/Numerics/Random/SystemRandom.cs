@@ -53,22 +53,22 @@ namespace MDo.Common.Numerics.Random
             return (min + base.NextDouble() * range);
         }
 
-        public int Int()
+        public int Int32()
         {
             return base.Next();
         }
 
-        public int Int(int min, int max)
+        public int Int32(int min, int max)
         {
             return base.Next(min, max);
         }
 
-        public uint UInt()
+        public uint UInt32()
         {
-            return this.UInt(0, uint.MaxValue);
+            return this.UInt32(0, uint.MaxValue);
         }
 
-        public uint UInt(uint min, uint max)
+        public uint UInt32(uint min, uint max)
         {
             double range = max - min;
             if (range < 0.0D)
@@ -76,7 +76,32 @@ namespace MDo.Common.Numerics.Random
             return (min + (uint)Math.Floor(base.NextDouble() * range));
         }
 
-#if !X86
+        public long Int64()
+        {
+            return this.Int64(0, long.MaxValue);
+        }
+
+        public long Int64(long min, long max)
+        {
+            double range = max - min;
+            if (range < 0.0D)
+                throw new ArgumentOutOfRangeException("max - min");
+            return (min + (long)Math.Floor(base.NextDouble() * range));
+        }
+
+        public ulong UInt64()
+        {
+            return this.UInt64(0, ulong.MaxValue);
+        }
+
+        public ulong UInt64(ulong min, ulong max)
+        {
+            double range = max - min;
+            if (range < 0.0D)
+                throw new ArgumentOutOfRangeException("max - min");
+            return (min + (ulong)Math.Floor(base.NextDouble() * range));
+        }
+
         public decimal Decimal()
         {
             return (decimal)base.NextDouble();
@@ -89,33 +114,6 @@ namespace MDo.Common.Numerics.Random
                 throw new ArgumentOutOfRangeException("max - min");
             return (min + (decimal)base.NextDouble() * range);
         }
-
-        public long Long()
-        {
-            return this.Long(0, long.MaxValue);
-        }
-
-        public long Long(long min, long max)
-        {
-            double range = max - min;
-            if (range < 0.0D)
-                throw new ArgumentOutOfRangeException("max - min");
-            return (min + (long)Math.Floor(base.NextDouble() * range));
-        }
-
-        public ulong ULong()
-        {
-            return this.ULong(0, ulong.MaxValue);
-        }
-
-        public ulong ULong(ulong min, ulong max)
-        {
-            double range = max - min;
-            if (range < 0.0D)
-                throw new ArgumentOutOfRangeException("max - min");
-            return (min + (ulong)Math.Floor(base.NextDouble() * range));
-        }
-#endif
 
         #endregion IRandom
     }

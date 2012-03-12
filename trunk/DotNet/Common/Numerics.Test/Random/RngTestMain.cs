@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Text;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -17,10 +16,70 @@ namespace MDo.Common.Numerics.Random.Test
         {
             typeof(SystemRandom),
             typeof(LaggedFibonacciRng),
+#if !X86
             typeof(NRCombinedRng1),
             typeof(NRCombinedRng2),
+#endif
             typeof(MT19937Rng),
+            typeof(SuperKissRng1),
+            typeof(SuperKissRng2),
         };
+
+#if DEBUG
+        public static void ImplementationCheck()
+        {
+            {
+                SuperKissRng1 rng = new SuperKissRng1();
+                Console.WriteLine(rng.GetType().FullName);
+                uint[] seeds = new uint[SuperKissRng1.QMAX];
+                for (int i = 0; i < SuperKissRng1.QMAX; i++)
+                {
+                    rng.XCNG = SuperKissRng1.CNG(rng.XCNG);
+                    rng.XS = SuperKissRng1.XOR_Shift(rng.XS);
+                    seeds[i] = rng.XCNG + rng.XS;
+                }
+                rng.Init(seeds);
+                for (int i = 0; i < 999999999; i++)
+                {
+                    rng.GetNextSample();
+                }
+                uint s = rng.GetNextSample();
+                Console.WriteLine("Expect: 0x{0:X8}", -872412446);
+                Console.WriteLine("Actual: 0x{0:X8}", s);
+                Console.WriteLine();
+            }
+
+            {
+                SuperKissRng2 rng = new SuperKissRng2();
+                Console.WriteLine(rng.GetType().FullName);
+#if X86
+                uint[] seeds = new uint[SuperKissRng2.QMAX];
+#else
+                ulong[] seeds = new ulong[SuperKissRng2.QMAX];
+#endif
+                for (int i = 0; i < SuperKissRng2.QMAX; i++)
+                {
+                    rng.XCNG = SuperKissRng2.CNG(rng.XCNG);
+                    rng.XS = SuperKissRng2.XOR_Shift(rng.XS);
+                    seeds[i] = rng.XCNG + rng.XS;
+                }
+                rng.Init(seeds);
+                for (int i = 0; i < 999999999; i++)
+                {
+                    rng.Sample();
+                }
+#if X86
+                uint s = rng.Sample();
+                Console.WriteLine("Expect: 1809478889");
+#else
+                ulong s = rng.Sample();
+                Console.WriteLine("Expect: 4013566000157423768");
+#endif
+                Console.WriteLine("Actual: {0}", s);
+                Console.WriteLine();
+            }
+        }
+#endif
 
         public static void GenerateSamplesForDieHard()
         {
@@ -59,7 +118,7 @@ namespace MDo.Common.Numerics.Random.Test
                             }
                             else
                             {
-                                int s = rng.Int();
+                                var s = rng.UInt32();
                                 b = BitConverter.GetBytes(s);
                                 txtWriter.Write(s.ToString(string.Format("X{0}", 2 * b.Length)));
                             }
@@ -90,7 +149,7 @@ namespace MDo.Common.Numerics.Random.Test
                     {
                         new RngTest(() => (IRandom)Activator.CreateInstance(type, new object[] { 0 })),
                         new RngTest(() => (IRandom)Activator.CreateInstance(type, new object[] { 1 })),
-                        new RngTest(() => (IRandom)Activator.CreateInstance(type, new object[] { RandomInt() })),
+                        new RngTest(() => (IRandom)Activator.CreateInstance(type, new object[] { RngTestUtil.RandomInt() })),
                         new RngTest(() => (IRandom)Activator.CreateInstance(type)),
                     })
                 {
@@ -112,14 +171,6 @@ namespace MDo.Common.Numerics.Random.Test
                     }
                 }
             }
-        }
-
-        private static readonly RNGCryptoServiceProvider CryptoRng = new RNGCryptoServiceProvider();
-        private static int RandomInt()
-        {
-            byte[] b = new byte[4];
-            CryptoRng.GetBytes(b);
-            return BitConverter.ToInt32(b, 0);
         }
     }
 }

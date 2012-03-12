@@ -18,7 +18,7 @@ namespace MDo.Common.TestLoader
         {
             TestDeflateStream.EncodeDecodeInvariant();
         }
-
+        /*
         [TestCategory("IO_Test"), TestMethod]
         public void LzmaStream_EncodeDecodeInvariant()
         {
@@ -30,7 +30,7 @@ namespace MDo.Common.TestLoader
         {
             TestLzmaStream.BufferedEncodeDecodeInvariant();
         }
-
+        */
         [TestCategory("IO_Test"), TestMethod]
         public void DataStream_CompressionAlgorithmPerformanceComparison()
         {

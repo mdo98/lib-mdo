@@ -17,8 +17,6 @@ namespace MDo.Common.IO.Test
             CompressionAlgorithm.DeflateN,
             CompressionAlgorithm.Zlib,
             CompressionAlgorithm.BZip2,
-            CompressionAlgorithm.Lzma,
-            CompressionAlgorithm.LzmaN,
         };
 
         public static void CompressionAlgorithmPerformanceComparison()
