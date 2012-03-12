@@ -23,7 +23,7 @@ namespace MDo.Common.Numerics.Random
 
         #region Fields
 
-        private readonly ulong Seed;
+        internal readonly ulong Seed;
         private ulong
             V = V_SEED,
             W = W_SEED;
@@ -36,7 +36,7 @@ namespace MDo.Common.Numerics.Random
         public NRCombinedRng2() : this(BitConverter.ToUInt64(GetSeed(8), 0))
         { }
 
-        public NRCombinedRng2(int seed) : this((ulong)((long)seed - (long)int.MinValue))
+        internal NRCombinedRng2(int seed) : this((ulong)((long)seed - (long)int.MinValue))
         { }
 
         public NRCombinedRng2(ulong seed)

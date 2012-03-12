@@ -6,7 +6,6 @@ using System.Text;
 
 using Ionic.BZip2;
 using Ionic.Zlib;
-using SevenZip.Compression.LZMA;
 
 namespace MDo.Common.IO
 {
@@ -24,8 +23,10 @@ namespace MDo.Common.IO
         DeflateN    = Deflate   | AlgorithmImplementation.Native,
         Zlib        = 0x04,
         BZip2       = 0x08,
+        /*
         Lzma        = 0x0A,
         LzmaN       = Lzma      | AlgorithmImplementation.Native,
+        */
         Default     = DeflateN,
     }
 
@@ -35,14 +36,6 @@ namespace MDo.Common.IO
         {
             switch (compressionAlgorithm)
             {
-                case CompressionAlgorithm.Lzma:
-                    _stream = new LzmaEncodeStream(outStream, new ManagedLzmaEncoder());
-                    break;
-
-                case CompressionAlgorithm.LzmaN:
-                    _stream = new LzmaEncodeStream(outStream, new NativeLzmaEncoder());
-                    break;
-
                 case CompressionAlgorithm.Deflate:
                     _stream = new Ionic.Zlib.DeflateStream(outStream, CompressionMode.Compress, CompressionLevel.BestCompression, true);
                     break;
@@ -76,14 +69,6 @@ namespace MDo.Common.IO
         {
             switch (compressionAlgorithm)
             {
-                case CompressionAlgorithm.Lzma:
-                    _stream = new LzmaDecodeStream(inStream, new ManagedLzmaDecoder());
-                    break;
-
-                case CompressionAlgorithm.LzmaN:
-                    _stream = new LzmaDecodeStream(inStream, new NativeLzmaDecoder());
-                    break;
-
                 case CompressionAlgorithm.Deflate:
                     _stream = new Ionic.Zlib.DeflateStream(inStream, CompressionMode.Decompress, CompressionLevel.BestCompression, true);
                     break;

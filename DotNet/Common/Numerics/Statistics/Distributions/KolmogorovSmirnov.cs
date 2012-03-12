@@ -12,8 +12,9 @@ namespace MDo.Common.Numerics.Statistics.Distributions
         #region Constants
 
         internal const int CDF_DURBIN_N_CRITICAL = 1 << 15;  // 32768
-        public const double MEAN_TIMES_SQRT_N = 0.868731160636159141830154582372;
-        public const double STDEV_TIMES_SQRT_N = 0.260332871462412674280103148416;
+        public const double MEAN_TIMES_SQRT_N = 0.868731160636159141830154582372182480567806271054; // sqrt(Pi/2) * ln(2)
+        public const double VARIANCE_TIMES_N = 0.06777320396386507937807970294193058473142;         // Pi^2/12 - MEAN^2
+        public const double STDEV_TIMES_SQRT_N = 0.26033287146241267428010314841696233;
 
         #endregion Constants
 
@@ -25,10 +26,12 @@ namespace MDo.Common.Numerics.Statistics.Distributions
 
         public int N { get; private set; }
 
+
         #region IDistribution
 
-        public double Mean  { get { return (double)MEAN_TIMES_SQRT_N / Math.Sqrt(this.N);   } }
-        public double Stdev { get { return (double)STDEV_TIMES_SQRT_N / Math.Sqrt(this.N);  } }
+        public double Mean  { get { return MEAN_TIMES_SQRT_N / Math.Sqrt(this.N);   } }
+        public double Stdev { get { return STDEV_TIMES_SQRT_N / Math.Sqrt(this.N);  } }
+        public double Variance { get { return VARIANCE_TIMES_N / this.N; } }
 
         /// <summary>
         /// Calculates the approximate p-value of a value from the Kolmogorov-Smirnov distribution.
@@ -136,38 +139,34 @@ namespace MDo.Common.Numerics.Statistics.Distributions
         private const int CDF_N_EXACT = 500;
         private const int CDF_N_KOLMO = 100000;
 
-        private const double LN2 = 0.69314718055994530941;          // ln(2)
-        private const double PI_SQUARE = Math.PI * Math.PI;
-        private const double PI_QUADRUPLE = PI_SQUARE * PI_SQUARE;
-        private const double SQRT_2PI = 2.506628274631001;          // sqrt(2*Pi)
-        private const double SQRT_HALFPI = 1.2533141373155001;      // sqrt(Pi/2)
-
-        public double Cdf(double s)
+        public double Cdf(double x)
         {
-            // R. Simard and P. L'Ecuyer, "Computing the Two-Sided Kolmogorov-Smirnov Distribution", Journal of Statistical Software, Vol. 39, Issue 11, Mar 2011
+            if (x < 0.0)
+                throw new ArgumentOutOfRangeException("x");
+
+            // R. Simard & P. L'Ecuyer, "Computing the Two-Sided Kolmogorov-Smirnov Distribution", Journal of Statistical Software, Vol. 39, Issue 11, Mar 2011
             // http://www.jstatsoft.org/v39/i11/paper
             // http://www.iro.umontreal.ca/~simardr/ksdir/KolmogorovSmirnovDist.java
-            // Results seem questionable; use Knuth's formula for now.
-            double u = Cdf_Special(this.N, s);
+            double u = Cdf_Special(this.N, x);
             if (!double.IsNaN(u))
                 return u;
 
-            double w = this.N * s * s;
+            double w = this.N * x * x;
             if (this.N <= CDF_N_EXACT)
             {
                 if (w < 0.754693)
-                    return this.Cdf_DurbinMatrix(s);
+                    return this.Cdf_DurbinMatrix(x);
 
                 if (w < 4.0)
-                    return this.Cdf_Pomeranz(s);
+                    return this.Cdf_Pomeranz(x);
 
-                return 1.0 - this.Cdf_FBar(s);
+                return 1.0 - this.Cdf_FBar(x);
             }
 
-            if ((w * s * this.N <= 7.0) && (this.N <= CDF_N_KOLMO))
-                return this.Cdf_DurbinMatrix(s);
+            if ((w * x * this.N <= 7.0) && (this.N <= CDF_N_KOLMO))
+                return this.Cdf_DurbinMatrix(x);
 
-            return this.Cdf_Pelz(s);
+            return this.Cdf_Pelz(x);
         }
 
         private static double Cdf_Special(int numSamples, double ks)
@@ -448,7 +447,7 @@ namespace MDo.Common.Numerics.Statistics.Distributions
             }
 
             sum = V[r2, this.N + 1];
-            w = GetLnFactorial(this.N) - count_Norm * ENO * LN2 + Math.Log(sum);
+            w = GetLnFactorial(this.N) - count_Norm * ENO * Constants.LN_2 + Math.Log(sum);
             if (w >= 0.0)
                 return 1.0;
             else
@@ -531,7 +530,7 @@ namespace MDo.Common.Numerics.Statistics.Distributions
             double z2 = z * z;
             double z4 = z2 * z2;
             double z6 = z4 * z2;
-            double w = PI_SQUARE / (2.0 * z * z);
+            double w = Constants.PI_SQUARE / (2.0 * z * z);
             double ti, term, tom;
             double sum;
             int j;
@@ -546,7 +545,7 @@ namespace MDo.Common.Numerics.Statistics.Distributions
                 sum += term;
                 j++;
             }
-            sum *= SQRT_2PI / z;
+            sum *= Constants.SQRT_2PI / z;
 
             term = 1;
             tom = 0;
@@ -554,11 +553,11 @@ namespace MDo.Common.Numerics.Statistics.Distributions
             while (j <= J_MAX && Math.Abs(term) > EPSILON * Math.Abs(tom))
             {
                 ti = j + 0.5;
-                term = (PI_SQUARE * ti * ti - z2) * Math.Exp(-ti * ti * w);
+                term = (Constants.PI_SQUARE * ti * ti - z2) * Math.Exp(-ti * ti * w);
                 tom += term;
                 j++;
             }
-            sum += tom * SQRT_HALFPI / (RACN * 3.0 * z4);
+            sum += tom * Constants.SQRT_HALFPI / (RACN * 3.0 * z4);
 
             term = 1;
             tom = 0;
@@ -566,13 +565,13 @@ namespace MDo.Common.Numerics.Statistics.Distributions
             while (j <= J_MAX && Math.Abs(term) > EPSILON * Math.Abs(tom))
             {
                 ti = j + 0.5;
-                term = 6 * z6 + 2 * z4 + PI_SQUARE * (2 * z4 - 5 * z2) * ti * ti +
-                       PI_QUADRUPLE * (1 - 2 * z2) * ti * ti * ti * ti;
+                term = 6 * z6 + 2 * z4 + Constants.PI_SQUARE * (2 * z4 - 5 * z2) * ti * ti +
+                       Constants.PI_QUADRUPLE * (1 - 2 * z2) * ti * ti * ti * ti;
                 term *= Math.Exp(-ti * ti * w);
                 tom += term;
                 j++;
             }
-            sum += tom * SQRT_HALFPI / (this.N * 36.0 * z * z6);
+            sum += tom * Constants.SQRT_HALFPI / (this.N * 36.0 * z * z6);
 
             term = 1;
             tom = 0;
@@ -580,11 +579,11 @@ namespace MDo.Common.Numerics.Statistics.Distributions
             while (j <= J_MAX && term > EPSILON * tom)
             {
                 ti = j;
-                term = PI_SQUARE * ti * ti * Math.Exp(-ti * ti * w);
+                term = Constants.PI_SQUARE * ti * ti * Math.Exp(-ti * ti * w);
                 tom += term;
                 j++;
             }
-            sum -= tom * SQRT_HALFPI / (this.N * 18.0 * z * z2);
+            sum -= tom * Constants.SQRT_HALFPI / (this.N * 18.0 * z * z2);
 
             term = 1;
             tom = 0;
@@ -593,14 +592,14 @@ namespace MDo.Common.Numerics.Statistics.Distributions
             {
                 ti = j + 0.5;
                 ti = ti * ti;
-                term = -30 * z6 - 90 * z6 * z2 + PI_SQUARE * (135 * z4 - 96 * z6) * ti +
-                       PI_QUADRUPLE * (212 * z4 - 60 * z2) * ti * ti + PI_SQUARE * PI_QUADRUPLE * ti * ti * ti * (5 -
+                term = -30 * z6 - 90 * z6 * z2 + Constants.PI_SQUARE * (135 * z4 - 96 * z6) * ti +
+                       Constants.PI_QUADRUPLE * (212 * z4 - 60 * z2) * ti * ti + Constants.PI_SQUARE * Constants.PI_QUADRUPLE * ti * ti * ti * (5 -
                              30 * z2);
                 term *= Math.Exp(-ti * w);
                 tom += term;
                 j++;
             }
-            sum += tom * SQRT_HALFPI / (RACN * this.N * 3240.0 * z4 * z6);
+            sum += tom * Constants.SQRT_HALFPI / (RACN * this.N * 3240.0 * z4 * z6);
 
             term = 1;
             tom = 0;
@@ -608,11 +607,11 @@ namespace MDo.Common.Numerics.Statistics.Distributions
             while (j <= J_MAX && Math.Abs(term) > EPSILON * Math.Abs(tom))
             {
                 ti = j * j;
-                term = (3 * PI_SQUARE * ti * z2 - PI_QUADRUPLE * ti * ti) * Math.Exp(-ti * w);
+                term = (3 * Constants.PI_SQUARE * ti * z2 - Constants.PI_QUADRUPLE * ti * ti) * Math.Exp(-ti * w);
                 tom += term;
                 j++;
             }
-            sum += tom * SQRT_HALFPI / (RACN * this.N * 108.0 * z6);
+            sum += tom * Constants.SQRT_HALFPI / (RACN * this.N * 108.0 * z6);
 
             return sum;
         }

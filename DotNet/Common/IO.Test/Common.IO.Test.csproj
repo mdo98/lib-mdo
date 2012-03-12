@@ -47,7 +47,6 @@
   <ItemGroup>
     <Compile Include="DataStream.cs" />
     <Compile Include="DeflateStream.cs" />
-    <Compile Include="LzmaStream.cs" />
     <Compile Include="TestCommon.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

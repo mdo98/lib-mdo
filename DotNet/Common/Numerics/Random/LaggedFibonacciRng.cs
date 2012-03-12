@@ -38,8 +38,8 @@ namespace MDo.Common.Numerics.Random
 #if !X86
         #region Fields
 
-        private readonly ulong Seed;
-        private readonly ulong[] Seeds;
+        internal readonly ulong Seed;
+        private readonly ulong[] LF;
 
         #endregion Fields
 
@@ -49,7 +49,7 @@ namespace MDo.Common.Numerics.Random
         public LaggedFibonacciRng() : this(BitConverter.ToUInt64(GetSeed(8), 0))
         { }
 
-        public LaggedFibonacciRng(int seed) : this((ulong)((long)seed - (long)int.MinValue))
+        internal LaggedFibonacciRng(int seed) : this((ulong)((long)seed - (long)int.MinValue))
         { }
 
         public LaggedFibonacciRng(ulong seed, int lag1 = 24, int lag2 = 55, bool useSubtractiveMethod = true)
@@ -67,7 +67,7 @@ namespace MDo.Common.Numerics.Random
             K = 0;
 
             Seed = seed;
-            Seeds = GetSeedArray(L2, seed);
+            LF = GetSeedArray(L2, seed);
         }
 
         #endregion Constructors
@@ -77,19 +77,19 @@ namespace MDo.Common.Numerics.Random
 
         protected override ulong InternalSample()
         {
-            unchecked { Seeds[K] = (SubtractiveMethod ? (Seeds[K] - Seeds[J]) : (Seeds[K] + Seeds[J])); }
+            unchecked { LF[K] = (SubtractiveMethod ? (LF[K] - LF[J]) : (LF[K] + LF[J])); }
             J++; K++;
             if (J >= L2) J = 0;
             if (K >= L2) K = 0;
-            return Seeds[K];
+            return LF[K];
         }
 
         #endregion RandomNumberGenerator
 #else
         #region Fields
         
-        private readonly uint Seed;
-        private readonly uint[] Seeds;
+        internal readonly uint Seed;
+        private readonly uint[] LF;
 
         #endregion Fields
 
@@ -114,7 +114,7 @@ namespace MDo.Common.Numerics.Random
             K = L2 = lag2;
 
             Seed = seed;
-            Seeds = GetSeedArray(L2, seed);
+            LF = GetSeedArray(L2, seed);
         }
 
         #endregion Constructors
@@ -124,11 +124,11 @@ namespace MDo.Common.Numerics.Random
 
         protected override uint InternalSample()
         {
-            unchecked { Seeds[K] = (SubtractiveMethod ? (Seeds[K] - Seeds[J]) : (Seeds[K] + Seeds[J])); }
+            unchecked { LF[K] = (SubtractiveMethod ? (LF[K] - LF[J]) : (LF[K] + LF[J])); }
             J--; K--;
             if (J == 0) J = L2;
             if (K == 0) K = L2;
-            return Seeds[K];
+            return LF[K];
         }
 
         #endregion RandomNumberGenerator

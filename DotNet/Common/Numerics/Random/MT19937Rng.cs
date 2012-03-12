@@ -46,7 +46,7 @@ namespace MDo.Common.Numerics.Random
 
         #region Fields
 
-        private readonly ulong Seed;
+        internal readonly ulong Seed;
         private readonly ulong[] MTState = new ulong[N];
         private int MTI = N + 1;
 
@@ -58,7 +58,7 @@ namespace MDo.Common.Numerics.Random
         public MT19937Rng() : this(BitConverter.ToUInt64(GetSeed(8), 0))
         { }
 
-        public MT19937Rng(int seed) : this((ulong)((long)seed - (long)int.MinValue))
+        internal MT19937Rng(int seed) : this((ulong)((long)seed - (long)int.MinValue))
         { }
 
         public MT19937Rng(ulong seed)
@@ -152,7 +152,7 @@ namespace MDo.Common.Numerics.Random
 
         #region Fields
 
-        private readonly uint Seed;
+        internal readonly uint Seed;
         private readonly uint[] MTState = new uint[N];
         private int MTI = N + 1;
 

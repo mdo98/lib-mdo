@@ -34,7 +34,7 @@ namespace MDo.Common.Numerics.Random.Test
                 RandomNumberGenerator rngWithSampling = rng as RandomNumberGenerator;
                 for (int i = 0; i < numSamples; i++)
                 {
-                    writer.WriteLine(null != rngWithSampling ? rngWithSampling.Sample().ToString() : rng.Int().ToString());
+                    writer.WriteLine(null != rngWithSampling ? rngWithSampling.Sample().ToString() : rng.UInt32().ToString());
                 }
             }
         }
@@ -45,7 +45,7 @@ namespace MDo.Common.Numerics.Random.Test
             RandomNumberGenerator rngWithSampling = rng as RandomNumberGenerator;
             for (int i = 0; i < numSamples; i++)
             {
-                byte[] b = (null != rngWithSampling ? BitConverter.GetBytes(rngWithSampling.Sample()) : BitConverter.GetBytes(rng.Int()));
+                byte[] b = (null != rngWithSampling ? BitConverter.GetBytes(rngWithSampling.Sample()) : BitConverter.GetBytes(rng.UInt32()));
                 outStream.Write(b, 0, b.Length);
             }
         }
@@ -59,7 +59,7 @@ namespace MDo.Common.Numerics.Random.Test
             start = DateTime.Now;
             for (int i = 0; i < numSamples; i++)
             {
-                rng.Int();
+                rng.Int32();
             }
             elapsed = DateTime.Now - start;
             writeToStdOut(string.Format("Int: {0:F6} seconds", elapsed.TotalSeconds));

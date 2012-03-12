@@ -26,7 +26,7 @@ namespace Zlib.DotZLib
 
     #region ZStream structure
     // internal mapping of the zlib zstream structure for marshalling
-#if NATIVE64
+#if !X86
     [StructLayout(LayoutKind.Sequential, Pack = 8, Size = 0, CharSet = CharSet.Ansi)]
 #else
     [StructLayout(LayoutKind.Sequential, Pack = 4, Size = 0, CharSet = CharSet.Ansi)]
@@ -218,10 +218,10 @@ namespace Zlib.DotZLib
     /// </summary>
     public static class Info
     {
-#if NATIVE64
-        public const string NativeZlibPath = @"lib\ZLIB64.dll";
+#if !X86
+        public const string NativeZlibPath = @"lib\ZLIB\zlib64.dll";
 #else
-        public const string NativeZlibPath = @"lib\ZLIB32.dll";
+        public const string NativeZlibPath = @"lib\ZLIB\zlib32.dll";
 #endif
 
         #region DLL imports

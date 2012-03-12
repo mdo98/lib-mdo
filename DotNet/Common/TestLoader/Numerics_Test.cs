@@ -13,8 +13,16 @@ namespace MDo.Common.TestLoader
     [TestClass]
     public class Numerics_Test
     {
+#if DEBUG
         [TestCategory("Numerics_Test"), TestMethod]
-        public void Rng_Main()
+        public void Rng_ImplementationCheck()
+        {
+            RngTestMain.ImplementationCheck();
+        }
+#endif
+
+        [TestCategory("Numerics_Test"), TestMethod]
+        public void Rng_TestRngs()
         {
             RngTestMain.TestRngs();
         }
