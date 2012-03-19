@@ -49,7 +49,7 @@ namespace MDo.Common.Numerics.Random
         public LaggedFibonacciRng() : this(BitConverter.ToUInt64(GetSeed(8), 0))
         { }
 
-        internal LaggedFibonacciRng(int seed) : this((ulong)((long)seed - (long)int.MinValue))
+        public LaggedFibonacciRng(int seed) : this((ulong)((long)seed - (long)int.MinValue))
         { }
 
         public LaggedFibonacciRng(ulong seed, int lag1 = 24, int lag2 = 55, bool useSubtractiveMethod = true)

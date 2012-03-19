@@ -73,7 +73,7 @@ namespace MDo.Common.Numerics.Random
             double range = max - min;
             if (range < 0.0D)
                 throw new ArgumentOutOfRangeException("max - min");
-            return (min + (uint)Math.Floor(base.NextDouble() * range));
+            return (min + (uint)(base.NextDouble() * range));
         }
 
         public long Int64()
@@ -86,7 +86,7 @@ namespace MDo.Common.Numerics.Random
             double range = max - min;
             if (range < 0.0D)
                 throw new ArgumentOutOfRangeException("max - min");
-            return (min + (long)Math.Floor(base.NextDouble() * range));
+            return (min + (long)(base.NextDouble() * range));
         }
 
         public ulong UInt64()
@@ -99,7 +99,7 @@ namespace MDo.Common.Numerics.Random
             double range = max - min;
             if (range < 0.0D)
                 throw new ArgumentOutOfRangeException("max - min");
-            return (min + (ulong)Math.Floor(base.NextDouble() * range));
+            return (min + (ulong)(base.NextDouble() * range));
         }
 
         public decimal Decimal()

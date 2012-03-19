@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MDo.Common.Numerics
+namespace MDo.Common.Numerics.Arithmetic
 {
     public class ContinuedFraction<TNumeric> : IConvertible
         where TNumeric : IConvertible

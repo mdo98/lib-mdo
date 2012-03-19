@@ -132,16 +132,19 @@ namespace MDo.Common.Numerics.Random.Test
             }
         }
 
-        private static readonly bool TestSpeed = true;
-        private static readonly bool TestEquidistribution = true;
-
-        public static void TestRngs()
+        public static void TimeRngs()
         {
-            const int NumSamplesForTesting_Small = 10000;
-            const int NumSamplesForTesting_Large = 100000000;
+            const int numSamples = 100000000;   // 100M
+            TestRngsHelper(
+                Tuple.Create("Speed", numSamples, (Action<RngTest, Action<string>>)((rngTest, writeToStdOut) => rngTest.Time(numSamples, writeToStdOut))));
+        }
+
+        private static void TestRngsHelper(params Tuple<string, int, Action<RngTest, Action<string>>>[] testMethods)
+        {
+            if (null == testMethods)
+                return;
 
             Action<string> writeToStdOut = (string output) => Console.WriteLine("\t\t{0}", output);
-
             foreach (Type type in RNGTypes)
             {
                 int numUnknownRNGs = 0;
@@ -156,21 +159,48 @@ namespace MDo.Common.Numerics.Random.Test
                     string rngName = string.IsNullOrWhiteSpace(rngTest.Name) ? ("UnknownRNG_" + numUnknownRNGs++) : rngTest.Name;
                     Console.WriteLine(rngName);
 
-                    if (TestSpeed)
+                    foreach (var testMethod in testMethods)
                     {
-                        Console.WriteLine("\tMeasuring speed: Generating {0} samples...", NumSamplesForTesting_Large);
-                        rngTest.Time(NumSamplesForTesting_Large, writeToStdOut);
-                        Console.WriteLine();
-                    }
-
-                    if (TestEquidistribution)
-                    {
-                        Console.WriteLine("\tTesting equidistribution property with {0} samples...", NumSamplesForTesting_Small);
-                        rngTest.Equidistribution(NumSamplesForTesting_Small, writeToStdOut);
+                        Console.WriteLine("\tTesting {0}, samplespace = {1:N0}...", testMethod.Item1, testMethod.Item2);
+                        testMethod.Item3(rngTest, writeToStdOut);
                         Console.WriteLine();
                     }
                 }
             }
         }
+
+        public static void TestRngs(RngTestFlag testFlag
+            = RngTestFlag.Equidistribution | RngTestFlag.Diehard_Birthday | RngTestFlag.Diehard_3DSphere)
+        {
+            var tests = new List<Tuple<string, int, Action<RngTest, Action<string>>>>();
+
+            {
+                const int numSamples = 10000;
+                if (testFlag.HasFlag(RngTestFlag.Equidistribution))
+                    tests.Add(Tuple.Create("Equidistribution", numSamples, (Action<RngTest, Action<string>>)((rngTest, writeToStdOut) => rngTest.Equidistribution(numSamples, writeToStdOut))));
+            }
+
+            {
+                const int numExperiments = 1 << 9;
+                if (testFlag.HasFlag(RngTestFlag.Diehard_Birthday))
+                    tests.Add(Tuple.Create("Diehard_Birthday", numExperiments, (Action<RngTest, Action<string>>)((rngTest, writeToStdOut) => rngTest.Diehard_Birthday(numExperiments, writeToStdOut))));
+            }
+
+            {
+                const int numExperiments = 1 << 5;
+                if (testFlag.HasFlag(RngTestFlag.Diehard_3DSphere))
+                    tests.Add(Tuple.Create("Diehard_3DSphere", numExperiments, (Action<RngTest, Action<string>>)((rngTest, writeToStdOut) => rngTest.Diehard_3DSphere(numExperiments, writeToStdOut))));
+            }
+
+            TestRngsHelper(tests.ToArray());
+        }
+    }
+
+    [Flags]
+    public enum RngTestFlag
+    {
+        Equidistribution    = 0x1,
+        Diehard_Birthday    = 0x2,
+        Diehard_3DSphere    = 0x4,
     }
 }

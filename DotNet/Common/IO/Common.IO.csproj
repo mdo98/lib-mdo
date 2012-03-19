@@ -67,8 +67,12 @@
   <ItemGroup>
     <Content Include="lib\Ionic.Zip.dll" />
     <Content Include="lib\ZLIB\def\zlib.h" />
-    <Content Include="lib\ZLIB\zlib32.dll" />
-    <Content Include="lib\ZLIB\zlib64.dll" />
+    <Content Include="lib\ZLIB\zlib32.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="lib\ZLIB\zlib64.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

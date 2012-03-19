@@ -58,7 +58,7 @@ namespace MDo.Common.Numerics.Random
         public MT19937Rng() : this(BitConverter.ToUInt64(GetSeed(8), 0))
         { }
 
-        internal MT19937Rng(int seed) : this((ulong)((long)seed - (long)int.MinValue))
+        public MT19937Rng(int seed) : this((ulong)((long)seed - (long)int.MinValue))
         { }
 
         public MT19937Rng(ulong seed)

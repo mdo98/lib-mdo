@@ -45,8 +45,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Constants.cs" />
-    <Compile Include="ContinuedFraction.cs" />
+    <Compile Include="Arithmetic\ContinuedFraction.cs" />
+    <Compile Include="Exceptions.cs" />
+    <Compile Include="Gsl.cs" />
     <Compile Include="LinearAlgebra\Matrix.cs" />
+    <Compile Include="LinearAlgebra\MatrixUtil.cs" />
+    <Compile Include="Operators.cs" />
     <Compile Include="Random\SuperKissRng2.cs" />
     <Compile Include="Random\SuperKissRng1.cs" />
     <Compile Include="Random\MT19937Rng.cs" />
@@ -57,10 +61,14 @@
     <Compile Include="Random\RandomNumberGenerator.cs" />
     <Compile Include="Random\LaggedFibonacciRng.cs" />
     <Compile Include="Random\SystemRandom.cs" />
+    <Compile Include="Sequence.cs" />
     <Compile Include="Statistics\Distributions\ChiSquare.cs" />
+    <Compile Include="Statistics\Distributions\Poisson.cs" />
     <Compile Include="Statistics\Distributions\Gamma.cs" />
     <Compile Include="IDistribution.cs" />
     <Compile Include="Statistics\Distributions\KolmogorovSmirnov.cs" />
+    <Compile Include="Statistics\Distributions\Uniform.cs" />
+    <Compile Include="Statistics\Distributions\Utils.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="lib\GSL\cblas64.dll">

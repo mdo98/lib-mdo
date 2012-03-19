@@ -6,27 +6,57 @@ using System.Text;
 
 namespace MDo.Common.Numerics.Statistics.Distributions
 {
-    public class Gamma : IDistribution
+    public class Gamma : IContinuousDistribution
     {
         public Gamma(double k, double theta)
         {
-            if (k <= 0.0)
-                throw new ArgumentOutOfRangeException("k");
-            if (theta <= 0.0)
-                throw new ArgumentOutOfRangeException("theta");
-
             this.K = k;
             this.Theta = theta;
         }
 
-        public double K     { get; private set; }
-        public double Theta { get; private set; }
+
+        #region Fields & Properties
+
+        private double _K, _Theta;
+
+        public double K
+        {
+            get
+            {
+                return _K;
+            }
+            private set
+            {
+                if (value <= 0.0)
+                    throw new ArgumentOutOfRangeException("K");
+                _K = value;
+            }
+        }
+
+        public double Theta
+        {
+            get
+            {
+                return _Theta;
+            }
+            private set
+            {
+                if (value <= 0.0)
+                    throw new ArgumentOutOfRangeException("Theta");
+                _Theta = value;
+            }
+        }
+
+        #endregion Fields & Properties
 
 
         #region Imports
 
-        [DllImport(Constants.GSL_PATH)]
+        [DllImport(Gsl.GSL_PATH, CallingConvention = CallingConvention.Cdecl)]
         private static extern double gsl_cdf_gamma_P(double x, double a, double b);
+
+        [DllImport(Gsl.GSL_PATH, CallingConvention = CallingConvention.Cdecl)]
+        private static extern double gsl_cdf_gamma_Q(double x, double a, double b);
 
         #endregion Imports
 
@@ -57,6 +87,17 @@ namespace MDo.Common.Numerics.Statistics.Distributions
                 return 0.0;
 
             return gsl_cdf_gamma_P(x, this.K, this.Theta);
+        }
+
+        public double Cdf_Q(double x)
+        {
+            if (x < 0.0)
+                throw new ArgumentOutOfRangeException("x");
+
+            if (x == 0.0)
+                return 0.0;
+
+            return gsl_cdf_gamma_Q(x, this.K, this.Theta);
         }
 
         #endregion IDistribution
