@@ -36,7 +36,7 @@ namespace MDo.Common.Numerics.Random
         public NRCombinedRng2() : this(BitConverter.ToUInt64(GetSeed(8), 0))
         { }
 
-        internal NRCombinedRng2(int seed) : this((ulong)((long)seed - (long)int.MinValue))
+        public NRCombinedRng2(int seed) : this((ulong)((long)seed - (long)int.MinValue))
         { }
 
         public NRCombinedRng2(ulong seed)

@@ -22,6 +22,12 @@ namespace MDo.Common.TestLoader
 #endif
 
         [TestCategory("Numerics_Test"), TestMethod]
+        public void Rng_TimeRngs()
+        {
+            RngTestMain.TimeRngs();
+        }
+
+        [TestCategory("Numerics_Test"), TestMethod]
         public void Rng_TestRngs()
         {
             RngTestMain.TestRngs();

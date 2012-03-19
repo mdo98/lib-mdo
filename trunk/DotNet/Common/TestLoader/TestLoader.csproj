@@ -50,11 +50,16 @@
       <Name>Common.IO.Test</Name>
     </ProjectReference>
     <ProjectReference Include="..\IO\Common.IO.csproj">
+      <Project>{E08B4654-FBCA-4C9D-9F20-35136D6AD344}</Project>
       <Name>Common.IO</Name>
     </ProjectReference>
     <ProjectReference Include="..\Numerics.Test\Common.Numerics.Test.csproj">
       <Project>{98A1EB7A-E1E6-44C8-986C-04F539C745B8}</Project>
       <Name>Common.Numerics.Test</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Numerics\Common.Numerics.csproj">
+      <Project>{32B7261A-CF53-4A10-AA11-FB3C5755BCD6}</Project>
+      <Name>Common.Numerics</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

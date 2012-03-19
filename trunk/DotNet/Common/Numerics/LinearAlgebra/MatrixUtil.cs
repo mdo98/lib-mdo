@@ -5,7 +5,7 @@ using System.Text;
 
 namespace MDo.Common.Numerics.LinearAlgebra
 {
-    public static class Matrix
+    public static class MatrixUtil
     {
         public static void Power(double[,] M, int eM, out double[,] MP, out int eMP, int power, int eNorm, double eNormFactor)
         {

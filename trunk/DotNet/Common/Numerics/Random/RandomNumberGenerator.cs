@@ -41,14 +41,13 @@ namespace MDo.Common.Numerics.Random
         /// </summary>
         /// <remarks>This method returns the least significant bits (LSBs) of a pseudorandom sample.
         /// Modern RNGs return samples with random LSBs; however many RNGs now known to be defective,
-        /// e.g. linear congruential RNGs, return samples whose LSBs have very short cycles.
-        /// Defective RNGs typically should not implemented; if they are, then their implementations
-        /// must also override this method.</remarks>
+        /// e.g. linear congruential RNGs, return samples whose LSBs have very short cycles.  If you
+        /// implement a defective RNG, you should override this method.</remarks>
         /// <param name="numBits">The desired length in bits of the pseudorandom sample.</param>
         /// <returns>A pseudorandom sample with the given number of bits.</returns>
         protected virtual ulong SampleBits(int numBits)
         {
-            ulong mask = (1UL << numBits) - 1UL;
+            ulong mask = ~((~0UL) << numBits);
             return (this.Sample() & mask);
         }
 
@@ -72,14 +71,13 @@ namespace MDo.Common.Numerics.Random
         /// </summary>
         /// <remarks>This method returns the least significant bits (LSBs) of a pseudorandom sample.
         /// Modern RNGs return samples with random LSBs; however many RNGs now known to be defective,
-        /// e.g. linear congruential RNGs, return samples whose LSBs have very short cycles.
-        /// Defective RNGs typically should not implemented; if they are, then their implementations
-        /// must also override this method.</remarks>
+        /// e.g. linear congruential RNGs, return samples whose LSBs have very short cycles.  If you
+        /// implement a defective RNG, you should override this method.</remarks>
         /// <param name="numBits">The desired length in bits of the pseudorandom sample.</param>
         /// <returns>A pseudorandom sample with the given number of bits.</returns>
         protected virtual uint SampleBits(int numBits)
         {
-            uint mask = (1U << numBits) - 1U;
+            uint mask = ~((~0U) << numBits);
             return (this.Sample() & mask);
         }
 
@@ -184,7 +182,7 @@ namespace MDo.Common.Numerics.Random
             double range = max - min;
             if (range < 0.0D)
                 throw new ArgumentOutOfRangeException("max - min");
-            return (min + (int)Math.Floor(this.SampleToUnitDouble() * range));
+            return (min + (int)(this.SampleToUnitDouble() * range));
         }
 
         public uint UInt32()
@@ -197,7 +195,7 @@ namespace MDo.Common.Numerics.Random
             double range = max - min;
             if (range < 0.0D)
                 throw new ArgumentOutOfRangeException("max - min");
-            return (min + (uint)Math.Floor(this.SampleToUnitDouble() * range));
+            return (min + (uint)(this.SampleToUnitDouble() * range));
         }
 
 #if !X86
@@ -265,7 +263,7 @@ namespace MDo.Common.Numerics.Random
             decimal range = max - min;
             if (range < 0.0M)
                 throw new ArgumentOutOfRangeException("max - min");
-            return (min + (long)Math.Floor(this.SampleToUnitDecimal() * range));
+            return (min + (long)(this.SampleToUnitDecimal() * range));
         }
 
         public ulong UInt64(ulong min, ulong max)
@@ -273,7 +271,7 @@ namespace MDo.Common.Numerics.Random
             decimal range = max - min;
             if (range < 0.0M)
                 throw new ArgumentOutOfRangeException("max - min");
-            return (min + (ulong)Math.Floor(this.SampleToUnitDecimal() * range));
+            return (min + (ulong)(this.SampleToUnitDecimal() * range));
         }
 
         public decimal Decimal()

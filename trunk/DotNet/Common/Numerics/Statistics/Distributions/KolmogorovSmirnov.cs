@@ -7,7 +7,7 @@ using MDo.Common.Numerics.LinearAlgebra;
 
 namespace MDo.Common.Numerics.Statistics.Distributions
 {
-    public class KolmogorovSmirnov : IDistribution
+    public class KolmogorovSmirnov : IContinuousDistribution
     {
         #region Constants
 
@@ -24,7 +24,26 @@ namespace MDo.Common.Numerics.Statistics.Distributions
             this.N = numSamples;
         }
 
-        public int N { get; private set; }
+
+        #region Fields & Properties
+
+        private int _N;
+
+        public int N
+        {
+            get
+            {
+                return _N;
+            }
+            private set
+            {
+                if (value <= 0)
+                    throw new ArgumentOutOfRangeException("N");
+                _N = value;
+            }
+        }
+
+        #endregion Fields & Properties
 
 
         #region IDistribution
@@ -116,7 +135,7 @@ namespace MDo.Common.Numerics.Statistics.Distributions
             }
             double[,] HP; int eHP;
             const int eNorm = 100; const double eNormFactor = 1.0E-100;
-            Matrix.Power(H, 0, out HP, out eHP, this.N, eNorm, eNormFactor);
+            MatrixUtil.Power(H, 0, out HP, out eHP, this.N, eNorm, eNormFactor);
 
             s = HP[k - 1, k - 1];
             const double eNormInverse = 1.0 / eNormFactor;
@@ -160,7 +179,7 @@ namespace MDo.Common.Numerics.Statistics.Distributions
                 if (w < 4.0)
                     return this.Cdf_Pomeranz(x);
 
-                return 1.0 - this.Cdf_FBar(x);
+                return 1.0 - this.Cdf_Q(x);
             }
 
             if ((w * x * this.N <= 7.0) && (this.N <= CDF_N_KOLMO))
@@ -205,28 +224,28 @@ namespace MDo.Common.Numerics.Statistics.Distributions
             return double.NaN;
         }
 
-        public double Cdf_FBar(double ks)
+        public double Cdf_Q(double x)
         {
-            double v = Cdf_FBarSpecial(this.N, ks);
+            double v = Cdf_Q_Special(this.N, x);
             if (!double.IsNaN(v))
                 return v;
 
-            double w = (double)this.N * ks * ks;
+            double w = (double)this.N * x * x;
             if (this.N <= CDF_N_EXACT)
             {
                 if (w < 4.0)
-                    return 1.0 - this.Cdf(ks);
+                    return 1.0 - this.Cdf(x);
                 else
-                    return 2.0 * this.Cdf_KSPlusBar_Upper(ks);
+                    return 2.0 * this.Cdf_KSPlusBar_Upper(x);
             }
 
             if (w >= 2.65)
-                return 2.0 * this.Cdf_KSPlusBar_Upper(ks);
+                return 2.0 * this.Cdf_KSPlusBar_Upper(x);
 
-            return 1.0 - this.Cdf(ks);
+            return 1.0 - this.Cdf(x);
         }
 
-        private static double Cdf_FBarSpecial(int numSamples, double ks)
+        private static double Cdf_Q_Special(int numSamples, double ks)
         {
             double ks_N = (double)numSamples * ks;
             double w = ks_N * ks;
@@ -707,7 +726,7 @@ namespace MDo.Common.Numerics.Statistics.Distributions
         /// computed for values sampled from the empirical distribution against the reference distribution.
         /// The closer the p-value is to 0.0 or 1.0, the less likely the empirical distribution fits the
         /// reference distribution.</returns>
-        public static double TestGoodnessOfFit(int numSamples, Func<double> getSample, Func<double, double> referenceCdf)
+        public static double GoodnessOfFit(int numSamples, Func<double> getSample, Func<double, double> referenceCdf)
         {
             // Generate samples X, and divide the range of F_X into K >= numSamples bins.
             // Place each sample in a bin, and record the number of samples & the maximum
@@ -727,7 +746,7 @@ namespace MDo.Common.Numerics.Statistics.Distributions
             {
                 double s = getSample();
                 double f = referenceCdf(s);
-                int k = (int)Math.Floor((double)K * f);
+                int k = (int)((double)K * f);
                 count_k[k]++;
                 if (max_k[k] < f)
                     max_k[k] = f;

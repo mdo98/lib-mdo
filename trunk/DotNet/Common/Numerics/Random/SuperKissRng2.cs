@@ -48,7 +48,7 @@ namespace MDo.Common.Numerics.Random
         public SuperKissRng2() : this(BitConverter.ToUInt64(GetSeed(8), 0))
         { }
 
-        internal SuperKissRng2(int seed) : this((ulong)((long)seed - (long)int.MinValue))
+        public SuperKissRng2(int seed) : this((ulong)((long)seed - (long)int.MinValue))
         { }
 
         public SuperKissRng2(ulong seed) : this(new ulong[] { seed })
