@@ -1,32 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+using MDo.Common.App;
 using MDo.Common.IO;
 
 namespace MDo.Common.Numerics.Random.Test
 {
-    public static class RngTestMain
-    {
-        private static readonly Type[] RNGTypes =
-        {
-            typeof(SystemRandom),
-            typeof(LaggedFibonacciRng),
-#if !X86
-            typeof(NRCombinedRng1),
-            typeof(NRCombinedRng2),
-#endif
-            typeof(MT19937Rng),
-            typeof(SuperKissRng1),
-            typeof(SuperKissRng2),
-        };
-
 #if DEBUG
-        public static void ImplementationCheck()
+    public class Numerics_RNG_SuperKissRngImplCheck : ConsoleAppModule
+    {
+        public static void Run()
         {
             {
                 SuperKissRng1 rng = new SuperKissRng1();
@@ -39,7 +28,9 @@ namespace MDo.Common.Numerics.Random.Test
                     seeds[i] = rng.XCNG + rng.XS;
                 }
                 rng.Init(seeds);
-                for (int i = 0; i < 999999999; i++)
+                const int numSamples = 999999999;
+                Console.WriteLine("Generating {0} samples...", numSamples);
+                for (int i = 0; i < numSamples; i++)
                 {
                     rng.GetNextSample();
                 }
@@ -64,7 +55,9 @@ namespace MDo.Common.Numerics.Random.Test
                     seeds[i] = rng.XCNG + rng.XS;
                 }
                 rng.Init(seeds);
-                for (int i = 0; i < 999999999; i++)
+                const int numSamples = 999999999;
+                Console.WriteLine("Generating {0} samples...", numSamples);
+                for (int i = 0; i < numSamples; i++)
                 {
                     rng.Sample();
                 }
@@ -79,15 +72,27 @@ namespace MDo.Common.Numerics.Random.Test
                 Console.WriteLine();
             }
         }
+
+        #region ConsoleAppModule
+
+        public override void Run(string[] args)
+        {
+            Run();
+        }
+
+        #endregion ConsoleAppModule
+    }
 #endif
 
-        public static void GenerateSamplesForDieHard()
+
+    public class Numerics_RNG_GenerateSamplesForDiehard : ConsoleAppModule
+    {
+        public static void Run(int numSamples = 10000000)
         {
-            const int NumSamplesToPrint = 10000000;
             const string RngSamplesOutputExtension = ".out";
 
             int numUnknownRNGs = 0;
-            foreach (Type type in RNGTypes)
+            foreach (Type type in RngTestUtil.RNGTypes)
             {
                 IRandom rng = (IRandom)Activator.CreateInstance(type);
                 RandomNumberGenerator rngWithSampling = rng as RandomNumberGenerator;
@@ -101,13 +106,13 @@ namespace MDo.Common.Numerics.Random.Test
                 }
                 string txtOutPath = pathSafeRngTestName + RngSamplesOutputExtension;
 
-                Console.WriteLine("{0}: Writing {1} samples to {2} for DIEHARD...", rngName, NumSamplesToPrint, txtOutPath);
+                Console.WriteLine("{0}: Writing {1} samples to {2} for DIEHARD...", rngName, numSamples, txtOutPath);
                 using (Stream txtStream = FS.OpenWrite(txtOutPath))
                 {
                     using (TextWriter txtWriter = new StreamWriter(txtStream))
                     {
                         int samplesLength = 0;
-                        for (int i = 0; i < NumSamplesToPrint; i++)
+                        for (int i = 0; i < numSamples; i++)
                         {
                             byte[] b;
                             if (null != rngWithSampling)
@@ -132,44 +137,68 @@ namespace MDo.Common.Numerics.Random.Test
             }
         }
 
-        public static void TimeRngs()
-        {
-            const int numSamples = 100000000;   // 100M
-            TestRngsHelper(
-                Tuple.Create("Speed", numSamples, (Action<RngTest, Action<string>>)((rngTest, writeToStdOut) => rngTest.Time(numSamples, writeToStdOut))));
-        }
+        #region ConsoleAppModule
 
-        private static void TestRngsHelper(params Tuple<string, int, Action<RngTest, Action<string>>>[] testMethods)
+        public override void Run(string[] args)
         {
-            if (null == testMethods)
-                return;
-
-            Action<string> writeToStdOut = (string output) => Console.WriteLine("\t\t{0}", output);
-            foreach (Type type in RNGTypes)
+            int? numSamples = null;
+            try
             {
-                int numUnknownRNGs = 0;
-                foreach (RngTest rngTest in new RngTest[]
-                    {
-                        new RngTest(() => (IRandom)Activator.CreateInstance(type, new object[] { 0 })),
-                        new RngTest(() => (IRandom)Activator.CreateInstance(type, new object[] { 1 })),
-                        new RngTest(() => (IRandom)Activator.CreateInstance(type, new object[] { RngTestUtil.RandomInt() })),
-                        new RngTest(() => (IRandom)Activator.CreateInstance(type)),
-                    })
-                {
-                    string rngName = string.IsNullOrWhiteSpace(rngTest.Name) ? ("UnknownRNG_" + numUnknownRNGs++) : rngTest.Name;
-                    Console.WriteLine(rngName);
-
-                    foreach (var testMethod in testMethods)
-                    {
-                        Console.WriteLine("\tTesting {0}, samplespace = {1:N0}...", testMethod.Item1, testMethod.Item2);
-                        testMethod.Item3(rngTest, writeToStdOut);
-                        Console.WriteLine();
-                    }
-                }
+                numSamples = int.Parse(args[0]);
             }
+            catch { }
+
+            if (null == numSamples)
+                Run();
+            else
+                Run(numSamples.Value);
         }
 
-        public static void TestRngs(RngTestFlag testFlag
+        public override void PrintUsage()
+        {
+            Console.WriteLine("{0} [OPT:numSamples]", this.Name);
+        }
+
+        #endregion ConsoleAppModule
+    }
+
+
+    public class Numerics_RNG_Speed : ConsoleAppModule
+    {
+        public static void Run(int numSamples = 100000000)
+        {
+            RngTestUtil.TestRNGsHelper(Tuple.Create("Speed", numSamples, (Action<RngTest, Action<string>>)((rngTest, writeToStdOut) => rngTest.Time(numSamples, writeToStdOut))));
+        }
+
+        #region ConsoleAppModule
+
+        public override void Run(string[] args)
+        {
+            int? numSamples = null;
+            try
+            {
+                numSamples = int.Parse(args[0]);
+            }
+            catch { }
+
+            if (null == numSamples)
+                Run();
+            else
+                Run(numSamples.Value);
+        }
+
+        public override void PrintUsage()
+        {
+            Console.WriteLine("{0} [OPT:numSamples]", this.Name);
+        }
+
+        #endregion ConsoleAppModule
+    }
+
+
+    public class Numerics_RNG_RandomnessCheck : ConsoleAppModule
+    {
+        public static void Run(RngTestFlag testFlag
             = RngTestFlag.Equidistribution | RngTestFlag.Diehard_Birthday | RngTestFlag.Diehard_3DSphere)
         {
             var tests = new List<Tuple<string, int, Action<RngTest, Action<string>>>>();
@@ -192,12 +221,41 @@ namespace MDo.Common.Numerics.Random.Test
                     tests.Add(Tuple.Create("Diehard_3DSphere", numExperiments, (Action<RngTest, Action<string>>)((rngTest, writeToStdOut) => rngTest.Diehard_3DSphere(numExperiments, writeToStdOut))));
             }
 
-            TestRngsHelper(tests.ToArray());
+            RngTestUtil.TestRNGsHelper(tests.ToArray());
         }
+
+        #region ConsoleAppModule
+
+        public override void Run(string[] args)
+        {
+            uint? rngTestFlags = null;
+            try
+            {
+                rngTestFlags = uint.Parse(args[0], NumberStyles.Number | NumberStyles.HexNumber);
+            }
+            catch { }
+
+            if (null == rngTestFlags)
+                Run();
+            else
+                Run((RngTestFlag)Enum.ToObject(typeof(RngTestFlag), rngTestFlags.Value));
+        }
+
+        public override void PrintUsage()
+        {
+            Console.WriteLine("{0} [OPT:RngTestFlags]", this.Name);
+            foreach (RngTestFlag value in Enum.GetValues(typeof(RngTestFlag)))
+            {
+                Console.WriteLine("\t0x{0:X8}\t{1}", (uint)value, value.ToString());
+            }
+        }
+
+        #endregion ConsoleAppModule
     }
 
+
     [Flags]
-    public enum RngTestFlag
+    public enum RngTestFlag : uint
     {
         Equidistribution    = 0x1,
         Diehard_Birthday    = 0x2,

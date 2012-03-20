@@ -6,15 +6,17 @@ using System.Text;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+using MDo.Common.App;
+
 using Zlib.DotZLib;
 
 namespace MDo.Common.IO.Test
 {
-    public static class TestDeflateStream
+    public class IO_DeflateStream_EncodeDecodeInvariant : ConsoleAppModule
     {
         private const string DecompressedOutputExtension = ".out";
 
-        public static void EncodeDecodeInvariant()
+        public static void Run()
         {
             const string DeflateOutputExtension = ".zlib";
 
@@ -43,5 +45,14 @@ namespace MDo.Common.IO.Test
                 Assert.AreEqual(CrcCalc.CalculateFromFile(testData), CrcCalc.CalculateFromFile(compressedOutputFile + DecompressedOutputExtension));
             }
         }
+        
+        #region ConsoleAppModule
+
+        public override void Run(string[] args)
+        {
+            Run();
+        }
+
+        #endregion ConsoleAppModule
     }
 }

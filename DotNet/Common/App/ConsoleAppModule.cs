@@ -10,8 +10,23 @@ namespace MDo.Common.App
     public interface IConsoleAppModule
     {
         string Name { get; }
-        void Run(string[] args, TextReader stdIn, TextWriter stdOut, TextWriter stdErr);
-        void PrintUsage(TextWriter stream);
+        void Run(string[] args);
+        void PrintUsage();
+    }
+
+    public abstract class ConsoleAppModule : IConsoleAppModule
+    {
+        public virtual string Name
+        {
+            get { return this.GetType().Name; }
+        }
+
+        public abstract void Run(string[] args);
+
+        public virtual void PrintUsage()
+        {
+            Console.WriteLine("{0}: No cmdline parameters required or accepted.", this.Name);
+        }
     }
 
     public class ConsoleAppMaster : IConsoleAppModule
@@ -28,14 +43,12 @@ namespace MDo.Common.App
         #endregion Constants
 
 
-        #region Static Variables
+        #region Fields & Properties
+        
+        protected readonly IList<IConsoleAppModule> Modules = new List<IConsoleAppModule>();
+        protected readonly ISet<string> ModuleNames = new HashSet<string>();
 
-        private TextReader InStream  = Console.In;
-        private TextWriter OutStream = Console.Out;
-        private TextWriter ErrStream = Console.Error;
-        private readonly IDictionary<string, IConsoleAppModule> Modules = new SortedList<string, IConsoleAppModule>();
-
-        #endregion Static Variables
+        #endregion Fields & Properties
 
 
         #region IConsoleAppModule
@@ -45,81 +58,112 @@ namespace MDo.Common.App
             get { return this.GetType().Name; }
         }
 
-        public void Run(string[] args, TextReader stdIn, TextWriter stdOut, TextWriter stdErr)
+        public virtual void Run(string[] args)
         {
+            ICollection<string> mArgs = new List<string>();
             bool help = false;
 
-            int numOptionalArgs;
-            for (numOptionalArgs = 0; numOptionalArgs < args.Length; numOptionalArgs++)
+            for (int i = 0; i < args.Length; i++)
             {
-                if (CmdLineArg_Help.Any(expectedArg => expectedArg.Equals(args[numOptionalArgs], StringComparison.OrdinalIgnoreCase)))
+                if (CmdLineArg_Help.Any(expectedArg => expectedArg.Equals(args[i], StringComparison.OrdinalIgnoreCase)))
                 {
                     help = true;
                 }
-                else if (CmdLineArg_InFile.Any(expectedArg => expectedArg.Equals(args[numOptionalArgs], StringComparison.OrdinalIgnoreCase)))
+                else if (CmdLineArg_InFile.Any(expectedArg => expectedArg.Equals(args[i], StringComparison.OrdinalIgnoreCase)))
                 {
-                    string inFile = args[++numOptionalArgs];
+                    string inFile = args[++i];
                     try
                     {
-                        this.InStream = new StreamReader(File.OpenRead(inFile));
+                        Console.SetIn(new StreamReader(File.OpenRead(inFile)));
                     }
                     catch (Exception ex)
                     {
-                        this.ErrStream.WriteLine("Unable to open '{0}' for reading; will use stdin. The error was: {1}", inFile, ex.ToString());
+                        Console.Error.WriteLine("IN: Unable to open '{0}' for reading; using stdin. The error was: {1}", inFile, ex.ToString());
                     }
                 }
-                else if (CmdLineArg_OutFile.Any(expectedArg => expectedArg.Equals(args[numOptionalArgs], StringComparison.OrdinalIgnoreCase)))
+                else if (CmdLineArg_OutFile.Any(expectedArg => expectedArg.Equals(args[i], StringComparison.OrdinalIgnoreCase)))
                 {
-                    string outFile = args[++numOptionalArgs];
+                    string outFile = args[++i];
                     try
                     {
-                        this.OutStream = new StreamWriter(new FileStream(outFile, FileMode.Create, FileAccess.Write, FileShare.Read));
+                        Console.SetOut(new StreamWriter(new FileStream(outFile, FileMode.Create, FileAccess.Write, FileShare.Read)));
                     }
                     catch (Exception ex)
                     {
-                        this.ErrStream.WriteLine("Unable to open '{0}' for writing; will use stdout. The error was: {1}", outFile, ex.ToString());
+                        Console.Error.WriteLine("OUT: Unable to open '{0}' for writing; using stdout. The error was: {1}", outFile, ex.ToString());
                     }
                 }
-                else if (CmdLineArg_ErrFile.Any(expectedArg => expectedArg.Equals(args[numOptionalArgs], StringComparison.OrdinalIgnoreCase)))
+                else if (CmdLineArg_ErrFile.Any(expectedArg => expectedArg.Equals(args[i], StringComparison.OrdinalIgnoreCase)))
                 {
-                    string errFile = args[++numOptionalArgs];
+                    string errFile = args[++i];
                     try
                     {
-                        this.ErrStream = new StreamWriter(new FileStream(errFile, FileMode.Create, FileAccess.Write, FileShare.Read));
+                        Console.SetError(new StreamWriter(new FileStream(errFile, FileMode.Create, FileAccess.Write, FileShare.Read)));
                     }
                     catch (Exception ex)
                     {
-                        this.ErrStream.WriteLine("Unable to open '{0}' for writing; will use stderr. The error was: {1}", errFile, ex.ToString());
+                        Console.Error.WriteLine("ERR: Unable to open '{0}' for writing; using stderr. The error was: {1}", errFile, ex.ToString());
                     }
                 }
                 else
                 {
-                    break;
+                    mArgs.Add(args[i]);
                 }
             }
-            args = args.Skip(numOptionalArgs).ToArray();
+            args = mArgs.ToArray();
 
             string moduleName = null;
             IConsoleAppModule module = null;
             if (args.Length < NumRequiredArgs)
             {
                 if (!help)
-                {
-                    this.ErrStream.WriteLine("A module name must be specified to invoke.");
-                    this.PrintUsage(this.ErrStream);
                     return;
-                }
             }
             else
             {
-                moduleName = args[0].Trim().ToUpperInvariant();
-                if (!this.Modules.ContainsKey(moduleName))
+                string[] moduleNameAndId = args[0].Split(new char[] { '#' }, StringSplitOptions.RemoveEmptyEntries);
+                moduleName = StandardizedModuleName(moduleNameAndId[0].Trim());
+                if (!this.ModuleNames.Contains(moduleName))
                 {
-                    this.ErrStream.WriteLine("Module {0} not found.", moduleName);
-                    this.PrintUsage(this.ErrStream);
+                    Console.Error.WriteLine("Module {0} not found.", moduleName);
                     return;
                 }
-                module = this.Modules[moduleName];
+                IList<IConsoleAppModule> modules = this.Modules.Where(item => StandardizedModuleName(item.Name) == moduleName).ToList();
+                if (modules.Count > 1)
+                {
+                    int moduleId;
+                    if (moduleNameAndId.Length < 2 || !int.TryParse(moduleNameAndId[1], out moduleId))
+                    {
+                        Console.WriteLine("There are {0} modules named {0}. Select the module you want to run:", modules.Count, moduleName);
+                        while (true)
+                        {
+                            Console.WriteLine("#\tModule");
+                            for (int i = 0; i < modules.Count; i++)
+                            {
+                                Console.WriteLine("{0}\t{1}", i, modules[i].GetType().FullName);
+                            }
+                            Console.Write("Module #: ");
+                            string moduleSelection = Console.ReadLine().Trim();
+                            try
+                            {
+                                module = GetModuleFromIndexString(modules, moduleSelection);
+                                break;
+                            }
+                            catch (ArgumentException ex)
+                            {
+                                Console.WriteLine(ex.Message);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        module = modules[moduleId];
+                    }
+                }
+                else
+                {
+                    module = modules.First();
+                }
             }
             args = args.Skip(NumRequiredArgs).ToArray();
 
@@ -127,61 +171,43 @@ namespace MDo.Common.App
             {
                 if (module == null)
                 {
-                    this.PrintUsage(this.OutStream);
+                    this.PrintUsage();
                 }
                 else
                 {
-                    module.PrintUsage(this.OutStream);
+                    module.PrintUsage();
                 }
                 return;
             }
 
-            try
-            {
-                module.Run(args, this.InStream, this.OutStream, this.ErrStream);
-            }
-            catch (ArgumentMissingException ex)
-            {
-                this.ErrStream.WriteLine("Module {0}: Missing argument '{1}'.", moduleName, ex.ParameterName);
-                module.PrintUsage(this.ErrStream);
-            }
-            catch (Exception ex)
-            {
-                this.ErrStream.WriteLine("An error occurred: {0}", ex.ToString());
-            }
-            finally
-            {
-                this.OutStream.Flush();
-                this.ErrStream.Flush();
-            }
+            this.RunModule(module, args);
         }
 
-        public void PrintUsage(TextWriter stream)
+        public void PrintUsage()
         {
             string entryBinary = Path.GetFileName(Assembly.GetEntryAssembly().Location);
-            StringBuilder text = new StringBuilder();
-            text.AppendLine("=========================");
-            text.AppendLine(entryBinary + " [OptionalArgs] [ModuleName] [ModuleArgs]");
-            text.AppendLine("-------------------------");
-            text.AppendLine("  [OptionalArgs] :=");
-            text.AppendLine("      " + CmdLineArg_Help[0] + ": Prints help.");
-            text.AppendLine("      " + CmdLineArg_InFile[0]  + " [InFile]: Uses [InFile] as stdin.");
-            text.AppendLine("      " + CmdLineArg_OutFile[0] + " [OutFile]: Uses [OutFile] as stdout.");
-            text.AppendLine("      " + CmdLineArg_ErrFile[0] + " [ErrFile]: Uses [ErrFile] as stderr.");
-            text.AppendLine("  [ModuleName] := A registered module.");
-            foreach (string moduleName in this.Modules.Keys)
+            Console.WriteLine("=========================");
+            Console.WriteLine(entryBinary + " [OptionalArgs] [ModuleName]#[ModuleIndx] [ModuleArgs]");
+            Console.WriteLine("-------------------------");
+            Console.WriteLine("  [OptionalArgs] :=");
+            Console.WriteLine("      " + CmdLineArg_Help[0] + ": Prints help.");
+            Console.WriteLine("      " + CmdLineArg_InFile[0]  + " [InFile]: Uses [InFile] as stdin.");
+            Console.WriteLine("      " + CmdLineArg_OutFile[0] + " [OutFile]: Uses [OutFile] as stdout.");
+            Console.WriteLine("      " + CmdLineArg_ErrFile[0] + " [ErrFile]: Uses [ErrFile] as stderr.");
+            Console.WriteLine("  [ModuleName] := A registered module.");
+            Console.WriteLine("  [ModuleIndx] := Optionally, specify a 0-based index, if multiple modules have the same name.");
+            foreach (string moduleName in this.ModuleNames)
             {
-                text.AppendLine("      " + moduleName);
+                Console.WriteLine("      " + moduleName);
             }
-            text.AppendLine("  [ModuleArgs] := Module arguments. For more info: " + entryBinary + " " + CmdLineArg_Help[0] + " [ModuleName]");
-            text.AppendLine("=========================");
-            stream.WriteLine(text.ToString());
+            Console.WriteLine("  [ModuleArgs] := Module arguments. For more info: " + entryBinary + " " + CmdLineArg_Help[0] + " [ModuleName]");
+            Console.WriteLine("=========================");
         }
 
         #endregion IConsoleAppModule
 
 
-        public void RegisterModule(IConsoleAppModule module)
+        public void RegisterModule(IConsoleAppModule module, bool allowDuplicateNames = false)
         {
             if (null == module)
                 throw new ArgumentNullException("module");
@@ -189,11 +215,72 @@ namespace MDo.Common.App
             string moduleName = module.Name.Trim().ToUpperInvariant();
             if (string.IsNullOrWhiteSpace(moduleName))
                 throw new ArgumentNullException("module.Name");
-            
-            if (this.Modules.ContainsKey(moduleName))
-                throw new InvalidOperationException(string.Format("A module is already registered as {0}.", moduleName));
+
+            if (this.ModuleNames.Contains(moduleName))
+            {
+                if (!allowDuplicateNames)
+                    throw new InvalidOperationException(string.Format("A module is already registered as {0}.", moduleName));
+            }
             else
-                this.Modules.Add(moduleName, module);
+            {
+                this.ModuleNames.Add(moduleName);
+            }
+            this.Modules.Add(module);
+        }
+
+        protected void RunModule(IConsoleAppModule module, string[] args, bool time = true)
+        {
+            DateTime start = DateTime.Now;
+            if (time)
+            {
+                Console.WriteLine("Module Start  : {0}", start);
+            }
+            try
+            {
+                module.Run(args);
+            }
+            catch (ArgumentMissingException ex)
+            {
+                Console.Error.WriteLine("Module {0}: Missing argument '{1}'.", module.Name, ex.ParameterName);
+                module.PrintUsage();
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine("An error occurred: {0}", ex.ToString());
+            }
+            finally
+            {
+                Console.Out.Flush();
+                Console.Error.Flush();
+            }
+            if (time)
+            {
+                DateTime end = DateTime.Now;
+                Console.WriteLine("Module End    : {0}", end);
+                Console.WriteLine("Module Elapsed: {0}", end - start);
+            }
+        }
+
+        protected static string StandardizedModuleName(IConsoleAppModule module)
+        {
+            return StandardizedModuleName(module.Name);
+        }
+
+        protected static string StandardizedModuleName(string moduleName)
+        {
+            return moduleName.ToUpperInvariant();
+        }
+
+        protected static IConsoleAppModule GetModuleFromIndexString(IList<IConsoleAppModule> modules, string moduleIndexString)
+        {
+            if (null == modules || modules.Count == 0)
+                throw new ArgumentException("No modules are found.", "modules");
+            int moduleId;
+            if (!int.TryParse(moduleIndexString, out moduleId) || moduleId < 0 || moduleId >= modules.Count)
+                throw new ArgumentException(
+                    string.Format("{0} is not a valid Module #ID; expecting a number [0..{1}].", moduleIndexString, modules.Count - 1),
+                    "moduleIndexString");
+            return modules[moduleId];
         }
     }
 }

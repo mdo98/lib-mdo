@@ -173,8 +173,11 @@ namespace MDo.Common.Numerics.Random.Test
                             r3min = r3;
                     }
                 }
-                return Math.Exp(-r3min / 30.0);
+                double uniformEquiv = 1.0 - Math.Exp(-r3min / 30.0);
+                writeToStdOut(string.Format("{0:F3}\t{1:F6}", r3min, uniformEquiv));
+                return uniformEquiv;
             };
+            writeToStdOut("R^3\tU(0,1)");
             double p = DistributionUtils.GoodnessOfFit(numExperiments, getSample, Uniform.Standard);
             writeToStdOut(string.Format("Diehard_3DSphere: p-value = {0:F6}", p));
         }
