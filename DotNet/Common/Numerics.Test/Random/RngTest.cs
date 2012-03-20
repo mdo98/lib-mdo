@@ -62,7 +62,7 @@ namespace MDo.Common.Numerics.Random.Test
                 rng.Int32();
             }
             elapsed = DateTime.Now - start;
-            writeToStdOut(string.Format("Int: {0:F6} seconds", elapsed.TotalSeconds));
+            writeToStdOut(string.Format("Int:       {0,7:F3} seconds", elapsed.TotalSeconds));
 
             rng = this.CreateRNG();
             start = DateTime.Now;
@@ -71,7 +71,7 @@ namespace MDo.Common.Numerics.Random.Test
                 rng.Double();
             }
             elapsed = DateTime.Now - start;
-            writeToStdOut(string.Format("Double: {0:F6} seconds", elapsed.TotalSeconds));
+            writeToStdOut(string.Format("Double:    {0,7:F3} seconds", elapsed.TotalSeconds));
 
             rng = this.CreateRNG();
             start = DateTime.Now;
@@ -81,7 +81,7 @@ namespace MDo.Common.Numerics.Random.Test
                 rng.GetBytes(b);
             }
             elapsed = DateTime.Now - start;
-            writeToStdOut(string.Format("Byte[10]: {0:F6} seconds", elapsed.TotalSeconds));
+            writeToStdOut(string.Format("Byte[10]:  {0,7:F3} seconds", elapsed.TotalSeconds));
         }
 
         public void Equidistribution(int numSamples, Action<string> writeToStdOut)
