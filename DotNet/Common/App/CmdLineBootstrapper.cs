@@ -96,7 +96,7 @@ namespace MDo.Common.App
 
         public void ListModulesAndCommands()
         {
-            Console.WriteLine("#\tNAME");
+            Console.WriteLine("#ID\tNAME");
             for (int i = 0; i < this.Modules.Count; i++)
             {
                 Console.WriteLine("{0}\t{1} ({2})", i, this.Modules[i].Name, this.Modules[i].GetType().FullName);

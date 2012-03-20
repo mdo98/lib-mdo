@@ -137,12 +137,12 @@ namespace MDo.Common.App
                         Console.WriteLine("There are {0} modules named {0}. Select the module you want to run:", modules.Count, moduleName);
                         while (true)
                         {
-                            Console.WriteLine("#\tModule");
+                            Console.WriteLine("#ID\tModule");
                             for (int i = 0; i < modules.Count; i++)
                             {
                                 Console.WriteLine("{0}\t{1}", i, modules[i].GetType().FullName);
                             }
-                            Console.Write("Module #: ");
+                            Console.Write("Module #ID: ");
                             string moduleSelection = Console.ReadLine().Trim();
                             try
                             {
