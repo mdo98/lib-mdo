@@ -37,7 +37,7 @@ namespace MDo.Common.Numerics.Random
 
         public bool Bool()
         {
-            return (base.NextDouble() >= 0.5D);
+            return (base.NextDouble() >= 0.5);
         }
 
         public double Double()
@@ -48,7 +48,7 @@ namespace MDo.Common.Numerics.Random
         public double Double(double min, double max)
         {
             double range = max - min;
-            if (range < 0.0D)
+            if (range <= 0.0)
                 throw new ArgumentOutOfRangeException("max - min");
             return (min + base.NextDouble() * range);
         }
@@ -71,7 +71,7 @@ namespace MDo.Common.Numerics.Random
         public uint UInt32(uint min, uint max)
         {
             double range = max - min;
-            if (range < 0.0D)
+            if (range <= 0.0)
                 throw new ArgumentOutOfRangeException("max - min");
             return (min + (uint)(base.NextDouble() * range));
         }
@@ -84,7 +84,7 @@ namespace MDo.Common.Numerics.Random
         public long Int64(long min, long max)
         {
             double range = max - min;
-            if (range < 0.0D)
+            if (range <= 0.0)
                 throw new ArgumentOutOfRangeException("max - min");
             return (min + (long)(base.NextDouble() * range));
         }
@@ -97,22 +97,9 @@ namespace MDo.Common.Numerics.Random
         public ulong UInt64(ulong min, ulong max)
         {
             double range = max - min;
-            if (range < 0.0D)
+            if (range <= 0.0)
                 throw new ArgumentOutOfRangeException("max - min");
             return (min + (ulong)(base.NextDouble() * range));
-        }
-
-        public decimal Decimal()
-        {
-            return (decimal)base.NextDouble();
-        }
-
-        public decimal Decimal(decimal min, decimal max)
-        {
-            decimal range = max - min;
-            if (range < 0.0M)
-                throw new ArgumentOutOfRangeException("max - min");
-            return (min + (decimal)base.NextDouble() * range);
         }
 
         #endregion IRandom
