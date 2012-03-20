@@ -20,7 +20,5 @@ namespace MDo.Common.Numerics
         long Int64(long min, long max);
         ulong UInt64();
         ulong UInt64(ulong min, ulong max);
-        decimal Decimal();
-        decimal Decimal(decimal min, decimal max);
     }
 }

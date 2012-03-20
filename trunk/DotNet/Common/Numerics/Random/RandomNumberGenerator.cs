@@ -22,8 +22,7 @@ namespace MDo.Common.Numerics.Random
         #region Internal Operations
 
         private readonly object SyncRoot = new object();
-        private const decimal SampleToUnitDecimalMultiplier = decimal.One / ((decimal)ulong.MaxValue + decimal.One);
-        private const double SampleToUnitDoubleMultiplier = (double)SampleToUnitDecimalMultiplier;
+        private const double SampleToUnitDoubleMultiplier = 5.42101086242752217E-20;
 
 #if !X86
         internal ulong Sample()
@@ -44,14 +43,9 @@ namespace MDo.Common.Numerics.Random
         /// e.g. linear congruential RNGs, return samples whose LSBs have very short cycles.</remarks>
         /// <param name="numBits">The desired length in bits of the pseudorandom sample.</param>
         /// <returns>A pseudorandom sample with the given number of bits.</returns>
-        protected ulong SampleBits(int numBits)
+        private ulong SampleBits(int numBits)
         {
             return (this.Sample() & (~((~0UL) << numBits)));
-        }
-
-        private decimal SampleToUnitDecimal()
-        {
-            return (SampleToUnitDecimalMultiplier * (decimal)this.InternalSample());
         }
 #else
         internal uint Sample()
@@ -72,14 +66,9 @@ namespace MDo.Common.Numerics.Random
         /// e.g. linear congruential RNGs, return samples whose LSBs have very short cycles.</remarks>
         /// <param name="numBits">The desired length in bits of the pseudorandom sample.</param>
         /// <returns>A pseudorandom sample with the given number of bits.</returns>
-        protected uint SampleBits(int numBits)
+        private uint SampleBits(int numBits)
         {
             return (this.Sample() & (~((~0U) << numBits)));
-        }
-
-        private decimal SampleToUnitDecimal()
-        {
-            return (SampleToUnitDecimalMultiplier * (decimal)this.UInt64());
         }
 #endif
 
@@ -164,7 +153,7 @@ namespace MDo.Common.Numerics.Random
         public double Double(double min, double max)
         {
             double range = max - min;
-            if (range < 0.0D)
+            if (range <= 0.0)
                 throw new ArgumentOutOfRangeException("max - min");
             return (min + this.SampleToUnitDouble() * range);
         }
@@ -177,7 +166,7 @@ namespace MDo.Common.Numerics.Random
         public int Int32(int min, int max)
         {
             double range = max - min;
-            if (range < 0.0D)
+            if (range <= 0.0)
                 throw new ArgumentOutOfRangeException("max - min");
             return (min + (int)(this.SampleToUnitDouble() * range));
         }
@@ -185,7 +174,7 @@ namespace MDo.Common.Numerics.Random
         public uint UInt32(uint min, uint max)
         {
             double range = max - min;
-            if (range < 0.0D)
+            if (range <= 0.0)
                 throw new ArgumentOutOfRangeException("max - min");
             return (min + (uint)(this.SampleToUnitDouble() * range));
         }
@@ -262,31 +251,18 @@ namespace MDo.Common.Numerics.Random
 
         public long Int64(long min, long max)
         {
-            decimal range = max - min;
-            if (range < 0.0M)
+            double range = max - min;
+            if (range <= 0.0)
                 throw new ArgumentOutOfRangeException("max - min");
-            return (min + (long)(this.SampleToUnitDecimal() * range));
+            return (min + (long)(this.SampleToUnitDouble() * range));
         }
 
         public ulong UInt64(ulong min, ulong max)
         {
-            decimal range = max - min;
-            if (range < 0.0M)
+            double range = max - min;
+            if (range <= 0.0)
                 throw new ArgumentOutOfRangeException("max - min");
-            return (min + (ulong)(this.SampleToUnitDecimal() * range));
-        }
-
-        public decimal Decimal()
-        {
-            return this.SampleToUnitDecimal();
-        }
-
-        public decimal Decimal(decimal min, decimal max)
-        {
-            decimal range = max - min;
-            if (range < 0.0M)
-                throw new ArgumentOutOfRangeException("max - min");
-            return (min + this.SampleToUnitDecimal() * range);
+            return (min + (ulong)(this.SampleToUnitDouble() * range));
         }
 
         #endregion IRandom
