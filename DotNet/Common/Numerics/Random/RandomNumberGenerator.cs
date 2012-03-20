@@ -46,8 +46,7 @@ namespace MDo.Common.Numerics.Random
         /// <returns>A pseudorandom sample with the given number of bits.</returns>
         protected ulong SampleBits(int numBits)
         {
-            ulong s = this.Sample(), mask = ~((~0UL) << numBits);
-            return (s & mask);
+            return (this.Sample() & (~((~0UL) << numBits)));
         }
 
         private decimal SampleToUnitDecimal()
@@ -75,8 +74,7 @@ namespace MDo.Common.Numerics.Random
         /// <returns>A pseudorandom sample with the given number of bits.</returns>
         protected uint SampleBits(int numBits)
         {
-            uint s = this.Sample(), mask = ~((~0U) << numBits);
-            return (s & mask);
+            return (this.Sample() & (~((~0U) << numBits)));
         }
 
         private decimal SampleToUnitDecimal()
@@ -92,12 +90,13 @@ namespace MDo.Common.Numerics.Random
 
         protected static long ToInt64(uint sample1, uint sample2)
         {
-            const ulong longMaxValue = long.MaxValue;
             ulong uLongSample = ToUInt64(sample1, sample2);
-            if (uLongSample > longMaxValue)
-                return (long)(uLongSample - (longMaxValue + 1UL));
+            // Basically, halving the domain
+            const ulong longLimit = 1UL << 63;
+            if (uLongSample >= longLimit)
+                return (long)(uLongSample - longLimit);
             else
-                return ((long)uLongSample + long.MinValue);
+                return (long)uLongSample;
         }
 
         private double SampleToUnitDouble()
