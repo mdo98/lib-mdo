@@ -174,7 +174,7 @@ namespace MDo.Common.Numerics.Random.Test
                     }
                 }
                 double uniformEquiv = 1.0 - Math.Exp(-r3min / 30.0);
-                writeToStdOut(string.Format("{0:F3}\t{1:F6}", r3min, uniformEquiv));
+                writeToStdOut(string.Format("{0,7:F3}\t{1:F6}", r3min, uniformEquiv));
                 return uniformEquiv;
             };
             writeToStdOut("R^3\tU(0,1)");
