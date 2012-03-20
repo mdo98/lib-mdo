@@ -106,7 +106,7 @@ namespace MDo.Common.Numerics.Random.Test
                 }
                 string txtOutPath = pathSafeRngTestName + RngSamplesOutputExtension;
 
-                Console.WriteLine("{0}: Writing {1} samples to {2} for DIEHARD...", rngName, numSamples, txtOutPath);
+                Console.WriteLine("{0}: Writing {1:N0} samples to {2} for DIEHARD...", rngName, numSamples, txtOutPath);
                 using (Stream txtStream = FS.OpenWrite(txtOutPath))
                 {
                     using (TextWriter txtWriter = new StreamWriter(txtStream))
