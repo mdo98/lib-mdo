@@ -183,11 +183,6 @@ namespace MDo.Common.Numerics.Random
             return (min + (int)(this.SampleToUnitDouble() * range));
         }
 
-        public uint UInt32()
-        {
-            return (uint)this.SampleBits(32);
-        }
-
         public uint UInt32(uint min, uint max)
         {
             double range = max - min;
@@ -216,6 +211,11 @@ namespace MDo.Common.Numerics.Random
             }
         }
 
+        public uint UInt32()
+        {
+            return (uint)this.SampleBits(32);
+        }
+
         public long Int64()
         {
             return (long)this.SampleBits(63);
@@ -223,7 +223,7 @@ namespace MDo.Common.Numerics.Random
 
         public ulong UInt64()
         {
-            return this.SampleBits(64);
+            return this.Sample();
         }
 #else
         public void GetBytes(byte[] b)
@@ -243,6 +243,11 @@ namespace MDo.Common.Numerics.Random
                 }
                 while ((i < b.Length) && (((uint)i & 0x3U) != 0));
             }
+        }
+
+        public uint UInt32()
+        {
+            return this.Sample();
         }
 
         public long Int64()
