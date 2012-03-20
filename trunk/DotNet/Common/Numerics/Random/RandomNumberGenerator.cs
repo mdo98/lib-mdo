@@ -46,8 +46,8 @@ namespace MDo.Common.Numerics.Random
         /// <returns>A pseudorandom sample with the given number of bits.</returns>
         protected ulong SampleBits(int numBits)
         {
-            ulong mask = ~((~0UL) << numBits);
-            return (this.Sample() & mask);
+            ulong s = this.Sample(), mask = ~((~0UL) << numBits);
+            return (s & mask);
         }
 
         private decimal SampleToUnitDecimal()
@@ -75,8 +75,8 @@ namespace MDo.Common.Numerics.Random
         /// <returns>A pseudorandom sample with the given number of bits.</returns>
         protected uint SampleBits(int numBits)
         {
-            uint mask = ~((~0U) << numBits);
-            return (this.Sample() & mask);
+            uint s = this.Sample(), mask = ~((~0U) << numBits);
+            return (s & mask);
         }
 
         private decimal SampleToUnitDecimal()
