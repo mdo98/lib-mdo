@@ -8,6 +8,25 @@ namespace MDo.Common.Numerics.Random
 {
     public abstract class RandomNumberGenerator : IRandom
     {
+#if X86
+        private static readonly uint[] MASKS = new uint[32]; 
+#else
+        private static readonly ulong[] MASKS = new ulong[64];
+#endif
+
+        static RandomNumberGenerator()
+        {
+            for (int i = 0; i < MASKS.Length; i++)
+            {
+#if X86
+                MASKS[i] = ~((~0U) << i);
+#else
+                MASKS[i] = ~((~0UL) << i);
+#endif
+            }
+        }
+
+
         #region Abstract Members
 
 #if !X86
@@ -47,8 +66,7 @@ namespace MDo.Common.Numerics.Random
         /// <returns>A pseudorandom sample with the given number of bits.</returns>
         protected virtual ulong SampleBits(int numBits)
         {
-            ulong mask = ~((~0UL) << numBits);
-            return (this.Sample() & mask);
+            return (this.Sample() & MASKS[numBits]);
         }
 
         private decimal SampleToUnitDecimal()
@@ -77,8 +95,7 @@ namespace MDo.Common.Numerics.Random
         /// <returns>A pseudorandom sample with the given number of bits.</returns>
         protected virtual uint SampleBits(int numBits)
         {
-            uint mask = ~((~0U) << numBits);
-            return (this.Sample() & mask);
+            return (this.Sample() & MASKS[numBits]);
         }
 
         private decimal SampleToUnitDecimal()
