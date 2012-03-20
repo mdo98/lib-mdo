@@ -127,7 +127,7 @@ namespace MDo.Common.Numerics.Random.Test
                     bdayObs[e] = numDuplicates;
                 }
                 double p = DistributionUtils.GoodnessOfFit(bdayObs, new Poisson((double)(1 << poisson_mean_lg)));
-                writeToStdOut(string.Format("Diehard_Birthday[bits {0,2} -> {1,2}]: p-value = {2:F6}", b, b + N - 1, p));
+                writeToStdOut(string.Format("Bits {0,2} -> {1,2}: p-value = {2:F6}", b, b + N - 1, p));
             }
         }
 
