@@ -8,25 +8,6 @@ namespace MDo.Common.Numerics.Random
 {
     public abstract class RandomNumberGenerator : IRandom
     {
-#if X86
-        private static readonly uint[] MASKS = new uint[32]; 
-#else
-        private static readonly ulong[] MASKS = new ulong[64];
-#endif
-
-        static RandomNumberGenerator()
-        {
-            for (int i = 0; i < MASKS.Length; i++)
-            {
-#if X86
-                MASKS[i] = ~((~0U) << i);
-#else
-                MASKS[i] = ~((~0UL) << i);
-#endif
-            }
-        }
-
-
         #region Abstract Members
 
 #if !X86
@@ -60,13 +41,13 @@ namespace MDo.Common.Numerics.Random
         /// </summary>
         /// <remarks>This method returns the least significant bits (LSBs) of a pseudorandom sample.
         /// Modern RNGs return samples with random LSBs; however many RNGs now known to be defective,
-        /// e.g. linear congruential RNGs, return samples whose LSBs have very short cycles.  If you
-        /// implement a defective RNG, you should override this method.</remarks>
+        /// e.g. linear congruential RNGs, return samples whose LSBs have very short cycles.</remarks>
         /// <param name="numBits">The desired length in bits of the pseudorandom sample.</param>
         /// <returns>A pseudorandom sample with the given number of bits.</returns>
-        protected virtual ulong SampleBits(int numBits)
+        protected ulong SampleBits(int numBits)
         {
-            return (this.Sample() & MASKS[numBits]);
+            ulong mask = ~((~0UL) << numBits);
+            return (this.Sample() & mask);
         }
 
         private decimal SampleToUnitDecimal()
@@ -89,13 +70,13 @@ namespace MDo.Common.Numerics.Random
         /// </summary>
         /// <remarks>This method returns the least significant bits (LSBs) of a pseudorandom sample.
         /// Modern RNGs return samples with random LSBs; however many RNGs now known to be defective,
-        /// e.g. linear congruential RNGs, return samples whose LSBs have very short cycles.  If you
-        /// implement a defective RNG, you should override this method.</remarks>
+        /// e.g. linear congruential RNGs, return samples whose LSBs have very short cycles.</remarks>
         /// <param name="numBits">The desired length in bits of the pseudorandom sample.</param>
         /// <returns>A pseudorandom sample with the given number of bits.</returns>
-        protected virtual uint SampleBits(int numBits)
+        protected uint SampleBits(int numBits)
         {
-            return (this.Sample() & MASKS[numBits]);
+            uint mask = ~((~0U) << numBits);
+            return (this.Sample() & mask);
         }
 
         private decimal SampleToUnitDecimal()
