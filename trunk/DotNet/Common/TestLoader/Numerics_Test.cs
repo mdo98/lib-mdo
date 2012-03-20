@@ -17,26 +17,26 @@ namespace MDo.Common.TestLoader
         [TestCategory("Numerics_Test"), TestMethod]
         public void Rng_ImplementationCheck()
         {
-            RngTestMain.ImplementationCheck();
+            Numerics_RNG_SuperKissRngImplCheck.Run();
         }
 #endif
 
         [TestCategory("Numerics_Test"), TestMethod]
         public void Rng_TimeRngs()
         {
-            RngTestMain.TimeRngs();
+            Numerics_RNG_Speed.Run();
         }
 
         [TestCategory("Numerics_Test"), TestMethod]
         public void Rng_TestRngs()
         {
-            RngTestMain.TestRngs();
+            Numerics_RNG_RandomnessCheck.Run();
         }
 
         [TestCategory("Numerics_Test"), TestMethod]
         public void Rng_GenerateSamplesForDieHard()
         {
-            RngTestMain.GenerateSamplesForDieHard();
+            Numerics_RNG_GenerateSamplesForDiehard.Run();
         }
 
         [TestCategory("Numerics_Test"), TestMethod]

@@ -46,6 +46,10 @@
     </CodeAnalysisDependentAssemblyPaths>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\App\Common.App.csproj">
+      <Project>{977159D4-FDB7-447E-8D09-04C4A7F88E52}</Project>
+      <Name>Common.App</Name>
+    </ProjectReference>
     <ProjectReference Include="..\IO.Test\Common.IO.Test.csproj">
       <Name>Common.IO.Test</Name>
     </ProjectReference>

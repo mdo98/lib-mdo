@@ -7,9 +7,11 @@ using System.Text;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+using MDo.Common.App;
+
 namespace MDo.Common.IO.Test
 {
-    public static class TestDataStream
+    public class IO_DataStream_CompressionAlgorithmPerformance : ConsoleAppModule
     {
         private static readonly CompressionAlgorithm[] Algorithms = new CompressionAlgorithm[]
         {
@@ -19,7 +21,7 @@ namespace MDo.Common.IO.Test
             CompressionAlgorithm.BZip2,
         };
 
-        public static void CompressionAlgorithmPerformanceComparison()
+        public static void Run()
         {
             foreach (string testData in TestCommon.GetTestDataPaths())
             {
@@ -89,5 +91,14 @@ namespace MDo.Common.IO.Test
                 Console.WriteLine("====================");
             }
         }
+        
+        #region ConsoleAppModule
+
+        public override void Run(string[] args)
+        {
+            Run();
+        }
+
+        #endregion ConsoleAppModule
     }
 }

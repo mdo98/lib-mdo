@@ -6,7 +6,7 @@
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{DD50AD0F-E204-48A7-A4B9-9DFD61C39AA4}</ProjectGuid>
-    <OutputType>Library</OutputType>
+    <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>MDo.Common.IO.Test</RootNamespace>
     <AssemblyName>MDo.Common.IO.Test</AssemblyName>
@@ -34,6 +34,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework" />
     <Reference Include="System" />
@@ -47,6 +50,7 @@
   <ItemGroup>
     <Compile Include="DataStream.cs" />
     <Compile Include="DeflateStream.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="TestCommon.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -56,6 +60,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\App\Common.App.csproj">
+      <Project>{977159D4-FDB7-447E-8D09-04C4A7F88E52}</Project>
+      <Name>Common.App</Name>
+    </ProjectReference>
     <ProjectReference Include="..\IO\Common.IO.csproj">
       <Name>Common.IO</Name>
     </ProjectReference>

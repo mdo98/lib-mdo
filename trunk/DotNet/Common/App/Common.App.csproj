@@ -44,6 +44,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CmdLineBootstrapper.cs" />
     <Compile Include="CrossDomainSerialization\SerializableDelegate.cs" />
     <Compile Include="CrossDomainSerialization\SerializableException.cs" />
     <Compile Include="ConsoleAppModule.cs" />

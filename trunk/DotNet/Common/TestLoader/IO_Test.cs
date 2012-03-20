@@ -16,7 +16,7 @@ namespace MDo.Common.TestLoader
         [TestCategory("IO_Test"), TestMethod]
         public void DeflateStream_EncodeDecodeInvariant()
         {
-            TestDeflateStream.EncodeDecodeInvariant();
+            IO_DeflateStream_EncodeDecodeInvariant.Run();
         }
         /*
         [TestCategory("IO_Test"), TestMethod]
@@ -34,7 +34,7 @@ namespace MDo.Common.TestLoader
         [TestCategory("IO_Test"), TestMethod]
         public void DataStream_CompressionAlgorithmPerformanceComparison()
         {
-            TestDataStream.CompressionAlgorithmPerformanceComparison();
+            IO_DataStream_CompressionAlgorithmPerformance.Run();
         }
     }
 }
