@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace MDo.Common.Numerics.LinearAlgebra
 {
@@ -47,13 +48,14 @@ namespace MDo.Common.Numerics.LinearAlgebra
 
             if (MP[mLength / 2, mLength / 2] > (1.0 / eNormFactor))
             {
-                for (int i = 0; i < mLength; i++)
+                var MP_tmp = MP;
+                Parallel.For(0, mLength, (int i) =>
                 {
                     for (int j = 0; j < mLength; j++)
                     {
-                        MP[i, j] = MP[i, j] * eNormFactor;
+                        MP_tmp[i, j] = MP_tmp[i, j] * eNormFactor;
                     }
-                }
+                });
                 eMP += eNorm;
             }
         }
@@ -68,7 +70,7 @@ namespace MDo.Common.Numerics.LinearAlgebra
                 m2Length = M2.GetLength(1);
             double[,] MP = new double[m1Length, m2Length];
 
-            for (int i = 0; i < m1Length; i++)
+            Parallel.For(0, m1Length, (int i) =>
             {
                 for (int j = 0; j < m2Length; j++)
                 {
@@ -79,7 +81,7 @@ namespace MDo.Common.Numerics.LinearAlgebra
                     }
                     MP[i, j] = s;
                 }
-            }
+            });
             return MP;
         }
     }
