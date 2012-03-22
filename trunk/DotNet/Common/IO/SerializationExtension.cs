@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
+using System.Runtime.Serialization;
 using System.Xml;
 using System.Xml.Serialization;
 
@@ -56,13 +57,44 @@ namespace MDo.Common.IO
 
         #region XML serialization
 
+        // We will use the DataContractSerializer preferably to the XmlSerializer
+
+        private static void WriteToXml(object obj, XmlWriter xmlWriter)
+        {
+            Type objType = obj.GetType();
+            if (objType.GetCustomAttributes(typeof(DataContractAttribute), false).Length > 0)
+            {
+                DataContractSerializer serializer = new DataContractSerializer(objType);
+                serializer.WriteObject(xmlWriter, obj);
+            }
+            else
+            {
+                XmlSerializer serializer = new XmlSerializer(objType);
+                serializer.Serialize(xmlWriter, obj);
+            }
+        }
+
+        private static T ReadFromXml<T>(XmlReader xmlReader)
+        {
+            Type objType = typeof(T);
+            if (objType.GetCustomAttributes(typeof(DataContractAttribute), false).Length > 0)
+            {
+                DataContractSerializer serializer = new DataContractSerializer(objType);
+                return (T)serializer.ReadObject(xmlReader);
+            }
+            else
+            {
+                XmlSerializer serializer = new XmlSerializer(objType);
+                return (T)serializer.Deserialize(xmlReader);
+            }
+        }
+
         public static string ToXml(this object obj, XmlWriterSettings xmlWriterSettings)
         {
             StringBuilder xmlBuffer = new StringBuilder();
             using (XmlWriter xmlWriter = XmlWriter.Create(xmlBuffer, xmlWriterSettings))
             {
-                XmlSerializer serializer = new XmlSerializer(obj.GetType());
-                serializer.Serialize(xmlWriter, obj);
+                WriteToXml(obj, xmlWriter);
             }
             return xmlBuffer.ToString();
         }
@@ -89,8 +121,7 @@ namespace MDo.Common.IO
         {
             using (XmlWriter xmlWriter = XmlWriter.Create(outStream, xmlWriterSettings))
             {
-                XmlSerializer serializer = new XmlSerializer(obj.GetType());
-                serializer.Serialize(xmlWriter, obj);
+                WriteToXml(obj, xmlWriter);
             }
         }
 
@@ -120,14 +151,6 @@ namespace MDo.Common.IO
             });
         }
 
-        public static T FromXml<T>(TextReader xmlBuffer)
-        {
-            T obj = default(T);
-            XmlSerializer serializer = new XmlSerializer(typeof(T));
-            obj = (T)serializer.Deserialize(xmlBuffer);
-            return obj;
-        }
-
         public static T FromXml<T>(string xml)
         {
             T obj = default(T);
@@ -135,7 +158,10 @@ namespace MDo.Common.IO
             {
                 using (TextReader serializationInput = new StringReader(xml))
                 {
-                    obj = FromXml<T>(serializationInput);
+                    using (XmlReader xmlReader = XmlReader.Create(serializationInput))
+                    {
+                        obj = ReadFromXml<T>(xmlReader);
+                    }
                 }
             }
             return obj;
@@ -144,9 +170,9 @@ namespace MDo.Common.IO
         public static T FromXml<T>(Stream xmlStream)
         {
             T obj = default(T);
-            using (TextReader serializationInput = new StreamReader(xmlStream))
+            using (XmlReader serializationInput = XmlReader.Create(xmlStream))
             {
-                obj = FromXml<T>(serializationInput);
+                obj = ReadFromXml<T>(serializationInput);
             }
             return obj;
         }

@@ -94,9 +94,9 @@ namespace MDo.Common.Numerics.Random.Test
 
         public void Diehard_Birthday(int numExperiments, Action<string> writeToStdOut, int M = 10, int N = 24)
         {
-            if (N <= 0 || N > 32)
+            if (N < 18 || N >= 32)
                 throw new ArgumentOutOfRangeException("N");
-            int poisson_mean_lg = 3 * M - (N + 2);
+            int poisson_mean_lg = 3*M - (N+2);
             if (poisson_mean_lg < 1 || poisson_mean_lg > 16)
                 throw new ArgumentOutOfRangeException("M");
 
@@ -104,7 +104,7 @@ namespace MDo.Common.Numerics.Random.Test
             writeToStdOut(string.Format("Bits\tMean\tp-value"));
             uint mask = ~((~0U) << N);
             int numSamples = 1 << M;
-            for (int b = 0; b < 8*sizeof(uint)-(N-1); b++)
+            for (int b = 0; b < 32-(N-1); b++)
             {
                 IRandom rng = this.CreateRNG();
                 int[] bdayObs = new int[numExperiments];
@@ -118,13 +118,13 @@ namespace MDo.Common.Numerics.Random.Test
                     Array.Sort(bdaySpace);
                     for (int i = numSamples - 1; i > 0; i--)
                     {
-                        bdaySpace[i] -= bdaySpace[i - 1];
+                        bdaySpace[i] -= bdaySpace[i-1];
                     }
                     Array.Sort(bdaySpace);
                     int numDuplicates = 0;
                     for (int i = 1; i < numSamples; i++)
                     {
-                        if (bdaySpace[i] == bdaySpace[i - 1])
+                        if (bdaySpace[i] == bdaySpace[i-1])
                             numDuplicates++;
                     }
                     bdayObs[e] = numDuplicates;
