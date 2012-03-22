@@ -132,6 +132,13 @@ namespace MDo.Common.Numerics.LinearAlgebra
             return m;
         }
 
+        public static Matrix<TNumeric> All(uint numRows, uint numCols, TNumeric val)
+        {
+            Matrix<TNumeric> m = new Matrix<TNumeric>(numRows, numCols);
+            m.GslMatSetAll(m._M, val);
+            return m;
+        }
+
         #endregion Special Matrices
 
 
@@ -177,9 +184,9 @@ namespace MDo.Common.Numerics.LinearAlgebra
             }
             if (KA != KB)
                 throw new InvalidOperationException("MATRIX_SIZE_MISMATCH");
-            Matrix<TNumeric> C = new Matrix<TNumeric>(M, N);
-            Gsl.Invoke(() => gsl_linalg_matmult_mod(A._M, (int)A_Variant, B._M, (int)B_Variant, C._M));
-            return C;
+            Matrix<TNumeric> P = new Matrix<TNumeric>(M, N);
+            Gsl.Invoke(() => gsl_linalg_matmult_mod(A._M, (int)A_Variant, B._M, (int)B_Variant, P._M));
+            return P;
         }
 
         #endregion Operations
@@ -192,6 +199,8 @@ namespace MDo.Common.Numerics.LinearAlgebra
             None = 0,
             Transpose = 1,
         }
+
+        #region Memory Management
 
 #if X86
         [DllImport(Gsl.GSL_PATH, CallingConvention = CallingConvention.Cdecl)]
@@ -277,10 +286,16 @@ namespace MDo.Common.Numerics.LinearAlgebra
         private static extern void gsl_matrix_long_set_all(IntPtr m, TNumeric x);
 
         [DllImport(Gsl.GSL_PATH, CallingConvention = CallingConvention.Cdecl)]
-        private static extern int gsl_linalg_matmult_mod(IntPtr A, int modA, IntPtr B, int modB, IntPtr C);
+        private static extern void gsl_matrix_free(IntPtr m);
+
+        #endregion Memory Management
+
+        #region Operations
 
         [DllImport(Gsl.GSL_PATH, CallingConvention = CallingConvention.Cdecl)]
-        private static extern void gsl_matrix_free(IntPtr m);
+        private static extern int gsl_linalg_matmult_mod(IntPtr A, int modA, IntPtr B, int modB, IntPtr P);
+
+        #endregion Operations
 
         #endregion Imports
     }

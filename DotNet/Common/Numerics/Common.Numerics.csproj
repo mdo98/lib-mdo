@@ -48,6 +48,7 @@
     <Compile Include="Arithmetic\ContinuedFraction.cs" />
     <Compile Include="Exceptions.cs" />
     <Compile Include="Gsl.cs" />
+    <Compile Include="LinearAlgebra\Vector.cs" />
     <Compile Include="LinearAlgebra\Matrix.cs" />
     <Compile Include="LinearAlgebra\MatrixUtil.cs" />
     <Compile Include="Operators.cs" />
@@ -63,6 +64,7 @@
     <Compile Include="Random\SystemRandom.cs" />
     <Compile Include="Sequence.cs" />
     <Compile Include="Statistics\Distributions\ChiSquare.cs" />
+    <Compile Include="Statistics\Distributions\Normal.cs" />
     <Compile Include="Statistics\Distributions\Poisson.cs" />
     <Compile Include="Statistics\Distributions\Gamma.cs" />
     <Compile Include="IDistribution.cs" />
