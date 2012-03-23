@@ -5,11 +5,14 @@ using System.Text;
 
 namespace MDo.Common.Numerics.Random
 {
+    /// <summary>
+    /// Wraps System.Random and implements IRandom interface to test its randomness properties.
+    /// </summary>
     public sealed class SystemRandom : System.Random, IRandom
     {
         private readonly int Seed;
 
-        public SystemRandom() : this(Environment.TickCount) { }
+        public SystemRandom() : base() { }
         public SystemRandom(int seed) : base(seed) { Seed = seed; }
 
         public override string ToString()
