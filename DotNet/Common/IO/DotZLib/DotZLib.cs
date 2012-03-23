@@ -218,10 +218,10 @@ namespace Zlib.DotZLib
     /// </summary>
     public static class Info
     {
-#if !X86
-        public const string NativeZlibPath = @"lib\ZLIB\zlib64.dll";
+#if X86
+        public const string NativeZlibPath = @"lib\ZLIB\i386\zlib1.dll";
 #else
-        public const string NativeZlibPath = @"lib\ZLIB\zlib32.dll";
+        public const string NativeZlibPath = @"lib\ZLIB\x64\zlib1.dll";
 #endif
 
         #region DLL imports

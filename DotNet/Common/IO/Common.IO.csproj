@@ -68,10 +68,10 @@
   <ItemGroup>
     <Content Include="lib\Ionic.Zip.dll" />
     <Content Include="lib\ZLIB\def\zlib.h" />
-    <Content Include="lib\ZLIB\zlib32.dll">
+    <Content Include="lib\ZLIB\i386\zlib1.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="lib\ZLIB\zlib64.dll">
+    <Content Include="lib\ZLIB\x64\zlib1.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

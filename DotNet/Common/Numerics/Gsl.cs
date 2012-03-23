@@ -8,9 +8,9 @@ namespace MDo.Common.Numerics
     public static class Gsl
     {
 #if X86
-        internal const string GSL_PATH = @"lib\GSL\gsl32.dll";
+        internal const string GSL_PATH = @"lib\GSL\i386\gsl.dll";
 #else
-        internal const string GSL_PATH = @"lib\GSL\gsl64.dll";
+        internal const string GSL_PATH = @"lib\GSL\x64\gsl.dll";
 #endif
 
         public static void Invoke(Func<int> gslFuncCode)

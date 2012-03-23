@@ -73,12 +73,6 @@
     <Compile Include="Statistics\Distributions\Utils.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="lib\GSL\cblas64.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="lib\GSL\gsl64.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="lib\GSL\def\gsl_blas.h" />
     <Content Include="lib\GSL\def\gsl_blas_types.h" />
     <Content Include="lib\GSL\def\gsl_block.h" />
@@ -298,10 +292,16 @@
     <Content Include="lib\GSL\def\gsl_version.h" />
     <Content Include="lib\GSL\def\gsl_wavelet.h" />
     <Content Include="lib\GSL\def\gsl_wavelet2d.h" />
-    <Content Include="lib\GSL\cblas32.dll">
+    <Content Include="lib\GSL\i386\cblas.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="lib\GSL\gsl32.dll">
+    <Content Include="lib\GSL\i386\gsl.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="lib\GSL\x64\cblas.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="lib\GSL\x64\gsl.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
