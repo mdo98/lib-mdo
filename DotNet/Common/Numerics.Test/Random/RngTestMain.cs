@@ -167,7 +167,7 @@ namespace MDo.Common.Numerics.Random.Test
     {
         public static void Run(int numSamples = 100000000)
         {
-            RngTestUtil.TestRNGsHelper(Tuple.Create("Speed", numSamples, (Action<RngTest, Action<string>>)((rngTest, writeToStdOut) => rngTest.Time(numSamples, writeToStdOut))));
+            RngTestUtil.TestRNGsHelper(Tuple.Create("Speed", (Action<RngTest, Action<string>>)((rngTest, writeToStdOut) => rngTest.Time(numSamples, writeToStdOut))));
         }
 
         #region ConsoleAppModule
@@ -199,26 +199,37 @@ namespace MDo.Common.Numerics.Random.Test
     public class Numerics_RNG_RandomnessCheck : ConsoleAppModule
     {
         public static void Run(RngTestFlag testFlag
-            = RngTestFlag.Equidistribution | RngTestFlag.Diehard_Birthday | RngTestFlag.Diehard_3DSphere)
+            = RngTestFlag.Equidistribution | RngTestFlag.Diehard_Birthday | RngTestFlag.Diehard_CountOnes | RngTestFlag.Diehard_3DSphere)
         {
-            var tests = new List<Tuple<string, int, Action<RngTest, Action<string>>>>();
+            var tests = new List<Tuple<string, Action<RngTest, Action<string>>>>();
 
+            if (testFlag.HasFlag(RngTestFlag.Equidistribution))
             {
                 const int numSamples = 10000;
-                if (testFlag.HasFlag(RngTestFlag.Equidistribution))
-                    tests.Add(Tuple.Create("Equidistribution", numSamples, (Action<RngTest, Action<string>>)((rngTest, writeToStdOut) => rngTest.Equidistribution(numSamples, writeToStdOut))));
+                tests.Add(Tuple.Create("Equidistribution", (Action<RngTest, Action<string>>)((rngTest, writeToStdOut) => rngTest.Equidistribution(numSamples, writeToStdOut))));
             }
 
+            if (testFlag.HasFlag(RngTestFlag.Diehard_Birthday))
             {
-                const int numExperiments = 1 << 9;
-                if (testFlag.HasFlag(RngTestFlag.Diehard_Birthday))
-                    tests.Add(Tuple.Create("Diehard_Birthday", numExperiments, (Action<RngTest, Action<string>>)((rngTest, writeToStdOut) => rngTest.Diehard_Birthday(numExperiments, writeToStdOut))));
+                const int numTrials = 1 << 9;
+                tests.Add(Tuple.Create("Diehard_Birthday_32", (Action<RngTest, Action<string>>)((rngTest, writeToStdOut) => rngTest.Diehard_Birthday_32(numTrials, writeToStdOut))));
+#if !X86
+                tests.Add(Tuple.Create("Diehard_Birthday_64", (Action<RngTest, Action<string>>)((rngTest, writeToStdOut) => rngTest.Diehard_Birthday_64(numTrials, writeToStdOut))));
+#endif
             }
 
+            if (testFlag.HasFlag(RngTestFlag.Diehard_CountOnes))
             {
-                const int numExperiments = 1 << 5;
-                if (testFlag.HasFlag(RngTestFlag.Diehard_3DSphere))
-                    tests.Add(Tuple.Create("Diehard_3DSphere", numExperiments, (Action<RngTest, Action<string>>)((rngTest, writeToStdOut) => rngTest.Diehard_3DSphere(numExperiments, writeToStdOut))));
+                tests.Add(Tuple.Create("Diehard_CountOnes_32", (Action<RngTest, Action<string>>)((rngTest, writeToStdOut) => rngTest.Diehard_CountOnes_32(writeToStdOut))));
+#if !X86
+                tests.Add(Tuple.Create("Diehard_CountOnes_64", (Action<RngTest, Action<string>>)((rngTest, writeToStdOut) => rngTest.Diehard_CountOnes_64(writeToStdOut))));
+#endif
+            }
+
+            if (testFlag.HasFlag(RngTestFlag.Diehard_3DSphere))
+            {
+                const int numTrials = 1 << 5;
+                tests.Add(Tuple.Create("Diehard_3DSphere", (Action<RngTest, Action<string>>)((rngTest, writeToStdOut) => rngTest.Diehard_3DSphere(numTrials, writeToStdOut))));
             }
 
             RngTestUtil.TestRNGsHelper(tests.ToArray());
@@ -259,6 +270,7 @@ namespace MDo.Common.Numerics.Random.Test
     {
         Equidistribution    = 0x1,
         Diehard_Birthday    = 0x2,
-        Diehard_3DSphere    = 0x4,
+        Diehard_CountOnes   = 0x4,
+        Diehard_3DSphere    = 0x8,
     }
 }

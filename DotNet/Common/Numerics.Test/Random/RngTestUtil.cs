@@ -21,7 +21,7 @@ namespace MDo.Common.Numerics.Random.Test
             typeof(SuperKissRng2),
         };
 
-        internal static void TestRNGsHelper(params Tuple<string, int, Action<RngTest, Action<string>>>[] testMethods)
+        internal static void TestRNGsHelper(params Tuple<string, Action<RngTest, Action<string>>>[] testMethods)
         {
             if (null == testMethods)
                 return;
@@ -43,8 +43,8 @@ namespace MDo.Common.Numerics.Random.Test
 
                     foreach (var testMethod in testMethods)
                     {
-                        Console.WriteLine("\tTesting {0}, samplespace = {1:N0}...", testMethod.Item1, testMethod.Item2);
-                        testMethod.Item3(rngTest, writeToStdOut);
+                        Console.WriteLine("\tTest {0}", testMethod.Item1);
+                        testMethod.Item2(rngTest, writeToStdOut);
                         Console.WriteLine();
                     }
                 }
