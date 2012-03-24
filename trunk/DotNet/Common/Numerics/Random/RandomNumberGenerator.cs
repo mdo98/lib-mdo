@@ -191,7 +191,7 @@ namespace MDo.Common.Numerics.Random
                 ulong sample = this.Sample();
                 do
                 {
-                    b[i] = (byte)(sample & 0xFFU);
+                    b[i] = (byte)(sample & 0xFFUL);
                     sample = (sample >> 8);
                     i++;
                 }

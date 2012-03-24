@@ -737,8 +737,11 @@ namespace MDo.Common.Numerics.Statistics.Distributions
 
             for (int i = 0; i < K; i++)
             {
+                /*
+                // Always initialized to 0 in .NET
                 count_k[i] = 0;
                 max_k[i] = 0.0;
+                */
                 min_k[i] = 1.0;
             }
 
@@ -747,6 +750,8 @@ namespace MDo.Common.Numerics.Statistics.Distributions
                 double s = getSample();
                 double f = referenceCdf(s);
                 int k = (int)((double)K * f);
+                if (k == K)
+                    k = K - 1;
                 count_k[k]++;
                 if (max_k[k] < f)
                     max_k[k] = f;
