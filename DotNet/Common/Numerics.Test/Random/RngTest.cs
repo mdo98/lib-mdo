@@ -127,7 +127,7 @@ namespace MDo.Common.Numerics.Random.Test
                         bdaySpace[i] -= bdaySpace[i-1];
                     }
                     Array.Sort(bdaySpace);
-                    int numDuplicates = 0;
+                    long numDuplicates = 0L;
                     for (int i = 1; i < numSamples; i++)
                     {
                         if (bdaySpace[i] == bdaySpace[i-1])
@@ -226,7 +226,7 @@ namespace MDo.Common.Numerics.Random.Test
 
             writeToStdOut(string.Format("#Bdays=2^{0}, #Days=2^{1}, SpaceR~Poisson(Mu={2})", M, N, 1 << poisson_mean_lg));
             writeToStdOut(string.Format("Bits\tMean\tp-value"));
-            ulong mask = ~((~0U) << N);
+            ulong mask = ~((~0UL) << N);
             int numSamples = 1 << M;
             for (int b = 0; b < 64-(N-1); b++)
             {
@@ -245,7 +245,7 @@ namespace MDo.Common.Numerics.Random.Test
                         bdaySpace[i] -= bdaySpace[i-1];
                     }
                     Array.Sort(bdaySpace);
-                    long numDuplicates = 0;
+                    long numDuplicates = 0L;
                     for (int i = 1; i < numSamples; i++)
                     {
                         if (bdaySpace[i] == bdaySpace[i-1])
