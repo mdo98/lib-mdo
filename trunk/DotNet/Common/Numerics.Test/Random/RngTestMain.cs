@@ -240,12 +240,23 @@ namespace MDo.Common.Numerics.Random.Test
         public override void Run(string[] args)
         {
             uint? rngTestFlags = null;
-            try
+            if (args.Length > 0 && !string.IsNullOrEmpty(args[0]))
             {
-                rngTestFlags = uint.Parse(args[0], NumberStyles.Number | NumberStyles.HexNumber);
+                try
+                {
+                    string numAsString = args[0].Trim();
+                    if (numAsString.StartsWith("0x"))
+                    {
+                        numAsString = numAsString.Substring(2);
+                        rngTestFlags = uint.Parse(numAsString, NumberStyles.HexNumber);
+                    }
+                    else
+                    {
+                        rngTestFlags = uint.Parse(numAsString, NumberStyles.Number);
+                    }
+                }
+                catch { }
             }
-            catch { }
-
             if (null == rngTestFlags)
                 Run();
             else

@@ -248,17 +248,14 @@ namespace MDo.Common.App
             {
                 Console.Error.WriteLine("An error occurred: {0}", ex.ToString());
             }
-            finally
-            {
-                Console.Out.Flush();
-                Console.Error.Flush();
-            }
             if (time)
             {
                 DateTime end = DateTime.Now;
                 Console.WriteLine("Module End    : {0}", end);
                 Console.WriteLine("Module Elapsed: {0}", end - start);
             }
+            Console.Out.Flush();
+            Console.Error.Flush();
         }
 
         protected static string StandardizedModuleName(IConsoleAppModule module)
