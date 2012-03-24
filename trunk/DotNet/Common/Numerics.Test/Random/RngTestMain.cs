@@ -268,9 +268,9 @@ namespace MDo.Common.Numerics.Random.Test
     [Flags]
     public enum RngTestFlag : uint
     {
-        Equidistribution    = 0x1,
-        Diehard_Birthday    = 0x2,
-        Diehard_CountOnes   = 0x4,
-        Diehard_3DSphere    = 0x8,
+        Equidistribution    = 0x1U,
+        Diehard_Birthday    = 0x2U,
+        Diehard_CountOnes   = 0x4U,
+        Diehard_3DSphere    = 0x8U,
     }
 }
