@@ -8,7 +8,7 @@ using System.IO;
 
 namespace MDo.Interop.R
 {
-    public static class R
+    public static class RInterop
     {
 #if X86
         private const string R_HOME = @"lib\R";
@@ -33,8 +33,8 @@ namespace MDo.Interop.R
             public RBool LoadSiteFile;
             public RBool LoadInitFile;
             public RBool DebugInitFile;
-            public SaType RestoreAction;
-            public SaType SaveAction;
+            public RSaType RestoreAction;
+            public RSaType SaveAction;
 #if X86
             public uint vsize;
             public uint nsize;
@@ -95,7 +95,7 @@ namespace MDo.Interop.R
         
         private delegate void R_Busy(int which);
 
-        private enum SaType
+        private enum RSaType
         {
             SA_NORESTORE,   /* = 0 */
             SA_RESTORE,
@@ -124,6 +124,58 @@ namespace MDo.Interop.R
             RGui,
             RTerm,
             LinkDLL
+        };
+
+        private enum RParseStatus
+        {
+            PARSE_NULL,
+            PARSE_OK,
+            PARSE_INCOMPLETE,
+            PARSE_ERROR,
+            PARSE_EOF,
+        };
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct RSEXPREC
+        {
+            // Header
+            public uint SXPInfo;
+            public IntPtr attrib;
+            public IntPtr gengc_next_node;
+            public IntPtr gengc_prev_node;
+        }
+
+        private enum RSEXPTYPE
+        {
+            NILSXP      = 0,	/* nil = NULL */
+            SYMSXP      = 1,	/* symbols */
+            LISTSXP     = 2,	/* lists of dotted pairs */
+            CLOSXP      = 3,	/* closures */
+            ENVSXP      = 4,	/* environments */
+            PROMSXP     = 5,	/* promises: [un]evaluated closure arguments */
+            LANGSXP     = 6,	/* language constructs (special lists) */
+            SPECIALSXP  = 7,	/* special forms */
+            BUILTINSXP  = 8,	/* builtin non-special forms */
+            CHARSXP     = 9,	/* "scalar" string type (internal only)*/
+            LGLSXP      = 10,	/* logical vectors */
+            INTSXP      = 13,	/* integer vectors */
+            REALSXP     = 14,	/* real variables */
+            CPLXSXP     = 15,	/* complex variables */
+            STRSXP      = 16,	/* string vectors */
+            DOTSXP      = 17,	/* dot-dot-dot object */
+            ANYSXP      = 18,	/* make "any" args work */
+            VECSXP      = 19,	/* generic vectors */
+            EXPRSXP     = 20,	/* expressions vectors */
+            BCODESXP    = 21,	/* byte code */
+            EXTPTRSXP   = 22,	/* external pointer */
+            WEAKREFSXP  = 23,	/* weak reference */
+            RAWSXP      = 24,	/* raw bytes */
+            S4SXP       = 25,	/* S4 non-vector */
+
+            NEWSXP      = 30,   /* fresh node creaed in new page */
+            FREESXP     = 31,   /* node released by GC */
+
+            FUNSXP      = 99	/* Closure or Builtin */
         };
 
         #region DLL Imports
@@ -165,10 +217,33 @@ namespace MDo.Interop.R
 
         [DllImport(R_HOME + "\\" + R_DLL, CharSet = CharSet.Ansi, SetLastError = true)]
         private static extern void Rf_endEmbeddedR(int fatal);
+
+
+        // R Parsing & Expression Management
+
+        [DllImport(R_HOME + "\\" + R_DLL, CharSet = CharSet.Ansi, SetLastError = true)]
+        private static extern IntPtr Rf_mkString([MarshalAs(UnmanagedType.LPStr)] string str);
+
+        [DllImport(R_HOME + "\\" + R_DLL, CharSet = CharSet.Ansi, SetLastError = true)]
+        private static extern IntPtr Rf_protect(IntPtr ptr);
+
+        [DllImport(R_HOME + "\\" + R_DLL, CharSet = CharSet.Ansi, SetLastError = true)]
+        private static extern void Rf_unprotect_ptr(IntPtr ptr);
+
+        [DllImport(R_HOME + "\\" + R_DLL, CharSet = CharSet.Ansi, SetLastError = true)]
+        private static extern IntPtr R_ParseVector(
+            IntPtr text,
+            int n,
+            [MarshalAs(UnmanagedType.I4)] ref RParseStatus status,
+            IntPtr srcfile);
+
+        [DllImport(R_HOME + "\\" + R_DLL, CharSet = CharSet.Ansi, SetLastError = true)]
+        private static extern IntPtr R_tryEval(IntPtr expr, IntPtr env, ref int errorOccurred);
         
         #endregion DLL Imports
 
         #endregion Interop: R
+
 
         #region Interop: System
 
@@ -205,12 +280,14 @@ namespace MDo.Interop.R
         #endregion Fields
 
 
-        static R()
+        static RInterop()
         {
             InitRSession();
-            AppDomain.CurrentDomain.DomainUnload += (sender, eventArgs) => EndRSession();
+            AppDomain.CurrentDomain.DomainUnload += EndRSession;
         }
 
+
+        #region RInterop Methods
 
         private static void InitRSession()
         {
@@ -232,8 +309,8 @@ namespace MDo.Interop.R
             RStartInfo.CharacterMode = RUIMode.LinkDLL;
             RStartInfo.R_Quiet = RBool.True;
             RStartInfo.R_Interactive = RBool.False;
-            RStartInfo.RestoreAction = SaType.SA_RESTORE;
-            RStartInfo.SaveAction = SaType.SA_NOSAVE;
+            RStartInfo.RestoreAction = RSaType.SA_RESTORE;
+            RStartInfo.SaveAction = RSaType.SA_NOSAVE;
 
             // Setup R callbacks
             RStartInfo.ReadConsole = IReadConsole;
@@ -257,13 +334,30 @@ namespace MDo.Interop.R
         }
 
 
-        private static void EndRSession()
+        private static void EndRSession(object sender, EventArgs e)
         {
             Rf_endEmbeddedR(0);
 
             Marshal.FreeHGlobal(RStartInfoPtr);
             RStartInfoPtr = IntPtr.Zero;
         }
+
+        public static void Evaluate(string statement)
+        {
+            RParseStatus status = RParseStatus.PARSE_NULL;
+            IntPtr expr = R_ParseVector(Rf_mkString(statement), 0, ref status, IntPtr.Zero);
+            if (status != RParseStatus.PARSE_OK)
+                throw new RInteropException(string.Format(
+                    "Error {0} while parsing R statement: {1}",
+                    status.ToString(),
+                    statement));
+
+            IntPtr pExpr = Rf_protect(expr);
+            int evalError = 0;
+            IntPtr ans = R_tryEval(pExpr, IntPtr.Zero, ref evalError);
+        }
+
+        #endregion RInterop Methods
 
 
         #region Events
@@ -275,6 +369,7 @@ namespace MDo.Interop.R
 
         #region Properties
 
+        public static string Verion     { get { return "2.14.2"; } }
         public static string RVersion   { get; private set; }
         public static string RHome      { get; private set; }
         public static string RUserHome  { get; private set; }
@@ -319,7 +414,7 @@ namespace MDo.Interop.R
         #endregion R Callbacks
 
 
-        #region Methods
+        #region Helper Methods
 
         private static void OnMessageAvailable(RMessageEventArgs e)
         {
@@ -349,7 +444,7 @@ namespace MDo.Interop.R
                 return Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), path);
         }
 
-        #endregion Methods
+        #endregion Helper Methods
     }
 
 
