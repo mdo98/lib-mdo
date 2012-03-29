@@ -46,6 +46,7 @@
   <ItemGroup>
     <Compile Include="R-Interop.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RInteropException.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="lib\R\library\class\libs\x64\class.dll">
