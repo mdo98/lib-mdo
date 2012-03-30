@@ -342,7 +342,21 @@ namespace MDo.Interop.R
         private static extern void Rf_endEmbeddedR(int fatal);
 
 
-        // R Parsing & Expression Management
+        // R Parsing & Evaluation
+
+        [DllImport(R_HOME + "\\" + R_DLL, CharSet = CharSet.Ansi, SetLastError = true)]
+        private static extern IntPtr R_ParseVector(
+            IntPtr text,
+            int n,
+            [MarshalAs(UnmanagedType.I4)] ref RParseStatus status,
+            IntPtr srcfile);
+
+
+        [DllImport(R_HOME + "\\" + R_DLL, CharSet = CharSet.Ansi, SetLastError = true)]
+        private static extern IntPtr R_tryEval(IntPtr expr, IntPtr env, ref int errorOccurred);
+
+
+        // R Expression Management
 
         [DllImport(R_HOME + "\\" + R_DLL, CharSet = CharSet.Ansi, SetLastError = true)]
         private static extern IntPtr Rf_mkString([MarshalAs(UnmanagedType.LPStr)] string str);
@@ -354,24 +368,20 @@ namespace MDo.Interop.R
         private static extern void Rf_unprotect_ptr(IntPtr ptr);
 
         [DllImport(R_HOME + "\\" + R_DLL, CharSet = CharSet.Ansi, SetLastError = true)]
-        private static extern IntPtr R_ParseVector(
-            IntPtr text,
-            int n,
-            [MarshalAs(UnmanagedType.I4)] ref RParseStatus status,
-            IntPtr srcfile);
-
-        [DllImport(R_HOME + "\\" + R_DLL, CharSet = CharSet.Ansi, SetLastError = true)]
         private static extern int Rf_length(IntPtr expr);
 
-        [DllImport(R_HOME + "\\" + R_DLL, CharSet = CharSet.Ansi, SetLastError = true)]
-        private static extern IntPtr R_tryEval(IntPtr expr, IntPtr env, ref int errorOccurred);
+
+        // R Environment Management
 
         [DllImport(R_HOME + "\\" + R_DLL, CharSet = CharSet.Ansi, SetLastError = true)]
-        private static extern void Rf_PrintValue(IntPtr expr);
+        private static extern IntPtr Rf_install([MarshalAs(UnmanagedType.LPStr)] string symbol);
 
         [DllImport(R_HOME + "\\" + R_DLL, CharSet = CharSet.Ansi, SetLastError = true)]
-        private static extern void Rf_printVector(IntPtr expr, int indx, int quote);
-        
+        private static extern void Rf_setVar(IntPtr symbol, IntPtr value, IntPtr rho);
+
+        [DllImport(R_HOME + "\\" + R_DLL, CharSet = CharSet.Ansi, SetLastError = true)]
+        private static extern IntPtr Rf_findVar(IntPtr symbol, IntPtr rho);
+
         #endregion DLL Imports
 
         #endregion Interop: R
@@ -414,6 +424,7 @@ namespace MDo.Interop.R
         private static IntPtr RDllPtr;
         private static RStartStruct RStartInfo;
         private static IntPtr RStartInfoPtr;
+        private static IntPtr R_GlobalEnv;
         private static IntPtr R_NilValue;
 
         #endregion Fields
@@ -436,8 +447,6 @@ namespace MDo.Interop.R
                     "Could not load {0} from {1}.",
                     R_DLL,
                     R_HOME));
-
-            R_NilValue = GetProcAddress(RDllPtr, "R_NilValue");
 
             unsafe
             {
@@ -479,10 +488,14 @@ namespace MDo.Interop.R
             readconsolecfg();
             setup_Rmainloop();
             R_ReplDLLinit();
+
+            R_GlobalEnv = Marshal.ReadIntPtr(GetProcAddress(RDllPtr, "R_GlobalEnv"));
+            R_NilValue = Marshal.ReadIntPtr(GetProcAddress(RDllPtr, "R_NilValue"));
         }
 
         private static void EndRSession(object sender, EventArgs e)
         {
+            R_GlobalEnv = IntPtr.Zero;
             R_NilValue = IntPtr.Zero;
 
             Rf_endEmbeddedR(0);
@@ -494,7 +507,7 @@ namespace MDo.Interop.R
             RDllPtr = IntPtr.Zero;
         }
 
-        public static object[] Evaluate(string statement)
+        public static IntPtr InternalEval(string statement)
         {
             RParseStatus status = RParseStatus.PARSE_NULL;
             IntPtr expr = R_ParseVector(Rf_mkString(statement), -1, ref status, R_NilValue);
@@ -519,29 +532,64 @@ namespace MDo.Interop.R
                             evalError,
                             statement));
                 }
-                if (val == IntPtr.Zero)
-                    return null;
-
-                IList<object> evalRet = new List<object>();
-                RSEXPREC ans = RSEXPREC.FromPointer(val);
-                switch (ans.Header.sxpInfo.Type)
-                {
-                    case RSEXPTYPE.REALSXP:
-                        for (int i = 0; i < ans.Content.VLength; i++)
-                        {
-                            unsafe { evalRet.Add(*((double*)RSEXPREC.NumSxp_GetElement(val, i, sizeof(double)))); }
-                        }
-                        break;
-
-                    default:
-                        return null;
-                }
-                return evalRet.ToArray();
+                return val;
             }
             finally
             {
                 Rf_unprotect_ptr(pExpr);
             }
+        }
+
+        public static object[] Eval(string statement)
+        {
+            return RsxprPtrToClrValue(InternalEval(statement));
+        }
+
+        private static object[] RsxprPtrToClrValue(IntPtr val)
+        {
+            if (val == IntPtr.Zero)
+                return null;
+
+            IList<object> evalRet = new List<object>();
+            RSEXPREC ans = RSEXPREC.FromPointer(val);
+            switch (ans.Header.sxpInfo.Type)
+            {
+                case RSEXPTYPE.REALSXP:
+                    for (int i = 0; i < ans.Content.VLength; i++)
+                    {
+                        unsafe { evalRet.Add(*((double*)RSEXPREC.NumSxp_GetElement(val, i, sizeof(double)))); }
+                    }
+                    break;
+
+                default:
+                    return null;
+            }
+            return evalRet.ToArray();
+        }
+
+        public static void SetVariable(string name, string expression)
+        {
+            IntPtr val = InternalEval(expression);
+            IntPtr sym = Rf_install(name);
+            IntPtr pVal = Rf_protect(val);
+            try
+            {
+                Rf_setVar(sym, pVal, R_GlobalEnv);
+            }
+            finally
+            {
+                Rf_unprotect_ptr(pVal);
+            }
+        }
+
+        public static IntPtr InternalGetVariable(string name)
+        {
+            return Rf_findVar(Rf_install(name), R_GlobalEnv);
+        }
+
+        public static object[] GetVariable(string name)
+        {
+            return RsxprPtrToClrValue(InternalGetVariable(name));
         }
 
         #endregion RInterop Methods
