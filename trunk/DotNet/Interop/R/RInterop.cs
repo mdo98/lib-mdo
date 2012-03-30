@@ -233,7 +233,6 @@ namespace MDo.Interop.R
 
             #endregion dataptr_struct
 
-
             #region primsxp_struct
 
             [FieldOffset(0)]    public int primsxp_offset;
