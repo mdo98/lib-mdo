@@ -28,7 +28,7 @@ namespace MDo.Interop.R.Stats.Test
                     {
                         double[,] x; double[] y;
                         int numItems, numTrainingItems, numTestItems;
-                        using (Stream input = File.OpenRead(testFile))
+                        using (Stream input = FS.OpenRead(testFile))
                         {
                             numItems = StatsTestUtils.Parse_LinearModelData(input, out x, out y);
                         }
