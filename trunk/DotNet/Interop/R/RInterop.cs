@@ -349,7 +349,6 @@ namespace MDo.Interop.R
             [MarshalAs(UnmanagedType.I4)] ref RParseStatus status,
             IntPtr srcfile);
 
-
         [DllImport(R_HOME + "\\" + R_DLL, CharSet = CharSet.Ansi, SetLastError = true)]
         private static extern IntPtr R_tryEval(IntPtr expr, IntPtr env, ref int errorOccurred);
 
@@ -367,6 +366,9 @@ namespace MDo.Interop.R
 
         [DllImport(R_HOME + "\\" + R_DLL, CharSet = CharSet.Ansi, SetLastError = true)]
         private static extern int Rf_length(IntPtr expr);
+
+        [DllImport(R_HOME + "\\" + R_DLL, CharSet = CharSet.Ansi, SetLastError = true)]
+        private static extern void Rf_PrintValue(IntPtr expr);
 
 
         // R Environment Management
@@ -505,7 +507,7 @@ namespace MDo.Interop.R
             RDllPtr = IntPtr.Zero;
         }
 
-        private static IntPtr InternalEval(string statement)
+        public static IntPtr InternalEval(string statement)
         {
             RParseStatus status = RParseStatus.PARSE_NULL;
             IntPtr expr = R_ParseVector(Rf_mkString(statement), -1, ref status, R_NilValue);
@@ -543,7 +545,7 @@ namespace MDo.Interop.R
             return RsxprPtrToClrValue(InternalEval(statement));
         }
 
-        private static object[] RsxprPtrToClrValue(IntPtr val)
+        public static object[] RsxprPtrToClrValue(IntPtr val)
         {
             if (val == IntPtr.Zero)
                 return null;
@@ -559,15 +561,38 @@ namespace MDo.Interop.R
                     }
                     break;
 
+                case RSEXPTYPE.INTSXP:
+                    for (int i = 0; i < ans.Content.VLength; i++)
+                    {
+                        unsafe { evalRet.Add(*((int*)RSEXPREC.NumSxp_GetElement(val, i, sizeof(int)))); }
+                    }
+                    break;
+
                 default:
                     return null;
             }
             return evalRet.ToArray();
         }
 
-        public static void SetVariable(string name, string expression)
+        public static void Print(IntPtr expr)
+        {
+            Rf_PrintValue(expr);
+        }
+
+        public static IntPtr SetVariable(string name, string expression)
         {
             IntPtr val = InternalEval(expression);
+            InternalSetVariable(name, val);
+            return val;
+        }
+
+        internal static IntPtr SetPrivateVariable(string name, string expression)
+        {
+            return SetVariable(MakePrivateVariable(name), expression);
+        }
+
+        public static void InternalSetVariable(string name, IntPtr val)
+        {
             IntPtr sym = Rf_install(name);
             IntPtr pVal = Rf_protect(val);
             try
@@ -580,14 +605,29 @@ namespace MDo.Interop.R
             }
         }
 
-        private static IntPtr InternalGetVariable(string name)
+        internal static void InternalSetPrivateVariable(string name, IntPtr val)
+        {
+            InternalSetVariable(MakePrivateVariable(name), val);
+        }
+
+        public static IntPtr InternalGetVariable(string name)
         {
             return Rf_findVar(Rf_install(name), R_GlobalEnv);
+        }
+
+        internal static IntPtr InternalGetPrivateVariable(string name)
+        {
+            return InternalGetVariable(MakePrivateVariable(name));
         }
 
         public static object[] GetVariable(string name)
         {
             return RsxprPtrToClrValue(InternalGetVariable(name));
+        }
+
+        internal static object[] GetPrivateVariable(string name)
+        {
+            return GetVariable(MakePrivateVariable(name));
         }
 
         #endregion RInterop Methods
@@ -658,9 +698,9 @@ namespace MDo.Interop.R
             else
             {
                 if (e.IsError)
-                    Console.Error.WriteLine(e.Message);
+                    Console.Error.Write(e.Message);
                 else
-                    Console.WriteLine(e.Message);
+                    Console.Write(e.Message);
             }
         }
 
@@ -675,6 +715,11 @@ namespace MDo.Interop.R
                 return path;
             else
                 return Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), path);
+        }
+
+        internal static string MakePrivateVariable(string name)
+        {
+            return "priv_" + name;
         }
 
         #endregion Helper Methods
