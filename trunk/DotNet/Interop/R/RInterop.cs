@@ -445,7 +445,7 @@ namespace MDo.Interop.R
                 throw new RInteropException(string.Format(
                     "Could not load {0} from {1}.",
                     R_DLL,
-                    R_HOME));
+                    MakeAbsolutePath(R_HOME)));
 
             unsafe
             {
