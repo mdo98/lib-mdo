@@ -50,7 +50,7 @@ namespace MDo.Interop.R.Stats.Test
                             hasNumColsAndRows = true;
                             for (int j = 0; j < numCols; j++)
                                 textReader.ReadLine();
-                            x = new double[numRows,numCols-1];
+                            x = new double[numRows,numCols-2];
                             y = new double[numRows];
                         }
                     }
@@ -61,8 +61,8 @@ namespace MDo.Interop.R.Stats.Test
                         if (numRowsProcessed >= numRows)
                             TestUtils.ThrowInvalidDataStream();
 
-                        for (int j = 0; j < numCols-1; j++)
-                            x[numRowsProcessed,j] = double.Parse(parts[j].Trim());
+                        for (int j = 1; j < numCols-1; j++)
+                            x[numRowsProcessed,j-1] = double.Parse(parts[j].Trim());
                         y[numRowsProcessed] = double.Parse(parts[numCols-1].Trim());
                         numRowsProcessed++;
                     }
