@@ -10,12 +10,11 @@ namespace MDo.Interop.R
 {
     public static class RInterop
     {
-#if X86
         private const string R_HOME = @"lib\R";
+#if X86
         private const string R_DLL = @"bin\i386\R.dll";
         private const string RGraphApp_DLL = @"bin\i386\Rgraphapp.dll";
 #else
-        private const string R_HOME = @"lib\R";
         private const string R_DLL = @"bin\x64\R.dll";
         private const string RGraphApp_DLL = @"bin\x64\Rgraphapp.dll";
 #endif
@@ -506,7 +505,7 @@ namespace MDo.Interop.R
             RDllPtr = IntPtr.Zero;
         }
 
-        public static IntPtr InternalEval(string statement)
+        private static IntPtr InternalEval(string statement)
         {
             RParseStatus status = RParseStatus.PARSE_NULL;
             IntPtr expr = R_ParseVector(Rf_mkString(statement), -1, ref status, R_NilValue);
@@ -581,7 +580,7 @@ namespace MDo.Interop.R
             }
         }
 
-        public static IntPtr InternalGetVariable(string name)
+        private static IntPtr InternalGetVariable(string name)
         {
             return Rf_findVar(Rf_install(name), R_GlobalEnv);
         }
