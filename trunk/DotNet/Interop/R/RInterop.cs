@@ -594,15 +594,7 @@ namespace MDo.Interop.R
         public static void InternalSetVariable(string name, IntPtr val)
         {
             IntPtr sym = Rf_install(name);
-            IntPtr pVal = Rf_protect(val);
-            try
-            {
-                Rf_setVar(sym, pVal, R_GlobalEnv);
-            }
-            finally
-            {
-                Rf_unprotect_ptr(pVal);
-            }
+            Rf_setVar(sym, val, R_GlobalEnv);
         }
 
         internal static void InternalSetPrivateVariable(string name, IntPtr val)
