@@ -175,8 +175,8 @@ namespace MDo.Interop.R
         {
             private uint info;
 
-            public RSEXPTYPE Type
-                                { get { return (RSEXPTYPE)Enum.ToObject(typeof(RSEXPTYPE),
+            public RSXPTYPE Type
+                                { get { return (RSXPTYPE)Enum.ToObject(typeof(RSXPTYPE),
                                                        info         & 0x001FU); } } //  5
             public byte Obj     { get { return (byte)((info >>  5)  & 0x0001U); } } //  1
             public byte Named   { get { return (byte)((info >>  6)  & 0x0002U); } } //  2
@@ -189,7 +189,7 @@ namespace MDo.Interop.R
             public byte Gccls   { get { return (byte)((info >> 29)  & 0x0007U); } } //  3
         }
 
-        private enum RSEXPTYPE : uint
+        private enum RSXPTYPE : uint
         {
             NILSXP      = 0,	/* nil = NULL */
             SYMSXP      = 1,	/* symbols */
@@ -554,14 +554,14 @@ namespace MDo.Interop.R
             RSEXPREC ans = RSEXPREC.FromPointer(val);
             switch (ans.Header.sxpInfo.Type)
             {
-                case RSEXPTYPE.REALSXP:
+                case RSXPTYPE.REALSXP:
                     for (int i = 0; i < ans.Content.VLength; i++)
                     {
                         unsafe { evalRet.Add(*((double*)RSEXPREC.NumSxp_GetElement(val, i, sizeof(double)))); }
                     }
                     break;
 
-                case RSEXPTYPE.INTSXP:
+                case RSXPTYPE.INTSXP:
                     for (int i = 0; i < ans.Content.VLength; i++)
                     {
                         unsafe { evalRet.Add(*((int*)RSEXPREC.NumSxp_GetElement(val, i, sizeof(int)))); }
