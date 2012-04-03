@@ -23,5 +23,13 @@ namespace MDo.Interop.R.Test
         {
             return Directory.GetFiles(Path.Combine(DataDir, ns), string.Format("{0}*.txt", prefix));
         }
+
+        public static TimeSpan Time(Action action)
+        {
+            DateTime start = DateTime.Now;
+            action();
+            DateTime end = DateTime.Now;
+            return (end - start);
+        }
     }
 }

@@ -22,6 +22,8 @@ namespace MDo.Interop.R
         
         #region Interop: R
 
+        #region R Data Types
+
         [StructLayout(LayoutKind.Sequential)]
         private struct RStartStruct
         {
@@ -135,7 +137,7 @@ namespace MDo.Interop.R
         };
 
         [StructLayout(LayoutKind.Sequential)]
-        private struct RSEXPREC
+        internal struct RSEXPREC
         {
             // Header
             public RSEXPR_HEADER Header;
@@ -162,16 +164,16 @@ namespace MDo.Interop.R
         };
 
         [StructLayout(LayoutKind.Sequential)]
-        private struct RSEXPR_HEADER
+        internal struct RSEXPR_HEADER
         {
-            public RSXPINFO sxpInfo;
+            public RSXPINFO SxpInfo;
             public IntPtr attrib;
             public IntPtr gengc_next_node;
             public IntPtr gengc_prev_node;
         }
 
         [StructLayout(LayoutKind.Sequential)]
-        private struct RSXPINFO
+        internal struct RSXPINFO
         {
             private uint info;
 
@@ -189,7 +191,7 @@ namespace MDo.Interop.R
             public byte Gccls   { get { return (byte)((info >> 29)  & 0x0007U); } } //  3
         }
 
-        private enum RSXPTYPE : uint
+        internal enum RSXPTYPE : uint
         {
             NILSXP      = 0,	/* nil = NULL */
             SYMSXP      = 1,	/* symbols */
@@ -223,7 +225,7 @@ namespace MDo.Interop.R
         };
 
         [StructLayout(LayoutKind.Explicit)]
-        private struct RSEXPRECONTENT
+        internal struct RSEXPRECONTENT
         {
             #region dataptr_struct
 
@@ -298,6 +300,8 @@ namespace MDo.Interop.R
 #endif
             #endregion promsxp_struct
         };
+
+        #endregion R Data Types
 
         #region DLL Imports
 
@@ -507,6 +511,11 @@ namespace MDo.Interop.R
             RDllPtr = IntPtr.Zero;
         }
 
+        /// <summary>
+        /// Evaluates an R-parsable statement, and returns a pointer to the result of the evaluation in unmanaged memory.
+        /// </summary>
+        /// <param name="statement">An R-parsable statement.</param>
+        /// <returns>A pointer to the result of the evaluation in unmanaged memory.</returns>
         public static IntPtr InternalEval(string statement)
         {
             RParseStatus status = RParseStatus.PARSE_NULL;
@@ -540,11 +549,21 @@ namespace MDo.Interop.R
             }
         }
 
+        /// <summary>
+        /// Evaluates an R-parsable statement, and returns the result of the evaluation as an array of CLR objects.
+        /// </summary>
+        /// <param name="statement">An R-parsable statement.</param>
+        /// <returns>The result of the evaluation as an array of CLR objects.</returns>
         public static object[] Eval(string statement)
         {
             return RsxprPtrToClrValue(InternalEval(statement));
         }
 
+        /// <summary>
+        /// Converts a pointer to an R expression in unmanaged memory to an array of CLR objects.
+        /// </summary>
+        /// <param name="val">A pointer to an R expression in unmanaged memory.</param>
+        /// <returns>An array of CLR objects.</returns>
         public static object[] RsxprPtrToClrValue(IntPtr val)
         {
             if (val == IntPtr.Zero)
@@ -552,7 +571,7 @@ namespace MDo.Interop.R
 
             IList<object> evalRet = new List<object>();
             RSEXPREC ans = RSEXPREC.FromPointer(val);
-            switch (ans.Header.sxpInfo.Type)
+            switch (ans.Header.SxpInfo.Type)
             {
                 case RSXPTYPE.REALSXP:
                     for (int i = 0; i < ans.Content.VLength; i++)
@@ -574,11 +593,25 @@ namespace MDo.Interop.R
             return evalRet.ToArray();
         }
 
+        /// <summary>
+        /// Prints the value of an R expression in unmanaged memory.
+        /// </summary>
+        /// <remarks>
+        /// Several MessageAvailable events may be raised by this method -- register an event handler for custom printing.
+        /// If no event handlers are registered, the expression will be printed to the standard output stream.
+        /// </remarks>
+        /// <param name="expr"></param>
         public static void Print(IntPtr expr)
         {
             Rf_PrintValue(expr);
         }
 
+        /// <summary>
+        /// Declares and sets the value of a variable as an R expression in R's global environment.
+        /// </summary>
+        /// <param name="name">The name to refer to the variable by.</param>
+        /// <param name="expression">An R expression that will be evaluated and assigned to the variable.</param>
+        /// <returns>A pointer to the evaluated expression assigned to the variable.</returns>
         public static IntPtr SetVariable(string name, string expression)
         {
             IntPtr val = InternalEval(expression);
@@ -586,37 +619,87 @@ namespace MDo.Interop.R
             return val;
         }
 
+        /// <summary>
+        /// Declares and sets the value of a private variable as an R expression in R's global environment.
+        /// </summary>
+        /// <remarks>
+        /// This method is intended for use only within the R-Interop project.  A prefix will be appended
+        /// to the variable name.
+        /// </remarks>
+        /// <param name="name">The name to refer to the variable by.</param>
+        /// <param name="expression">An R expression that will be evaluated and assigned to the variable.</param>
+        /// <returns>A pointer to the evaluated expression assigned to the variable.</returns>
         internal static IntPtr SetPrivateVariable(string name, string expression)
         {
             return SetVariable(MakePrivateVariable(name), expression);
         }
 
+        /// <summary>
+        /// Declares and sets the value of a variable from a pointer to an evaluated R expression.
+        /// </summary>
+        /// <param name="name">The name to refer to the variable by.</param>
+        /// <param name="val">A pointer to an evaluated R expression.</param>
         public static void InternalSetVariable(string name, IntPtr val)
         {
             IntPtr sym = Rf_install(name);
             Rf_setVar(sym, val, R_GlobalEnv);
         }
 
+        /// <summary>
+        /// Declares and sets the value of a variable from a pointer to an evaluated R expression.
+        /// </summary>
+        /// <remarks>
+        /// This method is intended for use only within the R-Interop project.  A prefix will be appended
+        /// to the variable name.
+        /// </remarks>
+        /// <param name="name">The name to refer to the variable by.</param>
+        /// <param name="val">A pointer to an evaluated R expression.</param>
         internal static void InternalSetPrivateVariable(string name, IntPtr val)
         {
             InternalSetVariable(MakePrivateVariable(name), val);
         }
 
+        /// <summary>
+        /// Looks up a variable from R's global environment and returns the pointer to its evaluated expression.
+        /// </summary>
+        /// <param name="name">The name of the variable.</param>
+        /// <returns>A pointer to the variable's evaluated expression.</returns>
         public static IntPtr InternalGetVariable(string name)
         {
             return Rf_findVar(Rf_install(name), R_GlobalEnv);
         }
 
+        /// <summary>
+        /// Looks up a private variable from R's global environment and returns the pointer to its evaluated expression.
+        /// </summary>
+        /// <remarks>
+        /// This method is intended for use only within the R-Interop project.
+        /// </remarks>
+        /// <param name="name">The name of the variable.</param>
+        /// <returns>A pointer to the variable's evaluated expression.</returns>
         internal static IntPtr InternalGetPrivateVariable(string name)
         {
             return InternalGetVariable(MakePrivateVariable(name));
         }
 
+        /// <summary>
+        /// Looks up a variable from R's global environment and returns its value as an array of CLR objects.
+        /// </summary>
+        /// <param name="name">The name of the variable.</param>
+        /// <returns>The value of the variable as an array of CLR objects.</returns>
         public static object[] GetVariable(string name)
         {
             return RsxprPtrToClrValue(InternalGetVariable(name));
         }
 
+        /// <summary>
+        /// Looks up a private variable from R's global environment and returns its value as an array of CLR objects.
+        /// </summary>
+        /// <remarks>
+        /// This method is intended for use only within the R-Interop project.
+        /// </remarks>
+        /// <param name="name">The name of the variable.</param>
+        /// <returns>The value of the variable as an array of CLR objects.</returns>
         internal static object[] GetPrivateVariable(string name)
         {
             return GetVariable(MakePrivateVariable(name));
@@ -627,6 +710,10 @@ namespace MDo.Interop.R
 
         #region Events
 
+        /// <summary>
+        /// Occurs when an output or error message is available while invoking native R functions.
+        /// The message will already have been delineated with newline markers.
+        /// </summary>
         public static event EventHandler<RMessageEventArgs> MessageAvailable;
 
         #endregion Events
@@ -634,9 +721,24 @@ namespace MDo.Interop.R
 
         #region Properties
 
+        /// <summary>
+        /// Gets the version of R-Interop.
+        /// </summary>
         public static string Verion     { get { return "2.14.2"; } }
+
+        /// <summary>
+        /// Gets or sets the version of R that the R-Interop is linked to.
+        /// </summary>
         public static string RVersion   { get; private set; }
+
+        /// <summary>
+        /// Gets or sets the location of an R installation.
+        /// </summary>
         public static string RHome      { get; private set; }
+
+        /// <summary>
+        /// Gets or sets the home folder of the runas user.
+        /// </summary>
         public static string RUserHome  { get; private set; }
 
         #endregion Properties
@@ -681,6 +783,10 @@ namespace MDo.Interop.R
 
         #region Helper Methods
 
+        /// <summary>
+        /// Default handler for MessageAvailable events.
+        /// </summary>
+        /// <param name="e"></param>
         private static void OnMessageAvailable(RMessageEventArgs e)
         {
             if (MessageAvailable != null)
@@ -696,6 +802,11 @@ namespace MDo.Interop.R
             }
         }
 
+        /// <summary>
+        /// Loads a DLL into memory, resolving DLL references by searching in the DLL's folder and default system folders.
+        /// </summary>
+        /// <param name="dllPath">The path of the DLL to load.</param>
+        /// <returns>A pointer to the DLL's memory handle.</returns>
         private static IntPtr LoadDll(string dllPath)
         {
             return LoadLibraryEx(MakeAbsolutePath(dllPath), IntPtr.Zero, LoadLibraryFlags.LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR | LoadLibraryFlags.LOAD_LIBRARY_SEARCH_DEFAULT_DIRS);
@@ -709,6 +820,14 @@ namespace MDo.Interop.R
                 return Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), path);
         }
 
+        /// <summary>
+        /// Makes a variable private by appending a prefix to its name.
+        /// </summary>
+        /// <remarks>
+        /// This method is intended for use only within the R-Interop project.
+        /// </remarks>
+        /// <param name="name">The name of a variable.</param>
+        /// <returns>The private representation of the variable's name.</returns>
         internal static string MakePrivateVariable(string name)
         {
             return "priv_" + name;

@@ -1,17 +1,43 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
 namespace MDo.Interop.R.Stats
 {
-    public static class Model
+    public abstract class Model
     {
-        public static double[] Predict(IntPtr model, double[,] unknown_X)
-        {
-            if (IntPtr.Zero == model)
-                throw new ArgumentException("model");
+        #region Constructors
 
+        protected Model(IntPtr ptr)
+        {
+            this.ModelPtr = ptr;
+            this.ReadParameters();
+        }
+
+        #endregion Constructors
+
+
+        #region Properties
+
+        public IntPtr ModelPtr  { get; private set; }
+
+        #endregion Properties
+
+
+        #region Abstract Methods
+
+        protected abstract void ReadParameters();
+        public abstract double[] PredictFromParameters(double[,] unknown_X);
+
+        #endregion Abstract Methods
+
+
+        #region Methods
+
+        public double[] Predict(double[,] unknown_X)
+        {
             if (null == unknown_X)
                 throw new ArgumentNullException("unknown_X");
 
@@ -24,7 +50,10 @@ namespace MDo.Interop.R.Stats
             if (numFeatures == 0)
                 throw new ArgumentOutOfRangeException("unknown_X.NumDims");
 
-            RInterop.InternalSetPrivateVariable("model", model);
+            if (IntPtr.Zero == this.ModelPtr)
+                return this.PredictFromParameters(unknown_X);
+
+            RInterop.InternalSetPrivateVariable("model", this.ModelPtr);
 
             StringBuilder expr = new StringBuilder();
 
@@ -73,5 +102,7 @@ namespace MDo.Interop.R.Stats
 
             return unknown_Y.Select(item => (double)item).ToArray();
         }
+
+        #endregion Methods
     }
 }
