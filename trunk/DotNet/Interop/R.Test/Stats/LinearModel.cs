@@ -69,12 +69,14 @@ namespace MDo.Interop.R.Stats.Test
                         }
 
                         Console.WriteLine("Generating linear model with {0} observations...", numTrainingItems);
-                        IntPtr model = LinearModel.Generate(training_X, training_Y);
-                        RInterop.Print(model);
+                        LinearModel model = null;
+                        TimeSpan elapsed = TestUtils.Time(() => model = LinearModel.Generate(training_X, training_Y));
+                        Console.WriteLine("\tTime: {0:F3} seconds.", elapsed.TotalSeconds);
+                        RInterop.Print(model.ModelPtr);
                         Console.WriteLine();
 
                         Console.WriteLine("Fitting model over training set...");
-                        double[] training_Y_Fit = Model.Predict(model, training_X);
+                        double[] training_Y_Fit = model.Predict(training_X);
                         if (verbose)
                         {
                             for (int j = 0; j < numFeatures; j++)
@@ -102,7 +104,7 @@ namespace MDo.Interop.R.Stats.Test
                         Console.WriteLine();
 
                         Console.WriteLine("Predicting holdout dataset with {0} items...", numTestItems);
-                        double[] test_Y_Fit = Model.Predict(model, test_X);
+                        double[] test_Y_Fit = model.Predict(test_X);
                         if (verbose)
                         {
                             for (int j = 0; j < numFeatures; j++)
