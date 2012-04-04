@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MDo.Interop.R.Stats
+using MDo.Interop.R.Core;
+
+namespace MDo.Interop.R.Models
 {
     public class LinearModel : Model
     {
@@ -82,61 +84,50 @@ namespace MDo.Interop.R.Stats
             if (observed_Y.Length != numObserved)
                 throw new ArgumentOutOfRangeException("observed_Y.Count");
 
-            StringBuilder expr = new StringBuilder();
-            
-            #region Declare data frame
+            #region Set up data frame
 
             /* data = data.frame(
-             * X1 = c(0, 1, 2, 3),
-             * X2 = c(4, 5, 6, 7),
+             * X0 = c(0, 1, 2, 3),
+             * X1 = c(4, 5, 6, 7),
              * Y = c(8, 9, 10, 11))
              */
 
-            expr.Append("data.frame(");
-            for (int j = 0; j < numFeatures; j++)
+            DataFrame.FromVectors(RInterop.MakePrivateVariable("data"), numObserved, (int indx) =>
             {
-                expr.AppendFormat("X{0} = c(", j);
-                for (int i = 0; i < numObserved; i++)
+                Vector vector = null;
+                object[] values;
+                if (indx < numFeatures)
                 {
-                    expr.Append(observed_X[i, j]);
-                    if (i < numObserved - 1)
-                        expr.Append(", ");
-                    else
-                        expr.Append("), ");
+                    values = new object[numObserved];
+                    for (int i = 0; i < numObserved; i++)
+                    {
+                        values[i] = observed_X[i, indx];
+                    }
+                    vector = new Vector("X" + indx, values);
                 }
-            }
-            expr.Append("Y = c(");
-            for (int i = 0; i < numObserved; i++)
-            {
-                expr.Append(observed_Y[i]);
-                if (i < numObserved - 1)
-                    expr.Append(", ");
-                else
-                    expr.Append("))");
-            }
+                else if (indx == numFeatures)
+                {
+                    values = new object[numObserved];
+                    for (int i = 0; i < numObserved; i++)
+                    {
+                        values[i] = observed_Y[i];
+                    }
+                    vector = new Vector("Y", values);
+                }
+                return vector;
+            });
 
-            RInterop.SetPrivateVariable("data", expr.ToString());
+            #endregion Set up data frame
 
-            #endregion Declare data frame
-
-            expr.Clear();
+            StringBuilder expr = new StringBuilder();
 
             #region Fit model
 
-            /* lm(Y ~ X1+X2,
+            /* lm(Y ~ X0+X1,
              * data = data)
              */
 
-            expr.Append("lm(Y ~ ");
-            for (int j = 0; j < numFeatures; j++)
-            {
-                expr.AppendFormat("X{0}", j);
-                if (j < numFeatures - 1)
-                    expr.Append("+");
-                else
-                    expr.Append(", ");
-            }
-            expr.AppendFormat("data = {0})", RInterop.MakePrivateVariable("data"));
+            expr.AppendFormat("lm({0}, data = {1})", LinearFormula(numFeatures), RInterop.MakePrivateVariable("data"));
 
             IntPtr lm = RInterop.InternalEval(expr.ToString());
 

@@ -4,7 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace MDo.Interop.R.Stats
+using MDo.Interop.R.Core;
+
+namespace MDo.Interop.R.Models
 {
     public abstract class Model
     {
@@ -55,38 +57,31 @@ namespace MDo.Interop.R.Stats
 
             RInterop.InternalSetPrivateVariable("model", this.ModelPtr);
 
-            StringBuilder expr = new StringBuilder();
-
-            #region Declare data frame
+            #region Set up data frame
 
             /* unkn = data.frame(
-             * X1 = c(0, 1, 2, 3),
-             * X2 = c(4, 5, 6, 7))
+             * X0 = c(0, 1, 2, 3),
+             * X1 = c(4, 5, 6, 7))
              */
 
-            expr.Append("data.frame(");
-            for (int j = 0; j < numFeatures; j++)
+            DataFrame.FromVectors(RInterop.MakePrivateVariable("unkn"), numObserved, (int indx) =>
             {
-                expr.AppendFormat("X{0} = c(", j);
-                for (int i = 0; i < numObserved; i++)
+                Vector vector = null;
+                if (indx < numFeatures)
                 {
-                    expr.Append(unknown_X[i, j]);
-                    if (i < numObserved - 1)
-                        expr.Append(", ");
-                    else
-                        expr.Append(")");
+                    object[] values = new object[numObserved];
+                    for (int i = 0; i < numObserved; i++)
+                    {
+                        values[i] = unknown_X[i, indx];
+                    }
+                    vector = new Vector("X" + indx, values);
                 }
-                if (j < numFeatures - 1)
-                    expr.Append(", ");
-                else
-                    expr.Append(")");
-            }
+                return vector;
+            });
 
-            RInterop.SetPrivateVariable("unkn", expr.ToString());
+            #endregion Set up data frame
 
-            #endregion Declare data frame
-
-            expr.Clear();
+            StringBuilder expr = new StringBuilder();
 
             #region Predict
 
@@ -104,5 +99,19 @@ namespace MDo.Interop.R.Stats
         }
 
         #endregion Methods
+
+
+        protected static string LinearFormula(int numFeatures)
+        {
+            StringBuilder formula = new StringBuilder();
+            formula.Append("Y ~ ");
+            for (int j = 0; j < numFeatures; j++)
+            {
+                formula.AppendFormat("X{0}", j);
+                if (j < numFeatures-1)
+                    formula.Append("+");
+            }
+            return formula.ToString();
+        }
     }
 }

@@ -6,11 +6,11 @@ using System.Text;
 
 using MDo.Interop.R.Test;
 
-namespace MDo.Interop.R.Stats.Test
+namespace MDo.Interop.R.Models.Test
 {
-    public static class StatsTestUtils
+    public static class ModelsTestUtils
     {
-        public const string Namespace = "Stats";
+        public const string Namespace = "Models";
 
         public static int Parse_LinearModelData(Stream input, out double[,] x, out double[] y)
         {
