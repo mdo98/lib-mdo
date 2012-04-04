@@ -10,7 +10,7 @@ using MDo.Common.Numerics;
 
 using MDo.Interop.R.Test;
 
-namespace MDo.Interop.R.Stats.Test
+namespace MDo.Interop.R.Models.Test
 {
     public class Interop_R_Stats_LinearModel : ConsoleAppModule
     {
@@ -21,7 +21,7 @@ namespace MDo.Interop.R.Stats.Test
 
             foreach (string testFileSuffix in testFileSuffixes)
             {
-                string[] testFiles = TestUtils.GetDataFiles(StatsTestUtils.Namespace, string.Format("lm{0}", testFileSuffix));
+                string[] testFiles = TestUtils.GetDataFiles(ModelsTestUtils.Namespace, string.Format("lm{0}", testFileSuffix));
                 foreach (string testFile in testFiles)
                 {
                     try
@@ -30,7 +30,7 @@ namespace MDo.Interop.R.Stats.Test
                         int numItems, numTrainingItems, numTestItems;
                         using (Stream input = FS.OpenRead(testFile))
                         {
-                            numItems = StatsTestUtils.Parse_LinearModelData(input, out x, out y);
+                            numItems = ModelsTestUtils.Parse_LinearModelData(input, out x, out y);
                         }
 
                         if (numItems < 10)

@@ -44,12 +44,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="RandomForest\RandomForest.cs" />
+    <Compile Include="Models\Enums.cs" />
+    <Compile Include="Models\TreeModel.cs" />
+    <Compile Include="Vector.cs" />
+    <Compile Include="Models\RandomForestModel.cs" />
     <Compile Include="RInterop.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RInteropException.cs" />
-    <Compile Include="Stats\Model.cs" />
-    <Compile Include="Stats\LinearModel.cs" />
+    <Compile Include="Core\DataFrame.cs" />
+    <Compile Include="Models\Model.cs" />
+    <Compile Include="Models\LinearModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="lib\R\bin\config.sh">
@@ -6778,6 +6782,7 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
