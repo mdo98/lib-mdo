@@ -31,6 +31,7 @@ namespace MDo.Interop.R.Test.DataGeneration
         private const double NoiseThreshold = 0.4166434815805158412;
 
         private static readonly Uniform NoiseDistributionWeight = new Uniform(NoiseThreshold, 1.0);
+        private static readonly Normal  StandardNormal = Normal.Standard;
 
         private readonly RandomNumberGenerator RNG;
 
@@ -62,7 +63,6 @@ namespace MDo.Interop.R.Test.DataGeneration
                 sigma   += (sigma_j * sigma_j); // Assuming features are pairwise independent
             }
             sigma = Math.Sqrt(sigma);
-            Normal standardNormal = Normal.Standard;
             Action<int, object[,], object[,]> generateSample = (int indx, object[,] features, object[,] labels) =>
             {
                 double f = 0.0;
@@ -76,12 +76,12 @@ namespace MDo.Interop.R.Test.DataGeneration
                 if (param.Noise > NoiseThreshold)
                 {
                     noiseProb
-                        = NoiseDistributionWeight.Cdf_Q (param.Noise) * (NoiseThreshold * NoiseCorrector * standardNormal.Pdf((f-mu)/sigma))
+                        = NoiseDistributionWeight.Cdf_Q (param.Noise) * (NoiseThreshold * NoiseCorrector * StandardNormal.Pdf((f-mu)/sigma))
                         + NoiseDistributionWeight.Cdf   (param.Noise) * 1.0;
                 }
                 else
                 {
-                    noiseProb = param.Noise * NoiseCorrector * standardNormal.Pdf((f-mu)/sigma);
+                    noiseProb = param.Noise * NoiseCorrector * StandardNormal.Pdf((f-mu)/sigma);
                 }
                 bool v;
                 if (this.RNG.Double() < noiseProb)
