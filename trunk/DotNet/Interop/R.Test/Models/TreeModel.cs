@@ -20,7 +20,7 @@ namespace MDo.Interop.R.Models.Test
             Func<RVector, RVector, bool[]> getPredictionErrors,
             Action<RVector, RVector, RVector, bool[]> printData,
             bool verbose = true,
-            int numIterations = 10,
+            int numIterations = 100,
             double noise = 0.05,
             int numFeatures = 4,
             int numTraining = 200,
