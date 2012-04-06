@@ -61,6 +61,9 @@ namespace MDo.Common.Numerics.Statistics.Distributions
         [DllImport(Gsl.GSL_PATH, CallingConvention = CallingConvention.Cdecl)]
         private static extern double gsl_cdf_gaussian_Q(double x, double sigma);
 
+        [DllImport(Gsl.GSL_PATH, CallingConvention = CallingConvention.Cdecl)]
+        private static extern double gsl_ran_gaussian_pdf(double x, double sigma);
+
         #endregion Imports
 
 
@@ -89,6 +92,11 @@ namespace MDo.Common.Numerics.Statistics.Distributions
         public double Cdf_Q(double x)
         {
             return gsl_cdf_gaussian_Q(x - this.Mu, this.Sigma);
+        }
+
+        public double Pdf(double x)
+        {
+            return gsl_ran_gaussian_pdf(x - this.Mu, this.Sigma);
         }
 
         #endregion IDistribution

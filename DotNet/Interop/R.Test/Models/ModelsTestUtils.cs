@@ -12,7 +12,7 @@ namespace MDo.Interop.R.Models.Test
     {
         public const string Namespace = "Models";
 
-        public static int Parse_LinearModelData(Stream input, out double[,] x, out double[] y)
+        public static int Parse_LinearModelData(Stream input, out double[,] x, out double[,] y)
         {
             x = null; y = null;
             int numCols = 0, numRows = 0, numRowsProcessed = 0;
@@ -50,8 +50,8 @@ namespace MDo.Interop.R.Models.Test
                             hasNumColsAndRows = true;
                             for (int j = 0; j < numCols; j++)
                                 textReader.ReadLine();
-                            x = new double[numRows,numCols-2];
-                            y = new double[numRows];
+                            x = new double[numRows, numCols-2];
+                            y = new double[numRows, 1];
                         }
                     }
                     else
@@ -63,7 +63,7 @@ namespace MDo.Interop.R.Models.Test
 
                         for (int j = 1; j < numCols-1; j++)
                             x[numRowsProcessed,j-1] = double.Parse(parts[j].Trim());
-                        y[numRowsProcessed] = double.Parse(parts[numCols-1].Trim());
+                        y[numRowsProcessed,0] = double.Parse(parts[numCols-1].Trim());
                         numRowsProcessed++;
                     }
                 }

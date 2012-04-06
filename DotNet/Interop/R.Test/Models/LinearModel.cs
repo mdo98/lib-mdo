@@ -8,13 +8,14 @@ using MDo.Common.App;
 using MDo.Common.IO;
 using MDo.Common.Numerics;
 
+using MDo.Interop.R.Core;
 using MDo.Interop.R.Test;
 
 namespace MDo.Interop.R.Models.Test
 {
-    public class Interop_R_Stats_LinearModel : ConsoleAppModule
+    public class Interop_R_Models_LinearModel : ConsoleAppModule
     {
-        public void Execute(bool verbose = true, params string[] testFileSuffixes)
+        public static void Execute(bool verbose = true, params string[] testFileSuffixes)
         {
             if (null == testFileSuffixes || testFileSuffixes.Length == 0)
                 testFileSuffixes = new string[] { string.Empty };
@@ -26,7 +27,11 @@ namespace MDo.Interop.R.Models.Test
                 {
                     try
                     {
-                        double[,] x; double[] y;
+                        Console.WriteLine("========================================");
+                        Console.WriteLine("Data: {0}", testFile);
+                        Console.WriteLine();
+
+                        double[,] x; double[,] y;
                         int numItems, numTrainingItems, numTestItems;
                         using (Stream input = FS.OpenRead(testFile))
                         {
@@ -44,8 +49,10 @@ namespace MDo.Interop.R.Models.Test
                             samplingWithNoReplacement.Add(i);
 
                         int numFeatures = x.GetLength(1);
-                        double[,] training_X = new double[numTrainingItems, numFeatures], test_X = new double[numTestItems, numFeatures];
-                        double[] training_Y = new double[numTrainingItems], test_Y = new double[numTestItems];
+                        RVector training_X = new RVector(new object[numTrainingItems, numFeatures]),
+                                training_Y = new RVector(new object[numTrainingItems, 1]),
+                                test_X     = new RVector(new object[numTestItems, numFeatures]),
+                                test_Y     = new RVector(new object[numTestItems, 1]);
 
                         for (int i = 0; i < numTrainingItems; i++)
                         {
@@ -54,29 +61,30 @@ namespace MDo.Interop.R.Models.Test
                             samplingWithNoReplacement.RemoveAt(sIndx);
                             for (int j = 0; j < numFeatures; j++)
                             {
-                                training_X[i, j] = x[indx, j];
+                                training_X.Values[i, j] = x[indx, j];
                             }
-                            training_Y[i] = y[indx];
+                            training_Y.Values[i, 0] = y[indx, 0];
                         }
                         for (int i = 0; i < numTestItems; i++)
                         {
                             int indx = samplingWithNoReplacement[i];
                             for (int j = 0; j < numFeatures; j++)
                             {
-                                test_X[i, j] = x[indx, j];
+                                test_X.Values[i, j] = x[indx, j];
                             }
-                            test_Y[i] = y[indx];
+                            test_Y.Values[i, 0] = y[indx, 0];
                         }
 
                         Console.WriteLine("Generating linear model with {0} observations...", numTrainingItems);
                         LinearModel model = null;
                         TimeSpan elapsed = TestUtils.Time(() => model = LinearModel.Generate(training_X, training_Y));
                         Console.WriteLine("\tTime: {0:F3} seconds.", elapsed.TotalSeconds);
+
                         RInterop.Print(model.ModelPtr);
                         Console.WriteLine();
 
                         Console.WriteLine("Fitting model over training set...");
-                        double[] training_Y_Fit = model.Predict(training_X);
+                        RVector training_Y_Fit = model.Predict(training_X);
                         if (verbose)
                         {
                             for (int j = 0; j < numFeatures; j++)
@@ -88,9 +96,9 @@ namespace MDo.Interop.R.Models.Test
                             {
                                 for (int j = 0; j < numFeatures; j++)
                                 {
-                                    Console.Write(string.Format("{0:F3}\t", training_X[i, j]));
+                                    Console.Write(string.Format("{0:F3}\t", training_X.Values[i, j]));
                                 }
-                                Console.WriteLine("{0:F4}\t{1:F4}\t{2:F4}", training_Y[i], training_Y_Fit[i], training_Y[i] - training_Y_Fit[i]);
+                                Console.WriteLine("{0:F4}\t{1:F4}\t{2:F4}", training_Y.Values[i, 0], training_Y_Fit.Values[i, 0], (double)training_Y.Values[i, 0] - (double)training_Y_Fit.Values[i, 0]);
                             }
                         }
                         Console.WriteLine();
@@ -98,13 +106,13 @@ namespace MDo.Interop.R.Models.Test
                         Console.WriteLine("Computing training MSE...");
                         double[] training_mse = new double[numTrainingItems];
                         for (int i = 0; i < numTrainingItems; i++)
-                            training_mse[i] = Operators.SquareDifference(training_Y_Fit[i], training_Y[i]);
+                            training_mse[i] = Operators.SquareDifference((double)training_Y_Fit.Values[i, 0], (double)training_Y.Values[i, 0]);
                         double training_meanSquaredError = Sequence.Mean(training_mse);
                         Console.WriteLine("\tTraining MSE = {0:F4}", training_meanSquaredError);
                         Console.WriteLine();
 
                         Console.WriteLine("Predicting holdout dataset with {0} items...", numTestItems);
-                        double[] test_Y_Fit = model.Predict(test_X);
+                        RVector test_Y_Fit = model.Predict(test_X);
                         if (verbose)
                         {
                             for (int j = 0; j < numFeatures; j++)
@@ -116,9 +124,9 @@ namespace MDo.Interop.R.Models.Test
                             {
                                 for (int j = 0; j < numFeatures; j++)
                                 {
-                                    Console.Write(string.Format("{0:F3}\t", test_X[i, j]));
+                                    Console.Write(string.Format("{0:F3}\t", test_X.Values[i, j]));
                                 }
-                                Console.WriteLine("{0:F4}\t{1:F4}\t{2:F4}", test_Y[i], test_Y_Fit[i], test_Y[i] - test_Y_Fit[i]);
+                                Console.WriteLine("{0:F4}\t{1:F4}\t{2:F4}", test_Y.Values[i, 0], test_Y_Fit.Values[i, 0], (double)test_Y.Values[i, 0] - (double)test_Y_Fit.Values[i, 0]);
                             }
                         }
                         Console.WriteLine();
@@ -126,7 +134,7 @@ namespace MDo.Interop.R.Models.Test
                         Console.WriteLine("Computing test MSE...");
                         double[] test_mse = new double[numTestItems];
                         for (int i = 0; i < numTestItems; i++)
-                            test_mse[i] = Operators.SquareDifference(test_Y_Fit[i], test_Y[i]);
+                            test_mse[i] = Operators.SquareDifference((double)test_Y_Fit.Values[i, 0], (double)test_Y.Values[i, 0]);
                         double test_meanSquaredError = Sequence.Mean(test_mse);
                         Console.WriteLine("\tTest MSE = {0:F4}", test_meanSquaredError);
                         Console.WriteLine();

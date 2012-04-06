@@ -43,6 +43,9 @@ namespace MDo.Common.Numerics.Statistics.Distributions
         [DllImport(Gsl.GSL_PATH, CallingConvention = CallingConvention.Cdecl)]
         private static extern double gsl_cdf_chisq_Q(double x, double nu);
 
+        [DllImport(Gsl.GSL_PATH, CallingConvention = CallingConvention.Cdecl)]
+        private static extern double gsl_ran_chisq_pdf(double x, double nu);
+
         #endregion Imports
 
 
@@ -83,6 +86,17 @@ namespace MDo.Common.Numerics.Statistics.Distributions
                 return 0.0;
 
             return gsl_cdf_chisq_Q(x, this.K); 
+        }
+
+        public double Pdf(double x)
+        {
+            if (x < 0.0)
+                throw new ArgumentOutOfRangeException("x");
+
+            if (x == 0.0)
+                return 0.0;
+
+            return gsl_ran_chisq_pdf(x, this.K);
         }
 
         #endregion IDistribution

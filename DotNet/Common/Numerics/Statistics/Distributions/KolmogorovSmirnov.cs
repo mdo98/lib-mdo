@@ -158,6 +158,11 @@ namespace MDo.Common.Numerics.Statistics.Distributions
         private const int CDF_N_EXACT = 500;
         private const int CDF_N_KOLMO = 100000;
 
+        public double Pdf(double x)
+        {
+            throw new NotImplementedException();
+        }
+
         public double Cdf(double x)
         {
             if (x < 0.0)

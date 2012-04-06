@@ -16,6 +16,7 @@ namespace MDo.Common.Numerics
     {
         double Cdf(double x);
         double Cdf_Q(double x);
+        double Pdf(double x);
     }
 
     public interface IDiscreteDistribution : IDistribution

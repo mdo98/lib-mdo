@@ -58,6 +58,9 @@ namespace MDo.Common.Numerics.Statistics.Distributions
         [DllImport(Gsl.GSL_PATH, CallingConvention = CallingConvention.Cdecl)]
         private static extern double gsl_cdf_gamma_Q(double x, double a, double b);
 
+        [DllImport(Gsl.GSL_PATH, CallingConvention = CallingConvention.Cdecl)]
+        private static extern double gsl_ran_gamma_pdf(double x, double a, double b);
+
         #endregion Imports
 
 
@@ -98,6 +101,17 @@ namespace MDo.Common.Numerics.Statistics.Distributions
                 return 0.0;
 
             return gsl_cdf_gamma_Q(x, this.K, this.Theta);
+        }
+
+        public double Pdf(double x)
+        {
+            if (x < 0.0)
+                throw new ArgumentOutOfRangeException("x");
+
+            if (x == 0.0)
+                return 0.0;
+
+            return gsl_ran_gamma_pdf(x, this.K, this.Theta);
         }
 
         #endregion IDistribution
