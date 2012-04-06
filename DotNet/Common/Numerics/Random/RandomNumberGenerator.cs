@@ -22,9 +22,10 @@ namespace MDo.Common.Numerics.Random
         #region Internal Operations
 
         private readonly object SyncRoot = new object();
-        private const double SampleToUnitDoubleMultiplier = 5.42101086242752217E-20;
 
 #if !X86
+        private const double SampleToUnitDoubleMultiplier = 5.42101086242752217E-20;
+        
         internal ulong Sample()
         {
             ulong val;
@@ -48,6 +49,8 @@ namespace MDo.Common.Numerics.Random
             return (this.Sample() & (~((~0UL) << numBits)));
         }
 #else
+        private const double SampleToUnitDoubleMultiplier = 2.32830643653869629E-10;
+
         internal uint Sample()
         {
             uint val;
