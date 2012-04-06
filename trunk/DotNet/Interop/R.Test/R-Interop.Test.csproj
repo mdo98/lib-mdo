@@ -44,6 +44,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DataGeneration\ClassDataGen.cs" />
+    <Compile Include="DataGeneration\ClassificationData.cs" />
+    <Compile Include="DataGeneration\LinearParameters.cs" />
+    <Compile Include="Models\RandomForestModel.cs" />
+    <Compile Include="Models\TreeModel.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Models\ModelsTestUtils.cs" />
     <Compile Include="Models\LinearModel.cs" />

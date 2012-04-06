@@ -26,13 +26,10 @@ namespace MDo.Interop.R.Core
         #endregion Properties
 
 
-        public static DataFrame FromVectors(string name, int vectorLength, Func<int, Vector> getVector)
+        public static DataFrame FromVectors(string name, params RVector[] vectors)
         {
-            if (vectorLength <= 0)
-                throw new ArgumentOutOfRangeException("vectorLength");
-
-            if (null == getVector)
-                throw new ArgumentNullException("getVector");
+            if (null == vectors || vectors.Length <= 0)
+                throw new ArgumentOutOfRangeException("vector.Length");
 
             StringBuilder expr = new StringBuilder();
             
@@ -45,30 +42,34 @@ namespace MDo.Interop.R.Core
             expr.Append("data.frame(");
 
             int numVectors = 0;
-            Vector vector = getVector(numVectors);
-            while (vector != null)
+            for (int n = 0; n < vectors.Length; n++)
             {
-                if (vector.Values == null)
-                    throw new ArgumentNullException("vector.Values");
+                RVector vector = vectors[n];
+                vector.Validate();
 
-                if (vector.Values.Length != vectorLength)
-                    throw new ArgumentOutOfRangeException("vector.Values.Length");
-
-                expr.AppendFormat("{0} = c(", string.IsNullOrWhiteSpace(vector.Name) ? "V" + numVectors : vector.Name);
-                for (int i = 0; i < vectorLength; i++)
+                for (int j = 0; j < vector.NumCols; j++)
                 {
-                    expr.Append(vector.Values[i]);
-                    if (i < vectorLength-1)
+                    string colName = vector.GetColName(j);
+                    expr.AppendFormat("{0} = c(", string.IsNullOrWhiteSpace(colName) ? "V" + (numVectors++) : colName);
+                    for (int i = 0; i < vector.NumRows; i++)
+                    {
+                        Type type = vector.Values[i, j].GetType();
+                        if (typeof(double) == type || typeof(int)  == type || typeof(long)  == type || typeof(short)  == type ||
+                            typeof(float)  == type || typeof(uint) == type || typeof(ulong) == type || typeof(ushort) == type)
+                            expr.Append(vector.Values[i, j]);
+                        else
+                            expr.AppendFormat("\"{0}\"", vector.Values[i, j]);
+                        if (i < vector.NumRows-1)
+                            expr.Append(", ");
+                        else
+                            expr.Append(")");
+                    }
+
+                    if (n < vectors.Length-1 || j < vector.NumCols-1)
                         expr.Append(", ");
                     else
                         expr.Append(")");
                 }
-
-                vector = getVector(++numVectors);
-                if (vector != null)
-                    expr.Append(", ");
-                else
-                    expr.Append(")");
             }
 
             return new DataFrame(name, RInterop.SetVariable(name, expr.ToString()));

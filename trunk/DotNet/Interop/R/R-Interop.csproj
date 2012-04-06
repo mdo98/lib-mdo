@@ -46,7 +46,8 @@
   <ItemGroup>
     <Compile Include="Models\Enums.cs" />
     <Compile Include="Models\TreeModel.cs" />
-    <Compile Include="Vector.cs" />
+    <Compile Include="RSxprUtils.cs" />
+    <Compile Include="RVector.cs" />
     <Compile Include="Models\RandomForestModel.cs" />
     <Compile Include="RInterop.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

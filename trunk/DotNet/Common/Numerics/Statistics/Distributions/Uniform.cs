@@ -69,6 +69,14 @@ namespace MDo.Common.Numerics.Statistics.Distributions
             return (Upper - x) / (Upper - Lower);
         }
 
+        public double Pdf(double x)
+        {
+            if (x < this.Lower || x > this.Upper)
+                throw new ArgumentOutOfRangeException("x");
+
+            return 1.0 / (Upper - Lower);
+        }
+
         #endregion IDistribution
     }
 }

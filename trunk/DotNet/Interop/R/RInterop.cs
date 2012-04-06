@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Reflection;
 using System.IO;
+using MDo.Interop.R.Core;
 
 namespace MDo.Interop.R
 {
@@ -157,9 +158,43 @@ namespace MDo.Interop.R
 #endif
             }
 
-            public static unsafe void* NumSxp_GetElement(IntPtr ptr, int i, int stepSize)
+            public static unsafe void* ValSxp_GetElement(IntPtr ptr, int i, int stepSize)
             {
                 return IntPtr.Add(ptr, 16 + 3*IntPtr.Size + i*stepSize).ToPointer();
+            }
+
+            public IList<object> ValSxp_Get(IntPtr ptr, int count)
+            {
+                IList<object> values = new List<object>();
+                switch (this.Header.SxpInfo.Type)
+                {
+                    case RSXPTYPE.REALSXP:
+                        for (int i = 0; i < count; i++)
+                        {
+                            unsafe { values.Add(*((double*)ValSxp_GetElement(ptr, i, sizeof(double)))); }
+                        }
+                        break;
+
+                    case RSXPTYPE.INTSXP:
+                        for (int i = 0; i < count; i++)
+                        {
+                            unsafe { values.Add(*((int*)ValSxp_GetElement(ptr, i, sizeof(int)))); }
+                        }
+                        break;
+
+                    case RSXPTYPE.STRSXP:
+                        for (int i = 0; i < count; i++)
+                        {
+                            string val;
+                            unsafe { val = new string((sbyte*)ValSxp_GetElement(VecSxp_GetElement(ptr, i), 0, sizeof(sbyte))); }
+                            values.Add(val);
+                        }
+                        break;
+
+                    default:
+                        return null;
+                }
+                return values;
             }
         };
 
@@ -167,7 +202,7 @@ namespace MDo.Interop.R
         internal struct RSEXPR_HEADER
         {
             public RSXPINFO SxpInfo;
-            public IntPtr attrib;
+            public IntPtr Attrib;
             public IntPtr gengc_next_node;
             public IntPtr gengc_prev_node;
         }
@@ -181,7 +216,7 @@ namespace MDo.Interop.R
                                 { get { return (RSXPTYPE)Enum.ToObject(typeof(RSXPTYPE),
                                                        info         & 0x001FU); } } //  5
             public byte Obj     { get { return (byte)((info >>  5)  & 0x0001U); } } //  1
-            public byte Named   { get { return (byte)((info >>  6)  & 0x0002U); } } //  2
+            public byte Named   { get { return (byte)((info >>  6)  & 0x0003U); } } //  2
             public byte Gp      { get { return (byte)((info >>  8)  & 0xFFFFU); } } // 16
             public byte Mark    { get { return (byte)((info >> 24)  & 0x0001U); } } //  1
             public byte Debug   { get { return (byte)((info >> 25)  & 0x0001U); } } //  1
@@ -429,7 +464,7 @@ namespace MDo.Interop.R
         private static RStartStruct RStartInfo;
         private static IntPtr RStartInfoPtr;
         private static IntPtr R_GlobalEnv;
-        private static IntPtr R_NilValue;
+        internal static IntPtr R_NilValue;
 
         #endregion Fields
 
@@ -553,10 +588,12 @@ namespace MDo.Interop.R
         /// Evaluates an R-parsable statement, and returns the result of the evaluation as an array of CLR objects.
         /// </summary>
         /// <param name="statement">An R-parsable statement.</param>
+        /// <param name="initRVectorFromRsxpr">An optional variable, if custom steps are necessary to properly initialize an RVector
+        /// from an unmanaged pointer.</param>
         /// <returns>The result of the evaluation as an array of CLR objects.</returns>
-        public static object[] Eval(string statement)
+        public static RVector Eval(string statement, Func<IntPtr, RVector> initRVectorFromRsxpr = null)
         {
-            return RsxprPtrToClrValue(InternalEval(statement));
+            return RsxprPtrToClrValue(InternalEval(statement), initRVectorFromRsxpr);
         }
 
         /// <summary>
@@ -564,33 +601,25 @@ namespace MDo.Interop.R
         /// </summary>
         /// <param name="val">A pointer to an R expression in unmanaged memory.</param>
         /// <returns>An array of CLR objects.</returns>
-        public static object[] RsxprPtrToClrValue(IntPtr val)
+        public static RVector RsxprPtrToClrValue(IntPtr val, Func<IntPtr, RVector> initRVectorFromRsxpr = null)
         {
             if (val == IntPtr.Zero)
                 return null;
 
-            IList<object> evalRet = new List<object>();
             RSEXPREC ans = RSEXPREC.FromPointer(val);
-            switch (ans.Header.SxpInfo.Type)
+            RVector vector;
+            if (null != initRVectorFromRsxpr)
+                vector = initRVectorFromRsxpr(val);
+            else
+                vector = new RVector(new object[ans.Content.VLength, 1]);
+
+            IList<object> values = ans.ValSxp_Get(val, ans.Content.VLength);
+            int numRows = vector.NumRows;
+            for (int i = 0; i < ans.Content.VLength; i++)
             {
-                case RSXPTYPE.REALSXP:
-                    for (int i = 0; i < ans.Content.VLength; i++)
-                    {
-                        unsafe { evalRet.Add(*((double*)RSEXPREC.NumSxp_GetElement(val, i, sizeof(double)))); }
-                    }
-                    break;
-
-                case RSXPTYPE.INTSXP:
-                    for (int i = 0; i < ans.Content.VLength; i++)
-                    {
-                        unsafe { evalRet.Add(*((int*)RSEXPREC.NumSxp_GetElement(val, i, sizeof(int)))); }
-                    }
-                    break;
-
-                default:
-                    return null;
+                vector.Values[i%numRows, i/numRows] = values[i];
             }
-            return evalRet.ToArray();
+            return vector;
         }
 
         /// <summary>
@@ -686,10 +715,12 @@ namespace MDo.Interop.R
         /// Looks up a variable from R's global environment and returns its value as an array of CLR objects.
         /// </summary>
         /// <param name="name">The name of the variable.</param>
+        /// <param name="initRVectorFromRsxpr">An optional variable, if custom steps are necessary to properly initialize an RVector
+        /// from an unmanaged pointer.</param>
         /// <returns>The value of the variable as an array of CLR objects.</returns>
-        public static object[] GetVariable(string name)
+        public static RVector GetVariable(string name, Func<IntPtr, RVector> initRVectorFromRsxpr = null)
         {
-            return RsxprPtrToClrValue(InternalGetVariable(name));
+            return RsxprPtrToClrValue(InternalGetVariable(name), initRVectorFromRsxpr);
         }
 
         /// <summary>
@@ -700,9 +731,26 @@ namespace MDo.Interop.R
         /// </remarks>
         /// <param name="name">The name of the variable.</param>
         /// <returns>The value of the variable as an array of CLR objects.</returns>
-        internal static object[] GetPrivateVariable(string name)
+        internal static RVector GetPrivateVariable(string name)
         {
             return GetVariable(MakePrivateVariable(name));
+        }
+
+        /// <summary>
+        /// Gets the next validated node from a pointer to an unmanaged R ListSxp structure.
+        /// </summary>
+        /// <param name="ptr">A pointer to an unmanaged R ListSxp structure.</param>
+        /// <returns>The next node as a CLR structure.</returns>
+        internal static RSEXPREC NextNodeFromListSxprPtr(IntPtr ptr)
+        {
+            RSEXPREC nextNode = RSEXPREC.FromPointer(ptr);
+            const RSXPTYPE expectedSxpType = RSXPTYPE.LISTSXP;
+            if (nextNode.Header.SxpInfo.Type != expectedSxpType)
+                throw new RInteropException(string.Format(
+                    "Invalid type referenced by RSXPR ptr: expecting {0}, actual {1}.",
+                    expectedSxpType,
+                    nextNode.Header.SxpInfo.Type));
+            return nextNode;
         }
 
         #endregion RInterop Methods
