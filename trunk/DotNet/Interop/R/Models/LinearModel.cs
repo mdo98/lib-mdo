@@ -30,7 +30,7 @@ namespace MDo.Interop.R.Models
             if (RInterop.RSEXPREC.FromPointer(this.ModelPtr).Header.SxpInfo.Type != RInterop.RSXPTYPE.VECSXP)
                 throw new ArgumentException("this.ModelPtr");
 
-            this.Parameters = new LinearModelParameters(RInterop.RsxprPtrToClrValue(RInterop.RSEXPREC.VecSxp_GetElement(this.ModelPtr, 0), RVectorFromRSxprResultPtr));
+            this.Parameters = new LinearModelParameters(RInterop.RsxprPtrToClrValue(RInterop.RSEXPREC.VecSxp_GetElement(this.ModelPtr, 0), RSxprUtils.RVectorFromStdRSxpr));
             this.Parameters.Validate();
         }
 
