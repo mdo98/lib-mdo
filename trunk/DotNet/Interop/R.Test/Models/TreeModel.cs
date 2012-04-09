@@ -160,11 +160,77 @@ namespace MDo.Interop.R.Models.Test
             }
         }
 
+
+        #region ConsoleAppModule
+
         public override void Run(string[] args)
         {
-            Run(this.GetModel,
-                this.GetPredictionErrors,
-                this.PrintData);
+            if (null == args || args.Length == 0)
+            {
+                Run(this.GetModel,
+                    this.GetPredictionErrors,
+                    this.PrintData);
+            }
+            else
+            {
+                int numIterations = 100,
+                    numFeatures = 4,
+                    numTraining = 200,
+                    numTest = 100;
+                double noise = 0.05;
+                foreach (string arg in args)
+                {
+                    string[] kv = arg.Split(new char[] { '=' }, StringSplitOptions.RemoveEmptyEntries);
+                    if (kv.Length != 2)
+                        throw new ArgumentException(string.Format(
+                            "Invalid argument: {0}",
+                            arg));
+
+                    switch (kv[0].Trim().ToUpperInvariant())
+                    {
+                        case "ITER":
+                            numIterations = int.Parse(kv[1].Trim());
+                            break;
+
+                        case "DIM":
+                            numFeatures = int.Parse(kv[1].Trim());
+                            break;
+
+                        case "TRAIN":
+                            numTraining = int.Parse(kv[1].Trim());
+                            break;
+
+                        case "TEST":
+                            numTest = int.Parse(kv[1].Trim());
+                            break;
+
+                        case "NOISE":
+                            noise = double.Parse(kv[1].Trim());
+                            break;
+
+                        default:
+                            throw new ArgumentException(string.Format(
+                                "Switch {0} not recognized.",
+                                kv[0]));
+                    }
+                }
+                Run(this.GetModel,
+                    this.GetPredictionErrors,
+                    this.PrintData,
+                    true,
+                    numIterations,
+                    noise,
+                    numFeatures,
+                    numTraining,
+                    numTest);
+            }
         }
+
+        public override void PrintUsage()
+        {
+            Console.WriteLine("{0}: [OPT: ITER=(numIterations)] [OPT: DIM=(numFeatures)] [OPT: TRAIN=(numTraining)] [OPT: TEST=(numTest)] [OPT: NOISE=(noise)]", this.Name);
+        }
+
+        #endregion ConsoleAppModule
     }
 }
