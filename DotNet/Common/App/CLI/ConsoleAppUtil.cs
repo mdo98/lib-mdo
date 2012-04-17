@@ -39,7 +39,8 @@ namespace MDo.Common.App.CLI
                         break;
 
                     default:
-                        buffer.Append(keyInfo.KeyChar);
+                        if ('\0' != keyInfo.KeyChar)
+                            buffer.Append(keyInfo.KeyChar);
                         break;
                 }
             }
