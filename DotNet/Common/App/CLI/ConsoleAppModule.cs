@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Reflection;
 
-namespace MDo.Common.App
+namespace MDo.Common.App.CLI
 {
     public interface IConsoleAppModule
     {

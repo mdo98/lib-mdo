@@ -52,6 +52,7 @@
     <Compile Include="LinearAlgebra\Matrix.cs" />
     <Compile Include="LinearAlgebra\MatrixUtil.cs" />
     <Compile Include="Operators.cs" />
+    <Compile Include="Random\SamplerWithoutReplacement.cs" />
     <Compile Include="Random\SuperKissRng2.cs" />
     <Compile Include="Random\SuperKissRng1.cs" />
     <Compile Include="Random\MT19937Rng.cs" />
