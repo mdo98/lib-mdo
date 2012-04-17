@@ -24,7 +24,7 @@ namespace MDo.Common.App.CLI
             bool filled = false;
             for (ConsoleKeyInfo keyInfo = Console.ReadKey(!display);
                  !(filled = (keyInfo.Key == ConsoleKey.Enter)) && keyInfo.Key != ConsoleKey.Escape;
-                 keyInfo = Console.ReadKey(true))
+                 keyInfo = Console.ReadKey(!display))
             {
                 switch (keyInfo.Key)
                 {
