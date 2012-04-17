@@ -42,6 +42,7 @@ namespace MDo.Common.App.CLI
                         break;
                 }
             }
+            Console.WriteLine();
             return filled;
         }
     }
