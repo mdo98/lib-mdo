@@ -7,7 +7,7 @@ using System.Text;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-using MDo.Common.App;
+using MDo.Common.App.CLI;
 
 namespace MDo.Common.IO.Test
 {

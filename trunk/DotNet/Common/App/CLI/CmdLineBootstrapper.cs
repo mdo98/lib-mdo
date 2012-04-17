@@ -5,7 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 
-namespace MDo.Common.App
+namespace MDo.Common.App.CLI
 {
     public class CmdLineBootstrapper : ConsoleAppMaster
     {

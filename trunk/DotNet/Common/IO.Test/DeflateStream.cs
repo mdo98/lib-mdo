@@ -6,7 +6,7 @@ using System.Text;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-using MDo.Common.App;
+using MDo.Common.App.CLI;
 
 using Zlib.DotZLib;
 
