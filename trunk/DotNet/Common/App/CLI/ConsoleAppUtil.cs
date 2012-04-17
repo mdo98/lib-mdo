@@ -19,7 +19,8 @@ namespace MDo.Common.App.CLI
 
         private static bool FillInputBuffer(StringBuilder buffer, bool display)
         {
-            Console.WriteLine("Backspace removes the last character, Delete clears the buffer; Enter to finish, Esc to cancel.");
+            if (!display)
+                Console.WriteLine("Backspace removes the last character, Delete clears the buffer; Enter to finish, Esc to cancel.");
 
             bool filled = false;
             for (ConsoleKeyInfo keyInfo = Console.ReadKey(!display);
