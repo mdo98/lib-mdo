@@ -45,6 +45,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CLI\CmdLineBootstrapper.cs" />
+    <Compile Include="CLI\ConsoleAppUtil.cs" />
     <Compile Include="CrossDomainSerialization\SerializableDelegate.cs" />
     <Compile Include="CrossDomainSerialization\SerializableException.cs" />
     <Compile Include="CLI\ConsoleAppModule.cs" />
