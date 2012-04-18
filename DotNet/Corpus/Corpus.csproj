@@ -83,6 +83,15 @@
     <None Include="class\Company.SP500.rc-class">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="class\Company.SMI.rc-class">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="class\Company.ASX50.rc-class">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="class\Company.FTSE100.rc-class">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="class\StateProvince.USState.rc-class">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

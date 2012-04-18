@@ -1,0 +1,104 @@
+﻿Company.FTSE100
+2 dims
+100 items
+Ticker::System.String	Name::System.String
+AAL	Anglo American
+ABF	Associated British Foods
+ADM	Admiral Group
+ADN	Aberdeen Asset Management
+AGK	Aggreko
+AMEC	AMEC
+ANTO	Antofagasta
+ARM	ARM Holdings
+ASHM	Ashmore Group
+AV	Aviva
+AZN	AstraZeneca
+BA	BAE Systems
+BARC	Barclays
+BATS	British American Tobacco
+BG	BG Group
+BLND	British Land Company REIT
+BLT	BHP Billiton
+BNZL	Bunzl
+BP	BP
+BRBY	Burberry Group
+BSY	British Sky Broadcasting Group
+BT-A	BT Group
+CCL	Carnival
+CNA	Centrica
+CPG	Compass Group
+CPI	Capita Group
+CRDA	Croda International plc
+CRH	CRH plc
+CSCG	Capital Shopping Centres Group
+DGE	Diageo
+EMG	Man Group
+ENRC	Eurasian Natural Resources Corporation
+EVR	Evraz
+EXPN	Experian
+FRES	Fresnillo
+GFS	G4S
+GKN	GKN
+GLEN	Glencore International
+GSK	GlaxoSmithKline 
+HL	Hargreaves Lansdown
+HMSO	Hammerson REIT
+HSBA	HSBC Holdings
+IAG	International Consolidated Airlines Group
+IAP	ICAP
+IHG	InterContinental Hotels Group
+IMI	IMI plc
+IMT	Imperial Tobacco
+IPR	International Power
+ITRK	Intertek Group
+ITV	ITV
+JMAT	Johnson Matthey plc
+KAZ	Kazakhmys
+KGF	Kingfisher
+LAND	Land Securities Group REIT
+LGEN	Legal & General
+LLOY	Lloyds Banking Group
+MGGT	Meggitt
+MKS	Marks & Spencer
+MRW	Morrison Supermarkets
+NG	National Grid
+NXT	Next
+OML	Old Mutual
+PFC	Petrofac
+POLY	Polymetal International
+PRU	Prudential
+PSON	Pearson
+RB	Reckitt Benckiser Group
+RBS	Royal Bank of Scotland Group
+RDSB	Royal Dutch Shell
+REL	Reed Elsevier plc
+REX	Rexam
+RIO	Rio Tinto Group
+RR	Rolls-Royce Group plc
+RRS	Randgold Resources
+RSA	RSA Insurance Group
+RSL	Resolution
+SAB	SABMiller
+SBRY	Sainsbury
+SDR	Schroders
+SGE	Sage Group
+SHP	Shire
+SL	Standard Life
+SMIN	Smiths Group
+SN	Smith & Nephew
+SRP	Serco Group
+SSE	Scottish and Southern Energy
+STAN	Standard Chartered Bank
+SVT	Severn Trent
+TATE	Tate & Lyle
+TLW	Tullow Oil
+TSCO	Tesco plc
+ULVR	Unilever
+UU	United Utilities Group
+VED	Vedanta Resources
+VOD	Vodafone
+WEIR	Weir Group
+WOS	Wolseley
+WPP	WPP Group
+WTB	Whitbread
+XTA	Xstrata
