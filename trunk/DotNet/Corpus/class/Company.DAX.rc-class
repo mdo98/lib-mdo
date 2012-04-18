@@ -10,25 +10,25 @@ BEI	Beiersdorf	Personal products
 BMW	BMW	Automobiles
 CBK	Commerzbank	Banks
 DAI	Daimler	Automobiles
-DBK	DeutscheBank	Banks
-DB1	DeutscheBörse	Brokers
-LHA	DeutscheLufthansa	Airlines
-DPW	DeutschePost	Logistics
-DTE	DeutscheTelekom	Telecommunications
+DBK	Deutsche Bank	Banks
+DB1	Deutsche Börse	Brokers
+LHA	Deutsche Lufthansa	Airlines
+DPW	Deutsche Post	Logistics
+DTE	Deutsche Telekom	Telecommunications
 EOAN	E.ON	Utilities
-FRE	Fresenius	Healthcare
-FME	FreseniusMedicalCare	Healthcare
+FRE	Fresenius	Health care
+FME	Fresenius Medical Care	Health care
 HEI	HeidelbergCement	Building materials
 HEN3	Henkel	Personal products
-IFX	InfineonTechnologies	Semiconductors
+IFX	Infineon Technologies	Semiconductors
 SDF	K+S	Chemicals
 LIN	Linde	Industrial gases
 MAN	MAN	Diversified industrials
 MRK	Merck	Pharmaceuticals
 MEO	Metro	Retail
-MUV2	MunichRe	Insurance
+MUV2	Munich RE	Reinsurance
 RWE	RWE	Utilities
 SAP	SAP	Software
 SIE	Siemens	Diversified industrials
 TKA	ThyssenKrupp	Diversified industrials
-VOW3	VolkswagenGroup	Automobiles
+VOW3	Volkswagen Group	Automobiles

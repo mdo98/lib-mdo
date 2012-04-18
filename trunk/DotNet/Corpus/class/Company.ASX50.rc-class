@@ -1,0 +1,54 @@
+﻿Company.ASX50
+4 dims
+50 items
+Ticker::System.String	Name::System.String	Sector::System.String	HeadquartersLocation::System.String
+AGK	AGL Energy Ltd	Utilities	Sydney, Australia
+AMP	AMP Ltd	Financials	Sydney, Australia
+ANZ	ANZ Banking Group	Financials	Melbourne, Australia
+ASX	ASX Limited	Financials	Sydney, Australia
+AWC	Alumina Ltd	Materials	Melbourne, Australia
+AMC	Amcor Ltd	Materials	Melbourne, Australia
+AIO	Asciano Ltd	Industrials	Melbourne, Australia
+BHP	BHP Billiton Ltd	Materials	Melbourne, Australia / London, United Kingdom
+BXB	Brambles Industries Ltd	Industrials	Sydney, Australia
+CFX	CFS Retail Property Trust	Financials	Sydney, Australia
+CSL	CSL Ltd	Health Care	Melbourne, Australia
+CCL	Coca-Cola Amatil Ltd	Consumer Staples	Sydney, Australia
+CBA	Commonwealth Bank of Australia	Financials	Sydney, Australia
+CPU	Computershare Ltd	Information Technology	Melbourne, Australia
+CWN	Crown Ltd	Consumer Discretionary	Melbourne, Australia
+FMG	Fortescue Metals Group	Materials	Perth, Australia
+GMG	Goodman Group Limited	Financials	Sydney, Australia
+GPT	GPT Group	Financials	Sydney, Australia
+ILU	Iluka Resources Ltd	Materials	Perth, Australia
+IPL	Incitec Pivot	Materials	Melbourne, Australia
+IAG	Insurance Australia Group Ltd	Financials	Sydney, Australia
+LEI	Leighton Holdings Ltd	Industrials	Sydney, Australia
+LLC	Lend Lease Group	Financials	Sydney, Australia
+MQG	Macquarie Group Ltd	Financials	Sydney, Australia
+MGR	Mirvac Ltd	Financials	Sydney, Australia
+NAB	National Australia Bank Ltd	Financials	Melbourne, Australia
+NCM	Newcrest Mining Ltd	Materials	Melbourne, Australia
+NWS	News Corporation Ltd	Consumer Discretionary	New York City, United States
+OSH	Oil Search Ltd	Energy	Papua New Guinea Port Moresby
+ORI	Orica Ltd	Materials	Melbourne, Australia
+ORG	Origin Energy Ltd	Energy	Sydney, Australia
+QBE	QBE Insurance Group Ltd	Financials	Sydney, Australia
+QRN	QR National Ltd	Industrials	Brisbane, Australia
+QAN	Qantas Airways Ltd	Industrials	Sydney, Australia
+RIO	Rio Tinto Ltd	Materials	Melbourne, Australia / London, United Kingdom
+STO	Santos Ltd	Energy	Adelaide, Australia
+SHL	Sonic Healthcare Ltd	Health Care	Sydney, Australia
+SGP	Stockland	Financials	Sydney, Australia
+SUN	Suncorp Group Ltd	Financials	Brisbane, Australia
+SYD	Sydney Airport	Industrials	Sydney, Australia
+TLS	Telstra Corp Ltd	Telecommunications	Melbourne, Australia
+TOL	Toll Holdings Ltd	Industrials	Melbourne, Australia
+TCL	Transurban Group NPV	Industrials	Melbourne, Australia
+WES	Wesfarmers Ltd	Industrials	Perth, Australia
+WDC	Westfield Group	Financials	Sydney, Australia
+WRT	Westfield Retail Trust Ltd	Financials	Sydney, Australia
+WBC	Westpac Banking Corp	Financials	Sydney, Australia
+WPL	Woodside Petroleum Ltd	Energy	Perth, Australia
+WOW	Woolworths Ltd	Consumer Staples	Sydney, Australia
+WOR	WorleyParsons Ltd	Energy	Sydney, Australia

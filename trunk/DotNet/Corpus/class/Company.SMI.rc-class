@@ -1,0 +1,24 @@
+﻿Company.SMI
+3 dims
+20 items
+Ticker::System.String	Name::System.String	Sector::System.String
+ABBN	ABB	Electronic equipment
+ATLN	Actelion	Biotechnology
+ADEN	Adecco	Employment agencies
+CSGN	Credit Suisse	Banks
+GIVN	Givaudan	Chemicals
+HOLN	Holcim	Building materials and fixtures
+BAER	Julius Baer Group	Banks
+NESN	Nestlé	Food products
+NOVN	Novartis	Pharmaceuticals
+CFR	Richemont	Clothing and accessories
+ROG	Roche	Pharmaceuticals
+SGSN	SGS	Business support services
+UHR	Swatch Group	Clothing and accessories
+SREN	Swiss Re	Reinsurance
+SCMN	Swisscom	Telecommunications
+SYNN	Syngenta	Chemicals
+SYST	Synthes	Medical equipment
+RIGN	Transocean	Oil equipment and services
+UBSN	UBS	Banks
+ZURN	Zurich Financial	Insurance
