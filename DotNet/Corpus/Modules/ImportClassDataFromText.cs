@@ -20,10 +20,18 @@ namespace MDo.Data.Corpus.Modules
             {
                 foreach (string variantName in metaReader.ListVariants(className))
                 {
-                    Console.Write("Importing {0}.{1}...", className, variantName);
-                    IClassDataImporter srcStore = new ClassDataTextCachedImporter(baseDir, className, variantName);
-                    srcStore.Import(className, variantName, destStore);
-                    Console.WriteLine(" Done.");
+                    try
+                    {
+                        Console.Write("Importing {0}/{1}.{2}...", baseDir, className, variantName);
+                        IClassDataImporter srcStore = new ClassDataTextCachedImporter(baseDir, className, variantName);
+                        srcStore.Import(className, variantName, destStore);
+                        Console.WriteLine(" Done.");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine();
+                        Console.WriteLine("An error occurred: {0}", ex.ToString());
+                    }
                 }
             }
         }

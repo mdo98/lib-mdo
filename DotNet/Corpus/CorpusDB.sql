@@ -77,11 +77,9 @@ CREATE FUNCTION [RefCorpus].[CountClassVariants]
 AS
 BEGIN
 DECLARE @Count INT;
-SET @Count = (SELECT COUNT(*) FROM [ClassVariants]
-               WHERE [ClassId] = (SELECT [Id] FROM [Classes]
-                                   WHERE [Name] = @ClassName
-                                 )
-             );
+SELECT @Count = COUNT(*) FROM [ClassVariants]
+  LEFT JOIN [Classes] ON [ClassVariants].[ClassId] = [Classes].[Id]
+ WHERE [Classes].[Name] = @ClassName;
 RETURN @Count;
 END
 GO
@@ -96,12 +94,10 @@ CREATE FUNCTION [RefCorpus].[VariantRef]
 AS
 BEGIN
 DECLARE @Ref VARCHAR(MAX);
-SET @Ref = (SELECT [Ref] FROM [ClassVariants]
-             WHERE [ClassId] = (SELECT [Id] FROM [Classes]
-                                 WHERE [Name] = @ClassName
-                               )
-               AND [Name] = @VariantName
-           );
+SELECT @Ref = [Ref] FROM [ClassVariants]
+  LEFT JOIN [Classes] ON [ClassVariants].[ClassId] = [Classes].[Id]
+ WHERE [Classes].[Name] = @ClassName
+   AND [ClassVariants].[Name] = @VariantName;
 RETURN @Ref;
 END
 GO
@@ -125,15 +121,14 @@ CREATE PROCEDURE [RefCorpus].[ListClassVariants]
 )
 AS
 BEGIN
-SELECT [Name]
+SELECT [ClassVariants].[Name]
       ,[Desc]
       ,[Ref]
       ,[CreatedTime]
       ,[LastModifiedTime]
   FROM [ClassVariants]
- WHERE [ClassId] = (SELECT [Id] FROM [Classes]
-                     WHERE [Name] = @ClassName
-                   )
+  LEFT JOIN [Classes] ON [ClassVariants].[ClassId] = [Classes].[Id]
+ WHERE [Classes].[Name] = @ClassName
  ORDER BY [VariantId];
 END
 GO
@@ -152,10 +147,9 @@ SELECT [Desc]
       ,[CreatedTime]
       ,[LastModifiedTime]
   FROM [ClassVariants]
- WHERE [ClassId] = (SELECT [Id] FROM [Classes]
-                     WHERE [Name] = @ClassName
-                   )
-   AND [Name] = @VariantName;
+  LEFT JOIN [Classes] ON [ClassVariants].[ClassId] = [Classes].[Id]
+ WHERE [Classes].[Name] = @ClassName
+   AND [ClassVariants].[Name] = @VariantName;
 END
 GO
 
@@ -171,9 +165,8 @@ AS
 BEGIN
 
 DECLARE @ClassId BIGINT;
-SET @ClassId = (SELECT [Id] FROM [Classes]
-                 WHERE [Name] = @ClassName
-               );
+SELECT @ClassId = [Id] FROM [Classes]
+ WHERE [Name] = @ClassName;
 
 IF @ClassId IS NULL
 BEGIN
