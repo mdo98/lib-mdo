@@ -1,0 +1,44 @@
+﻿Company.CAC40
+3 dims
+40 items
+Ticker::System.String	Name::System.String	Sector::System.String
+AC	Accor	Hotels
+AI	Air Liquide	Chemicals
+ALU	Alcatel-Lucent	Telecommunications equipment
+ALO	Alstom	Industrial machinery
+MT	ArcelorMittal	Steel
+CS	AXA	Insurance
+BNP	BNP Paribas	Banks
+EN	Bouygues	Construction
+CAP	Capgemini	Computer services
+CA	Carrefour	Retail
+ACA	Crédit Agricole	Banks
+EAD	EADS	Aerospace
+EDF	EDF	Electricity
+EI	Essilor	Medical supplies
+FTE	France Télécom	Telecommunications
+GSZ	GDF Suez	Gas distribution
+BN	Groupe Danone	Food products
+OR	L'Oréal	Personal products
+LG	Lafarge	Building materials and fixtures
+LR	Legrand	Electrical components and equipment
+MC	LVMH	Clothing and accessories
+ML	Michelin	Tires
+RI	Pernod Ricard	Distillers and vintners
+UG	PSA Peugeot Citroën	Automobiles
+PP	PPR	Retail
+PUB	Publicis	Media agencies
+RNO	Renault	Automobiles
+SAF	Safran	Aerospace
+SGO	Saint-Gobain	Building materials and fixtures
+SAN	Sanofi	Pharmaceuticals
+SU	Schneider Electric	Electrical components and equipment
+GLE	Société Générale	Banks
+STM	STMicroelectronics	Semiconductors
+TEC	Technip	Oil equipment and services
+FP	Total	Integrated oil and gas
+UL	Unibail-Rodamco	Real estate investment trusts
+VK	Vallourec	Industrial machinery
+VIE	Veolia Environnement	Water
+DG	Vinci	Construction
+VIV	Vivendi	Broadcasting and entertainment

@@ -1,0 +1,34 @@
+﻿Company.DAX
+3 dims
+30 items
+Ticker::System.String	Name::System.String	Sector::System.String
+ADS	Adidas	Clothing and footwear
+ALV	Allianz	Insurance
+BAS	BASF	Chemicals
+BAYN	Bayer	Chemicals
+BEI	Beiersdorf	Personal products
+BMW	BMW	Automobiles
+CBK	Commerzbank	Banks
+DAI	Daimler	Automobiles
+DBK	DeutscheBank	Banks
+DB1	DeutscheBörse	Brokers
+LHA	DeutscheLufthansa	Airlines
+DPW	DeutschePost	Logistics
+DTE	DeutscheTelekom	Telecommunications
+EOAN	E.ON	Utilities
+FRE	Fresenius	Healthcare
+FME	FreseniusMedicalCare	Healthcare
+HEI	HeidelbergCement	Building materials
+HEN3	Henkel	Personal products
+IFX	InfineonTechnologies	Semiconductors
+SDF	K+S	Chemicals
+LIN	Linde	Industrial gases
+MAN	MAN	Diversified industrials
+MRK	Merck	Pharmaceuticals
+MEO	Metro	Retail
+MUV2	MunichRe	Insurance
+RWE	RWE	Utilities
+SAP	SAP	Software
+SIE	Siemens	Diversified industrials
+TKA	ThyssenKrupp	Diversified industrials
+VOW3	VolkswagenGroup	Automobiles

@@ -1,0 +1,504 @@
+﻿Company.SP500
+4 dims
+500 items
+Ticker::System.String	Name::System.String	Sector::System.String	HeadquartersLocation::System.String
+MMM	3M Co.	Industrials	St Paul, Minnesota
+ACE	ACE Limited	Financials	Zurich, Switzerland
+ABT	Abbott Laboratories	Health Care	North Chicago, Illinois
+ANF	Abercrombie & Fitch Company	Consumer Discretionary	New Albany, Ohio
+ACN	Accenture	Information Technology	Dublin, Ireland
+ADBE	Adobe Systems Inc.	Information Technology	San Jose, California
+AMD	Advanced Micro Devices	Information Technology	Sunnyvale, California
+AES	AES Corp	Utilities	Arlington, Virginia
+AET	Aetna Inc.	Health Care	Hartford, Connecticut
+AFL	AFLAC Inc.	Financials	Columbus, Georgia
+A	Agilent Technologies Inc.	Health Care	Santa Clara, California
+GAS	AGL Resources Inc.	Utilities	Atlanta, Georgia
+APD	Air Products & Chemicals Inc.	Materials	Allentown, Pennsylvania
+ARG	Airgas Inc.	Materials	Radnor Township, Pennsylvania
+AKAM	Akamai Technologies Inc.	Information Technology	Cambridge, Massachusetts
+AA	Alcoa Inc.	Materials	Pittsburgh, Pennsylvania
+ATI	Allegheny Technologies Inc.	Materials	Pittsburgh, Pennsylvania
+AGN	Allergan Inc.	Health Care	Irvine, California
+ALL	Allstate Corp	Financials	Northfield Township, Illinois
+ANR	Alpha Natural Resources	Energy	Abingdon, Virginia
+ALTR	Altera Corp	Information Technology	San Jose, California
+MO	Altria Group Inc.	Consumer Staples	Richmond, Virginia
+AMZN	Amazon.com Inc.	Consumer Discretionary	Seattle, Washington
+AEE	Ameren Corp	Utilities	St. Louis, Missouri
+AEP	American Electric Power	Utilities	Columbus, Ohio
+AXP	American Express Co	Financials	New York, New York
+AIG	American Intl Group Inc.	Financials	New York, New York
+AMT	American Tower Corp A	Financials	Boston, Massachusetts
+AMP	Ameriprise Financial	Financials	Minneapolis, Minnesota
+ABC	AmerisourceBergen Corp	Health Care	Chesterbrook, Pennsylvania
+AMGN	Amgen Inc.	Health Care	Thousand Oaks, California
+APH	Amphenol Corp A	Industrials	Wallingford, Connecticut
+APC	Anadarko Petroleum Corp	Energy	The Woodlands, Texas
+ADI	Analog Devices Inc.	Information Technology	Norwood, Massachusetts
+AON	Aon plc	Financials	London, United Kingdom
+APA	Apache Corporation	Energy	Houston, Texas
+AIV	Apartment Investment & Mgmt	Financials	Denver, Colorado
+APOL	Apollo Group Inc.	Consumer Discretionary	Phoenix, Arizona
+AAPL	Apple Inc.	Information Technology	Cupertino, California
+AMAT	Applied Materials Inc.	Information Technology	Santa Clara, California
+ADM	Archer-Daniels-Midland Co	Consumer Staples	Decatur, Illinois
+AIZ	Assurant Inc.	Financials	New York, New York
+T	AT&T Inc.	Telecommunications Services	Dallas, Texas
+ADSK	Autodesk Inc.	Information Technology	San Rafael, California
+ADP	Automatic Data Processing	Information Technology	Roseland, New Jersey
+AN	AutoNation Inc.	Consumer Discretionary	Fort Lauderdale, Florida
+AZO	AutoZone Inc.	Consumer Discretionary	Memphis, Tennessee
+AVB	AvalonBay Communities, Inc.	Financials	Arlington, Virginia
+AVY	Avery Dennison Corp	Industrials	Pasadena, California
+AVP	Avon Products	Consumer Staples	New York, New York
+BHI	Baker Hughes Inc.	Energy	Houston, Texas
+BLL	Ball Corp	Materials	Broomfield, Colorado
+BAC	Bank of America Corp	Financials	Charlotte, North Carolina
+BK	The Bank of New York Mellon Corp.	Financials	New York, New York
+BCR	Bard (C.R.) Inc.	Health Care	Murray Hill, New Jersey
+BAX	Baxter International Inc.	Health Care	Deerfield, Illinois
+BBT	BB&T Corporation	Financials	Winston-Salem, North Carolina
+BEAM	Beam Inc.	Consumer Discretionary	Deerfield, Illinois
+BDX	Becton Dickinson	Health Care	Franklin Lakes, New Jersey
+BBBY	Bed Bath & Beyond	Consumer Discretionary	Union, New Jersey
+BMS	Bemis Company	Materials	Neenah, Wisconsin
+BRK.B	Berkshire Hathaway	Financials	Omaha, Nebraska
+BBY	Best Buy Co. Inc.	Consumer Discretionary	Richfield, Minnesota
+BIG	Big Lots Inc.	Consumer Discretionary	Columbus, Ohio
+BIIB	BIOGEN IDEC Inc.	Health Care	Weston, Massachusetts
+BLK	BlackRock	Financials	New York, New York
+HRB	Block H&R	Consumer Discretionary	Kansas City, Missouri
+BMC	BMC Software	Information Technology	Houston, Texas
+BA	Boeing Company	Industrials	Chicago, Illinois
+BWA	BorgWarner	Consumer Discretionary	Auburn Hills, Michigan
+BXP	Boston Properties	Financials	Boston, Massachusetts
+BSX	Boston Scientific	Health Care	Natick, Massachusetts
+BMY	Bristol-Myers Squibb	Health Care	New York, New York
+BRCM	Broadcom Corporation	Information Technology	Irvine, California
+BFB	Brown-Forman Corporation	Consumer Staples	Louisville, Kentucky
+CHRW	C. H. Robinson Worldwide	Industrials	Eden Prairie, Minnesota
+CA	CA, Inc.	Information Technology	Islandia, New York
+CVC	Cablevision Systems Corp.	Consumer Discretionary	Bethpage, New York
+COG	Cabot Oil & Gas	Energy	Houston, Texas
+CAM	Cameron International Corp.	Energy	Houston, Texas
+CPB	Campbell Soup	Consumer Staples	Camden, New Jersey
+COF	Capital One Financial	Financials	Tysons Corner, Virginia
+CAH	Cardinal Health Inc.	Health Care	Dublin, Ohio
+CFN	Carefusion	Health Care	San Diego, California
+KMX	Carmax Inc.	Consumer Discretionary	Richmond, Virginia
+CCL	Carnival Corp.	Consumer Discretionary	Miami, Florida
+CAT	Caterpillar Inc.	Industrials	Peoria, Illinois
+CBG	CBRE Group	Financials	Los Angeles, California
+CBS	CBS Corp.	Consumer Discretionary	New York, New York
+CELG	Celgene Corp.	Health Care	Summit, New Jersey
+CNP	CenterPoint Energy	Utilities	Houston, Texas
+CTL	CenturyLink Inc.	Telecommunications Services	Monroe, Louisiana
+CERN	Cerner	Health Care	North Kansas City, Missouri
+CF	CF Industries Holdings Inc.	Materials	Deerfield, Illinois
+SCHW	Charles Schwab	Financials	San Francisco, California
+CHK	Chesapeake Energy	Energy	Oklahoma City, Oklahoma
+CVX	Chevron Corp.	Energy	San Ramon, California
+CB	Chubb Corp.	Financials	Warren, New Jersey
+CI	CIGNA Corp.	Health Care	Philadelphia, Pennsylvania
+CINF	Cincinnati Financial	Financials	Fairfield, Ohio
+CTAS	Cintas Corporation	Industrials	Mason, Ohio
+CSCO	Cisco Systems	Information Technology	San Jose, California
+C	Citigroup Inc.	Financials	New York, New York
+CTXS	Citrix Systems	Information Technology	Fort Lauderdale, Florida
+CLF	Cliffs Natural Resources	Materials	Cleveland, Ohio
+CLX	Clorox Co.	Consumer Staples	Oakland, California
+CME	CME Group Inc.	Financials	Chicago, Illinois
+CMS	CMS Energy	Utilities	Jackson, Michigan
+COH	Coach Inc.	Consumer Discretionary	New York, New York
+KO	Coca Cola Co.	Consumer Staples	Atlanta, Georgia
+CCE	Coca-Cola Enterprises	Consumer Staples	Atlanta, Georgia
+CTSH	Cognizant Technology Solutions	Information Technology	Teaneck, New Jersey
+CL	Colgate-Palmolive	Consumer Staples	New York, New York
+CMCSA	Comcast Corp.	Consumer Discretionary	Philadelphia, Pennsylvania
+CMA	Comerica Inc.	Financials	Dallas, Texas
+CSC	Computer Sciences Corp.	Information Technology	Falls Church, Virginia
+CAG	ConAgra Foods Inc.	Consumer Staples	Omaha, Nebraska
+COP	ConocoPhillips	Energy	Houston, Texas
+CNX	CONSOL Energy Inc.	Energy	Cecil Township, Pennsylvania
+ED	Consolidated Edison	Utilities	New York, New York
+STZ	Constellation Brands	Consumer Staples	Victor, New York
+GLW	Corning Inc.	Industrials	Corning, New York
+COST	Costco Co.	Consumer Staples	Issaquah, Washington
+CVH	Coventry Health Care Inc.	Health Care	Bethesda, Maryland
+COV	Covidien plc	Health Care	Dublin, Ireland
+CCI	Crown Castle International Corp.	Telecommunications Services	Houston, Texas
+CSX	CSX Corp.	Industrials	Jacksonville, Florida
+CMI	Cummins Inc.	Industrials	Columbus, Indiana
+CVS	CVS Caremark Corp.	Consumer Staples	Woonsocket, Rhode Island
+DHI	D. R. Horton	Consumer Discretionary	Fort Worth, Texas
+DHR	Danaher Corp.	Industrials	Washington D.C.
+DRI	Darden Restaurants	Consumer Discretionary	Orlando, Florida
+DVA	DaVita Inc.	Health Care	Denver, Colorado
+DF	Dean Foods	Consumer Staples	Dallas, Texas
+DE	Deere & Co.	Industrials	Moline, Illinois
+DELL	Dell Inc.	Information Technology	Round Rock, Texas
+DNR	Denbury Resources Inc.	Energy	Plano, Texas
+XRAY	Dentsply International	Health Care	York, Pennsylvania
+DVN	Devon Energy Corp.	Energy	Oklahoma City, Oklahoma
+DV	DeVry, Inc.	Consumer Discretionary	Downers Grove, Illinois
+DO	Diamond Offshore Drilling	Energy	Houston, Texas
+DTV	DirecTV	Consumer Discretionary	El Segundo, California
+DFS	Discover Financial Services	Financials	Riverwoods, Illinois
+DISCA	Discovery Communications	Consumer Discretionary	Silver Spring, Maryland
+DLTR	Dollar Tree	Consumer Discretionary	Chesapeake, Virginia
+D	Dominion Resources	Utilities	Richmond, Virginia
+RRD	Donnelley (R.R.) & Sons	Industrials	Chicago, Illinois
+DOV	Dover Corp.	Industrials	Downers Grove, Illinois
+DOW	Dow Chemical	Materials	Midland, Michigan
+DPS	Dr Pepper Snapple Group	Consumer Staples	Plano, Texas
+DTE	DTE Energy Co.	Utilities	Detroit, Michigan
+DD	Du Pont (E.I.)	Materials	Wilmington, Delaware
+DUK	Duke Energy	Utilities	Charlotte, North Carolina
+DNB	Dun & Bradstreet	Industrials	Short Hills, New Jersey
+ETFC	E-Trade	Financials	New York, New York
+EMN	Eastman Chemical	Materials	Kingsport, Tennessee
+ETN	Eaton Corp.	Industrials	Cleveland, Ohio
+EBAY	eBay Inc.	Information Technology	San Jose, California
+ECL	Ecolab Inc.	Materials	St. Paul, Minnesota
+EIX	Edison Int'l	Utilities	Rosemead, California
+EW	Edwards Lifesciences	Health Care	Irvine, California
+EP	El Paso Corp.	Energy	Houston, Texas
+EA	Electronic Arts	Information Technology	Redwood City, California
+EMC	EMC Corp.	Information Technology	Hopkinton, Massachusetts
+EMR	Emerson Electric	Industrials	Ferguson, Missouri
+ETR	Entergy Corp.	Utilities	New Orleans, Louisiana
+EOG	EOG Resources	Energy	Houston, Texas
+EQT	EQT Corporation	Utilities	Pittsburgh, Pennsylvania
+EFX	Equifax Inc.	Financials	Atlanta, Georgia
+EQR	Equity Residential	Financials	Chicago, Illinois
+EL	Estee Lauder Cos.	Consumer Staples	New York, New York
+EXC	Exelon Corp.	Utilities	Chicago, Illinois
+EXPE	Expedia Inc.	Consumer Discretionary	Bellevue, Washington
+EXPD	Expeditors Int'l	Industrials	Seattle, Washington
+ESRX	Express Scripts	Health Care	Cool Valley, Missouri
+XOM	Exxon Mobil Corp.	Energy	Irving, Texas
+FFIV	F5 Networks	Information Technology	Seattle, Washington
+FDO	Family Dollar Stores	Consumer Discretionary	Matthews, North Carolina
+FAST	Fastenal Co	Industrials	Winona, Minnesota
+FII	Federated Investors Inc.	Financials	Pittsburgh, Pennsylvania
+FDX	FedEx Corporation	Industrials	Memphis, Tennessee
+FIS	Fidelity National Information Services	Information Technology	Jacksonville, Florida
+FITB	Fifth Third Bancorp	Financials	Cincinnati, Ohio
+FHN	First Horizon National	Financials	Memphis, Tennessee
+FSLR	First Solar Inc.	Industrials	Tempe, Arizona
+FE	FirstEnergy Corp	Utilities	Akron, Ohio
+FISV	Fiserv Inc.	Information Technology	Brookfield, Wisconsin
+FLIR	FLIR Systems	Information Technology	Wilsonville, Oregon
+FLS	Flowserve Corporation	Industrials	Irving, Texas
+FLR	Fluor Corp.	Industrials	Irving, Texas
+FMC	FMC Corporation	Materials	Philadelphia, Pennsylvania
+FTI	FMC Technologies Inc.	Energy	Houston, Texas
+F	Ford Motor	Consumer Discretionary	Dearborn, Michigan
+FRX	Forest Laboratories	Health Care	New York, New York
+FOSL	Fossil, Inc.	Consumer Discretionary	Richardson, Texas
+BEN	Franklin Resources	Financials	San Mateo, California
+FCX	Freeport-McMoran Cp & Gld	Materials	Phoenix, Arizona
+FTR	Frontier Communications	Telecommunications Services	Stamford, Connecticut
+GME	GameStop Corp.	Consumer Discretionary	Grapevine, Texas
+GCI	Gannett Co.	Consumer Discretionary	McLean, Virginia
+GPS	Gap (The)	Consumer Discretionary	San Francisco, California
+GD	General Dynamics	Industrials	Falls Church, Virginia
+GE	General Electric	Industrials	Fairfield, Connecticut
+GIS	General Mills	Consumer Staples	Golden Valley, Minnesota
+GPC	Genuine Parts	Consumer Discretionary	Atlanta, Georgia
+GNW	Genworth Financial Inc.	Financials	Richmond, Virginia
+GILD	Gilead Sciences	Health Care	Foster City, California
+GS	Goldman Sachs Group	Financials	New York, New York
+GR	Goodrich Corporation	Industrials	Charlotte, North Carolina
+GT	Goodyear Tire & Rubber	Consumer Discretionary	Akron, Ohio
+GOOG	Google Inc.	Information Technology	Mountain View, California
+GWW	Grainger (W.W.) Inc.	Industrials	Lake Forest, Illinois
+HAL	Halliburton Co.	Energy	Houston, Texas
+HOG	Harley-Davidson	Consumer Discretionary	Milwaukee, Wisconsin
+HAR	Harman Int'l Industries	Consumer Discretionary	Stamford, Connecticut
+HRS	Harris Corporation	Information Technology	Melbourne, Florida
+HIG	Hartford Financial Svc.Gp.	Financials	Hartford, Connecticut
+HAS	Hasbro Inc.	Consumer Discretionary	Pawtucket, Rhode Island
+HCP	HCP Inc.	Financials	Long Beach, California
+HCN	Health Care REIT	Financials	Toledo, Ohio
+HNZ	Heinz (H.J.)	Consumer Staples	Pittsburgh, Pennsylvania
+HP	Helmerich & Payne	Energy	Tulsa, Oklahoma
+HES	Hess Corporation	Energy	New York, New York
+HPQ	Hewlett-Packard	Information Technology	Palo Alto, California
+HD	Home Depot	Consumer Discretionary	Cobb County, Georgia
+HON	Honeywell Int'l Inc.	Industrials	Morristown, New Jersey
+HRL	Hormel Foods Corp.	Consumer Staples	Austin, Minnesota
+HSP	Hospira Inc.	Health Care	Lake Forest, Illinois
+HST	Host Hotels & Resorts	Financials	Bethesda, Maryland
+HCBK	Hudson City Bancorp	Financials	Paramus, New Jersey
+HUM	Humana Inc.	Health Care	Louisville, Kentucky
+HBAN	Huntington Bancshares	Financials	Columbus, Ohio
+ITW	Illinois Tool Works	Industrials	Glenview, Illinois
+TEG	Integrys Energy Group Inc.	Utilities	Chicago, Illinois
+INTC	Intel Corp.	Information Technology	Santa Clara, California
+ICE	IntercontinentalExchange Inc.	Financials	Atlanta, Georgia
+IBM	International Bus. Machines	Information Technology	Armonk, New York
+IFF	International Flav/Frag	Materials	New York, New York
+IGT	International Game Technology	Consumer Discretionary	Reno, Nevada
+IP	International Paper	Materials	Memphis, Tennessee
+IPG	Interpublic Group	Consumer Discretionary	New York, New York
+INTU	Intuit Inc.	Information Technology	Mountain View, California
+ISRG	Intuitive Surgical Inc.	Health Care	Sunnyvale, California
+IVZ	Invesco Ltd.	Financials	Atlanta, Georgia
+IRM	Iron Mountain Incorporated	Industrials	Boston, Massachusetts
+XYL	Xylem Inc.	Industrials	White Plains, New York
+JBL	Jabil Circuit	Information Technology	St. Petersburg, Florida
+JEC	Jacobs Engineering Group	Industrials	Pasadena, California
+CBE	Cooper Industries	Industrials	Houston, Texas
+JDSU	JDS Uniphase Corp.	Information Technology	Milpitas, California
+JNJ	Johnson & Johnson	Health Care	New Brunswick, New Jersey
+JCI	Johnson Controls	Consumer Discretionary	Milwaukee, Wisconsin
+JOY	Joy Global Inc.	Industrials	Milwaukee, Wisconsin
+JPM	JPMorgan Chase & Co.	Financials	New York, New York
+JNPR	Juniper Networks	Information Technology	Sunnyvale, California
+K	Kellogg Co.	Consumer Staples	Battle Creek, Michigan
+KEY	KeyCorp	Financials	Cleveland, Ohio
+KMB	Kimberly-Clark	Consumer Staples	Irving, Texas
+KIM	Kimco Realty	Financials	New Hyde Park, New York
+KLAC	KLA-Tencor Corp.	Information Technology	Milpitas, California
+KSS	Kohl's Corp.	Consumer Discretionary	Menomonee Falls, Wisconsin
+KFT	Kraft Foods Inc.-A	Consumer Staples	Northfield, Illinois
+KR	Kroger Co.	Consumer Staples	Cincinnati, Ohio
+LLL	L-3 Communications Holdings	Industrials	New York, New York
+LH	Laboratory Corp. of America Holding	Health Care	Burlington, North Carolina
+LM	Legg Mason	Financials	Baltimore, Maryland
+LEG	Leggett & Platt	Consumer Discretionary	Carthage, Missouri
+LEN	Lennar Corp.	Consumer Discretionary	Miami, Florida
+LUK	Leucadia National Corp.	Financials	New York, New York
+LXK	Lexmark Int'l Inc.	Information Technology	Lexington, Kentucky
+LIFE	Life Technologies	Health Care	Carlsbad, California
+LLY	Lilly (Eli) & Co.	Health Care	Indianapolis, Indiana
+LTD	Limited Brands Inc.	Consumer Discretionary	Columbus, Ohio
+LNC	Lincoln National	Financials	Radnor, Pennsylvania
+LLTC	Linear Technology Corp.	Information Technology	Milpitas, California
+LMT	Lockheed Martin Corp.	Industrials	Bethesda, Maryland
+L	Loews Corp.	Financials	New York, New York
+LO	Lorillard Inc.	Consumer Staples	Greensboro, North Carolina
+LOW	Lowe's Cos.	Consumer Discretionary	North Wilkesboro, North Carolina
+LSI	LSI Corporation	Information Technology	Milpitas, California
+MTB	M&T Bank Corp.	Financials	Buffalo, New York
+M	Macy's Inc.	Consumer Discretionary	Cincinnati, Ohio
+MRO	Marathon Oil Corp.	Energy	Houston, Texas
+MPC	Marathon Petroleum	Energy	Findlay, Ohio
+MAR	Marriott Int'l.	Consumer Discretionary	Bethesda, Maryland
+MMC	Marsh & McLennan	Financials	New York, New York
+MAS	Masco Corp.	Industrials	Taylor, Michigan
+MA	Mastercard Inc.	Information Technology	Harrison, New York
+MAT	Mattel Inc.	Consumer Discretionary	El Segundo, California
+MKC	McCormick & Co.	Consumer Staples	Sparks, Maryland
+MCD	McDonald's Corp.	Consumer Discretionary	Oak Brook, Illinois
+MHP	McGraw-Hill	Consumer Discretionary	New York, New York
+MCK	McKesson Corp.	Health Care	San Francisco, California
+MJN	Mead Johnson	Consumer Staples	Glenview, Illinois
+MWV	MeadWestvaco Corporation	Materials	Richmond, Virginia
+MDT	Medtronic Inc.	Health Care	Fridley, Minnesota
+MRK	Merck & Co.	Health Care	Whitehouse Station, New Jersey
+MET	MetLife Inc.	Financials	New York, New York
+PCS	MetroPCS Communications Inc.	Telecommunications Services	Richardson, Texas
+MCHP	Microchip Technology	Information Technology	Chandler, Arizona
+MU	Micron Technology	Information Technology	Boise, Idaho
+MSFT	Microsoft Corp.	Information Technology	Redmond, Washington
+MOLX	Molex Inc.	Information Technology	Lisle, Illinois
+TAP	Molson Coors Brewing Company	Consumer Staples	Denver, Colorado
+MON	Monsanto Co.	Materials	Creve Coeur, Missouri
+MCO	Moody's Corp	Financials	New York, New York
+MS	Morgan Stanley	Financials	New York, New York
+MOS	The Mosaic Company	Materials	Plymouth, Minnesota
+MMI	Motorola Mobility Holdings Inc.	Information Technology	Libertyville, Illinois
+MSI	Motorola Solutions Inc.	Information Technology	Schaumburg, Illinois
+MUR	Murphy Oil	Energy	El Dorado, Arkansas
+MYL	Mylan Inc.	Health Care	Canonsburg, Pennsylvania
+NBR	Nabors Industries Ltd.	Energy	Hamilton, Bermuda
+NDAQ	NASDAQ OMX Group	Financials	New York, New York
+NOV	National Oilwell Varco Inc.	Energy	Houston, Texas
+NTAP	NetApp	Information Technology	Sunnyvale, California
+NFLX	NetFlix Inc.	Information Technology	Los Gatos, California
+NWL	Newell Rubbermaid Co.	Consumer Discretionary	Sandy Springs, Georgia
+NFX	Newfield Exploration Co	Energy	Houston, Texas
+NEM	Newmont Mining Corp. (Hldg. Co.)	Materials	Denver, Colorado
+NWSA	News Corporation	Consumer Discretionary	New York, New York
+NEE	NextEra Energy Resources	Utilities	Juno Beach, Florida
+NKE	NIKE Inc.	Consumer Discretionary	Washington County, Oregon
+NI	NiSource Inc.	Utilities	Merrillville, Indiana
+NE	Noble Corp	Energy	Geneva, Switzerland
+NBL	Noble Energy Inc.	Energy	Houston, Texas
+JWN	Nordstrom	Consumer Discretionary	Seattle, Washington
+NSC	Norfolk Southern Corp.	Industrials	Norfolk, Virginia
+NTRS	Northern Trust Corp.	Financials	Chicago, Illinois
+NOC	Northrop Grumman Corp.	Industrials	West Falls Church, Virginia
+NU	Northeast Utilities	Utilities	Berlin, Connecticut
+CMG	Chipotle Mexican Grill	Consumer Discretionary	Denver, Colorado
+NVLS	Novellus Systems	Information Technology	San Jose, California
+NRG	NRG Energy	Utilities	West Windsor Township, New Jersey
+NUE	Nucor Corp.	Materials	Charlotte, North Carolina
+NVDA	Nvidia Corporation	Information Technology	Santa Clara, California
+NYX	NYSE Euronext	Financials	New York, New York
+ORLY	O'Reilly Automotive	Consumer Discretionary	Springfield, Missouri
+OXY	Occidental Petroleum	Energy	Los Angeles, California
+OMC	Omnicom Group	Consumer Discretionary	New York, New York
+OKE	ONEOK	Utilities	Tulsa, Oklahoma
+ORCL	Oracle Corp.	Information Technology	Redwood Shores, California
+OI	Owens-Illinois Inc.	Materials	Perrysburg, Ohio
+PCAR	PACCAR Inc.	Industrials	Bellevue, Washington
+IR	Ingersoll-Rand PLC	Industrials	Dublin, Ireland
+PLL	Pall Corp.	Industrials	Port Washington, New York
+PH	Parker-Hannifin	Industrials	Cleveland, Ohio
+PDCO	Patterson Companies	Health Care	St. Paul, Minnesota
+PAYX	Paychex Inc.	Information Technology	Penfield, New York
+BTU	Peabody Energy	Energy	St. Louis, Missouri
+JCP	Penney (J.C.)	Consumer Discretionary	Plano, Texas
+PBCT	People's United Bank	Financials	Bridgeport, Connecticut
+POM	Pepco Holdings Inc.	Utilities	Washington D.C.
+PEP	PepsiCo Inc.	Consumer Staples	Purchase, New York
+PKI	PerkinElmer	Health Care	Waltham, Massachusetts
+PRGO	Perrigo	Health Care	Allegan, Michigan
+PFE	Pfizer Inc.	Health Care	New York, New York
+PCG	PG&E Corp.	Utilities	San Francisco, California
+PM	Philip Morris International	Consumer Staples	New York, New York
+PNW	Pinnacle West Capital	Utilities	Phoenix, Arizona
+PXD	Pioneer Natural Resources	Energy	Irving, Texas
+PBI	Pitney-Bowes	Industrials	Stamford, Connecticut
+PCL	Plum Creek Timber Co.	Financials	Seattle, Washington
+PNC	PNC Financial Services	Financials	Pittsburgh, Pennsylvania
+RL	Polo Ralph Lauren Corp.	Consumer Discretionary	New York, New York
+PPG	PPG Industries	Materials	Pittsburgh, Pennsylvania
+PPL	PPL Corp.	Utilities	Allentown, Pennsylvania
+PX	Praxair Inc.	Materials	Danbury, Connecticut
+PCP	Precision Castparts	Industrials	Portland, Oregon
+PCLN	Priceline.com Inc.	Industrials	Norwalk, Connecticut
+PFG	Principal Financial Group	Financials	Des Moines, Iowa
+PG	Procter & Gamble	Consumer Staples	Cincinnati, Ohio
+PGN	Progress Energy Inc.	Utilities	Raleigh, North Carolina
+PGR	Progressive Corp.	Financials	Mayfield Village, Ohio
+PLD	ProLogis	Financials	Denver, Colorado
+PRU	Prudential Financial	Financials	Newark, New Jersey
+PEG	Public Serv. Enterprise Inc.	Utilities	Newark, New Jersey
+PSA	Public Storage	Financials	Glendale, California
+PHM	Pulte Homes Inc.	Consumer Discretionary	Bloomfield Hills, Michigan
+QEP	QEP Resources	Utilities	Denver, Colorado
+PWR	Quanta Services Inc.	Industrials	Houston, Texas
+QCOM	QUALCOMM Inc.	Information Technology	San Diego, California
+DGX	Quest Diagnostics	Health Care	Madison, New Jersey
+RRC	Range Resources Corp.	Energy	Fort Worth, Texas
+RTN	Raytheon Co.	Industrials	Waltham, Massachusetts
+RHT	Red Hat Inc.	Information Technology	Raleigh, North Carolina
+RF	Regions Financial Corp.	Financials	Birmingham, Alabama
+RSG	Republic Services Inc.	Industrials	Phoenix, Arizona
+RAI	Reynolds American Inc.	Consumer Staples	Winston-Salem, North Carolina
+RHI	Robert Half International	Industrials	Menlo Park, California
+ROK	Rockwell Automation Inc.	Industrials	Milwaukee, Wisconsin
+COL	Rockwell Collins	Industrials	Cedar Rapids, Iowa
+ROP	Roper Industries	Industrials	Sarasota, Florida
+ROST	Ross Stores Inc.	Consumer Discretionary	Pleasanton, California
+RDC	Rowan Cos.	Energy	Houston, Texas
+R	Ryder System	Industrials	Miami, Florida
+SWY	Safeway Inc.	Consumer Staples	Pleasanton, California
+SAI	SAIC	Information Technology	McLean, Virginia
+CRM	Salesforce.com	Information Technology	San Francisco, California
+SNDK	SanDisk Corporation	Information Technology	Milpitas, California
+SLE	Sara Lee Corp.	Consumer Staples	Downers Grove, Illinois
+SCG	SCANA Corp	Utilities	Cayce, South Carolina
+SLB	Schlumberger Ltd.	Energy	Houston, Texas
+SNI	Scripps Networks Interactive Inc.	Consumer Discretionary	Cincinnati, Ohio
+SEE	Sealed Air Corp.(New)	Materials	Elmwood Park, New Jersey
+SHLD	Sears Holdings Corporation	Consumer Discretionary	Hoffman Estates, Illinois
+SRE	Sempra Energy	Utilities	San Diego, California
+SHW	Sherwin-Williams	Consumer Discretionary	Cleveland, Ohio
+SIAL	Sigma-Aldrich	Materials	St. Louis, Missouri
+SPG	Simon Property Group Inc.	Financials	Indianapolis, Indiana
+SLM	SLM Corporation	Financials	Newark, Delaware
+SJM	Smucker (J.M.)	Consumer Staples	Orrville, Ohio
+SNA	Snap-On Inc.	Consumer Discretionary	Kenosha, Wisconsin
+SO	Southern Co.	Utilities	Atlanta, Georgia
+LUV	Southwest Airlines	Industrials	Dallas, Texas
+SWN	Southwestern Energy	Energy	Houston, Texas
+SE	Spectra Energy Corp.	Energy	Houston, Texas
+S	Sprint Nextel Corp.	Telecommunications Services	Overland Park, Kansas
+STJ	St Jude Medical	Health Care	Little Canada, Minnesota
+SWK	Stanley Black & Decker	Consumer Discretionary	New Britain, Connecticut
+SPLS	Staples Inc.	Consumer Discretionary	Framingham, Massachusetts
+SBUX	Starbucks Corp.	Consumer Discretionary	Seattle, Washington
+HOT	Starwood Hotels & Resorts	Consumer Discretionary	White Plains, New York
+STT	State Street Corp.	Financials	Boston, Massachusetts
+SRCL	Stericycle Inc.	Industrials	Lake Forest, Illinois
+SYK	Stryker Corp.	Health Care	Kalamazoo, Michigan
+SUN	Sunoco Inc.	Energy	Philadelphia, Pennsylvania
+STI	SunTrust Banks	Financials	Atlanta, Georgia
+SVU	Supervalu Inc.	Consumer Staples	Eden Prairie, Minnesota
+SYMC	Symantec Corp.	Information Technology	Mountain View, California
+SYY	Sysco Corp.	Consumer Staples	Houston, Texas
+TROW	T. Rowe Price Group	Financials	Baltimore, Maryland
+TGT	Target Corp.	Consumer Discretionary	Minneapolis, Minnesota
+TEL	TE Connectivity Ltd.	Information Technology	Schaffhausen, Switzerland
+TE	TECO Energy	Utilities	Tampa, Florida
+THC	Tenet Healthcare Corp.	Health Care	Dallas, Texas
+TDC	Teradata Corp.	Information Technology	Miamisburg, Ohio
+TER	Teradyne Inc.	Information Technology	North Reading, Massachusetts
+TSO	Tesoro Petroleum Co.	Energy	San Antonio, Texas
+TXN	Texas Instruments	Information Technology	Dallas, Texas
+TXT	Textron Inc.	Industrials	Providence, Rhode Island
+HSY	The Hershey Company	Consumer Staples	Hershey, Pennsylvania
+TRV	The Travelers Companies Inc.	Financials	New York, New York
+TMO	Thermo Fisher Scientific	Health Care	Waltham, Massachusetts
+TIF	Tiffany & Co.	Consumer Discretionary	New York, New York
+TWX	Time Warner Inc.	Consumer Discretionary	New York, New York
+TWC	Time Warner Cable Inc.	Consumer Discretionary	New York, New York
+TIE	Titanium Metals Corp	Materials	Dallas, Texas
+TJX	TJX Companies Inc.	Consumer Discretionary	Framingham, Massachusetts
+TMK	Torchmark Corp.	Financials	McKinney, Texas
+TSS	Total System Services	Information Technology	Columbus, Georgia
+TRIP	TripAdvisor	Consumer Discretionary	Bellevue, Washington
+TSN	Tyson Foods	Consumer Staples	Springdale, Arkansas
+TYC	Tyco International	Industrials	Princeton, New Jersey
+USB	U.S. Bancorp	Financials	Minneapolis, Minnesota
+UNP	Union Pacific	Industrials	Omaha, Nebraska
+UNH	United Health Group Inc.	Health Care	Minnetonka, Minnesota
+UPS	United Parcel Service	Industrials	Sandy Springs, Georgia
+X	United States Steel Corp.	Materials	Pittsburgh, Pennsylvania
+UTX	United Technologies	Industrials	Hartford, Connecticut
+UNM	Unum Group	Financials	Chattanooga, Tennessee
+URBN	Urban Outfitters	Consumer Discretionary	Philadelphia, Pennsylvania
+VFC	V.F. Corp.	Consumer Discretionary	Greensboro, North Carolina
+VLO	Valero Energy	Energy	San Antonio, Texas
+VAR	Varian Medical Systems	Health Care	Palo Alto, California
+VTR	Ventas Inc.	Financials	Chicago, Illinois
+VRSN	Verisign Inc.	Information Technology	Dulles, Virginia
+VZ	Verizon Communications	Telecommunications Services	New York, New York
+VIAB	Viacom Inc.	Consumer Discretionary	New York, New York
+V	Visa Inc.	Information Technology	San Francisco, California
+VNO	Vornado Realty Trust	Financials	New York, New York
+VMC	Vulcan Materials	Materials	Birmingham, Alabama
+WMT	Wal-Mart Stores	Consumer Staples	Bentonville, Arkansas
+WAG	Walgreen Co.	Consumer Staples	Deerfield, Illinois
+DIS	Walt Disney Co.	Consumer Discretionary	Burbank, California
+WPO	Washington Post Co B	Consumer Discretionary	Washington D.C.
+WM	Waste Management Inc.	Industrials	Houston, Texas
+WAT	Waters Corporation	Health Care	Milford, Massachusetts
+WPI	Watson Pharmaceuticals	Health Care	Corona, California
+WLP	WellPoint Inc.	Health Care	Indianapolis, Indiana
+WFC	Wells Fargo	Financials	San Francisco, California
+WDC	Western Digital	Information Technology	Irvine, California
+WU	Western Union Co	Information Technology	Englewood, Colorado
+WY	Weyerhaeuser Corp.	Financials	Federal Way, Washington
+WHR	Whirlpool Corp.	Consumer Discretionary	Benton Harbor, Michigan
+WFM	Whole Foods Market	Consumer Staples	Austin, Texas
+WMB	Williams Cos.	Energy	Tulsa, Oklahoma
+WIN	Windstream Corporation	Telecommunications Services	Little Rock, Arkansas
+WEC	Wisconsin Energy Corporation	Utilities	Milwaukee, Wisconsin
+WPX	WPX Energy, Inc.	Energy	Tulsa, OK
+WYN	Wyndham Worldwide	Consumer Discretionary	Parsippany-Troy Hills, New Jersey
+WYNN	Wynn Resorts Ltd	Consumer Discretionary	Las Vegas, Nevada
+XEL	Xcel Energy Inc.	Utilities	Minneapolis, Minnesota
+XRX	Xerox Corp.	Information Technology	Norwalk, Connecticut
+XLNX	Xilinx Inc.	Information Technology	San Jose, California
+XL	XL Capital	Financials	Hamilton, Bermuda
+YHOO	Yahoo Inc.	Information Technology	Sunnyvale, California
+YUM	Yum! Brands Inc.	Consumer Discretionary	Louisville, Kentucky
+ZMH	Zimmer Holdings	Health Care	Warsaw, Indiana
+ZION	Zions Bancorp	Financials	Salt Lake City, Utah

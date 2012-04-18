@@ -4,9 +4,10 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-using MDo.Common.App;
+using MDo.Common.App.CLI;
 using MDo.Common.IO;
 using MDo.Common.Numerics;
+using MDo.Common.Numerics.Random;
 
 using MDo.Interop.R.Core;
 using MDo.Interop.R.Test;
@@ -44,21 +45,16 @@ namespace MDo.Interop.R.Models.Test
                             numTrainingItems = (int)(0.8 * numItems);
                         numTestItems = numItems - numTrainingItems;
 
-                        IList<int> samplingWithNoReplacement = new List<int>();
-                        for (int i = 0; i < numItems; i++)
-                            samplingWithNoReplacement.Add(i);
-
                         int numFeatures = x.GetLength(1);
                         RVector training_X = new RVector(new object[numTrainingItems, numFeatures]),
                                 training_Y = new RVector(new object[numTrainingItems, 1]),
                                 test_X     = new RVector(new object[numTestItems, numFeatures]),
                                 test_Y     = new RVector(new object[numTestItems, 1]);
 
+                        SamplerWithoutReplacement sampler = new SamplerWithoutReplacement(TestUtils.RNG, 0, numItems);
                         for (int i = 0; i < numTrainingItems; i++)
                         {
-                            int sIndx = TestUtils.RNG.Int32(0, samplingWithNoReplacement.Count);
-                            int indx = samplingWithNoReplacement[sIndx];
-                            samplingWithNoReplacement.RemoveAt(sIndx);
+                            int indx = (int)sampler.Next();
                             for (int j = 0; j < numFeatures; j++)
                             {
                                 training_X.Values[i, j] = x[indx, j];
@@ -67,7 +63,7 @@ namespace MDo.Interop.R.Models.Test
                         }
                         for (int i = 0; i < numTestItems; i++)
                         {
-                            int indx = samplingWithNoReplacement[i];
+                            int indx = (int)sampler.Next();
                             for (int j = 0; j < numFeatures; j++)
                             {
                                 test_X.Values[i, j] = x[indx, j];
