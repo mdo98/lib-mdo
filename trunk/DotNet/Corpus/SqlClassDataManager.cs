@@ -347,7 +347,7 @@ namespace MDo.Data.Corpus
                 cmdText.Append(" VALUES (");
                 for (int j = 0; j < numDims; j++)
                 {
-                    cmdText.AppendFormat("@{0}", metadata.DimensionNames[j]);
+                    cmdText.AppendFormat("@P_{0}", j);
                     if (j < numDims-1)
                         cmdText.Append(",");
                     else
@@ -360,7 +360,7 @@ namespace MDo.Data.Corpus
 
                 for (int j = 0; j < numDims; j++)
                 {
-                    cmd.Parameters.Add("@" + metadata.DimensionNames[j], SqlUtility.ToSqlDbType(metadata.DimensionTypes[j]))
+                    cmd.Parameters.Add("@P_" + j, SqlUtility.ToSqlDbType(metadata.DimensionTypes[j]))
                         .Value = (null == item[j] ? DBNull.Value : item[j]);
                 }
 

@@ -207,26 +207,26 @@ namespace MDo.Data.Corpus
             if (typeof(string) == type)
                 sqlType = "NVARCHAR(MAX)";
 
-            else if (typeof(double) == type)
+            else if (typeof(double) == type || typeof(double?) == type)
                 sqlType = "FLOAT";
 
-            else if (typeof(int) == type)
+            else if (typeof(int) == type || typeof(int?) == type)
                 sqlType = "INT";
 
-            else if (typeof(long) == type)
+            else if (typeof(long) == type || typeof(long?) == type)
                 sqlType = "BIGINT";
 
-            else if (typeof(short) == type)
+            else if (typeof(short) == type || typeof(short?) == type)
                 sqlType = "SMALLINT";
 
-            else if (typeof(byte) == type)
+            else if (typeof(byte) == type || typeof(byte?) == type)
                 sqlType = "TINYINT";
 
-            else if (typeof(bool) == type)
+            else if (typeof(bool) == type || typeof(bool?) == type)
                 sqlType = "BIT";
 
-            else if (typeof(DateTime) == type)
-                sqlType = "DATETIME";
+            else if (typeof(DateTime) == type || typeof(DateTime?) == type)
+                sqlType = "DATETIME2";
 
             else if (typeof(byte[]) == type)
                 sqlType = "VARBINARY(MAX)";
@@ -244,26 +244,26 @@ namespace MDo.Data.Corpus
             if (typeof(string) == type)
                 sqlType = SqlDbType.NVarChar;
 
-            else if (typeof(double) == type)
+            else if (typeof(double) == type || typeof(double?) == type)
                 sqlType = SqlDbType.Float;
 
-            else if (typeof(int) == type)
+            else if (typeof(int) == type || typeof(int?) == type)
                 sqlType = SqlDbType.Int;
 
-            else if (typeof(long) == type)
+            else if (typeof(long) == type || typeof(long?) == type)
                 sqlType = SqlDbType.BigInt;
 
-            else if (typeof(short) == type)
+            else if (typeof(short) == type || typeof(short?) == type)
                 sqlType = SqlDbType.SmallInt;
 
-            else if (typeof(byte) == type)
+            else if (typeof(byte) == type || typeof(byte?) == type)
                 sqlType = SqlDbType.TinyInt;
 
-            else if (typeof(bool) == type)
+            else if (typeof(bool) == type || typeof(bool?) == type)
                 sqlType = SqlDbType.Bit;
 
-            else if (typeof(DateTime) == type)
-                sqlType = SqlDbType.DateTime;
+            else if (typeof(DateTime) == type || typeof(DateTime?) == type)
+                sqlType = SqlDbType.DateTime2;
 
             else if (typeof(byte[]) == type)
                 sqlType = SqlDbType.VarBinary;
@@ -281,6 +281,18 @@ namespace MDo.Data.Corpus
             {
                 obj = str;
             }
+            else if (typeof(double?)    == type
+                 ||  typeof(int?)       == type
+                 ||  typeof(long?)      == type
+                 ||  typeof(short?)     == type
+                 ||  typeof(byte?)      == type
+                 ||  typeof(bool?)      == type
+                 ||  typeof(DateTime?)  == type)
+            {
+                obj = string.IsNullOrWhiteSpace(str) ? null : type.GetGenericArguments()[0]
+                    .GetMethod("Parse", BindingFlags.Static | BindingFlags.Public, null, new Type[] { typeof(string) }, null)
+                    .Invoke(null, new object[] { str.Trim() });
+            }
             else if (typeof(double)     == type
                  ||  typeof(int)        == type
                  ||  typeof(long)       == type
@@ -291,7 +303,7 @@ namespace MDo.Data.Corpus
             {
                 obj = type
                     .GetMethod("Parse", BindingFlags.Static | BindingFlags.Public, null, new Type[] { typeof(string) }, null)
-                    .Invoke(null, new object[] { str });
+                    .Invoke(null, new object[] { str.Trim() });
             }
             else if (typeof(byte[]) == type)
             {

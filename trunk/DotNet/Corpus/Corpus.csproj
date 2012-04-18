@@ -71,6 +71,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="class\Address.USA-MA-Boston.rc-class">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="class\Company.CAC40.rc-class">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -90,6 +93,24 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="class\Company.FTSE100.rc-class">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="class\Address.USA-WA-Seattle.rc-class">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="class\Address.USA-NY-NewYork.rc-class">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="class\Address.USA-CA-SanFrancisco.rc-class">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="class\Address.USA-CA-LosAngeles.rc-class">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="class\Address.USA-DC-Virginia.rc-class">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="class\Address.USA-DC-Maryland.rc-class">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="class\StateProvince.USState.rc-class">
