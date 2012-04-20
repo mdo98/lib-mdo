@@ -194,14 +194,21 @@ namespace MDo.Data.Corpus
             for (int j = 0; j < numCols; j++)
             {
                 string[] colNameAndType = SplitStringAndCheck(colMetadata[j], "::", 2);
+                
                 string colName = colNameAndType[0].Trim();
                 if (colNames.Contains(colName))
                     ThrowInvalidDataStream(string.Format(
                         "Header: '{0}' is applied to more than one dimension",
                         colName));
 
+                Type colType = Type.GetType(colNameAndType[1].Trim());
+                if (null == colType)
+                    ThrowInvalidDataStream(string.Format(
+                        "Header: '{0}' is not a valid type",
+                        colNameAndType[1].Trim()));
+
                 metadata.DimensionNames[j] = colName;
-                metadata.DimensionTypes[j] = Type.GetType(colNameAndType[1].Trim());
+                metadata.DimensionTypes[j] = colType;
             }
 
             metadata.DefaultDim = (short)metadata.DimensionNames

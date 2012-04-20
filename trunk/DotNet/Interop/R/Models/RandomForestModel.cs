@@ -17,7 +17,13 @@ namespace MDo.Interop.R.Models
 
         #region Constructors
 
-        protected RandomForestModel(IntPtr ptr) : base(ptr) { }
+        public RandomForestModel(ModelPurpose purpose, ModelFormula formula = ModelFormula.Linear)
+            : base(purpose, formula)
+        { }
+
+        public RandomForestModel(IntPtr ptr, ModelPurpose purpose, ModelFormula formula = ModelFormula.Linear)
+            : base(ptr, purpose, formula)
+        { }
 
         #endregion Constructors
 
@@ -42,8 +48,7 @@ namespace MDo.Interop.R.Models
 
         #endregion Model
 
-
-        public static new RandomForestModel LinearModelForClassification(RVector observed_X, RVector observed_Y)
+        private static IntPtr GenerateRModel(RVector observed_X, RVector observed_Y, ModelFormula formula)
         {
             if (null == observed_X)
                 throw new ArgumentNullException("observed_X");
@@ -53,7 +58,27 @@ namespace MDo.Interop.R.Models
             if (numFeatures <= 0)
                 throw new ArgumentOutOfRangeException("observed_X.NumCols");
 
-            return new RandomForestModel(GenerateHelper(observed_X, observed_Y, (string data) => string.Format("randomForest({0}, data = {1})", LinearModel.LinearFormula(numFeatures), data)));
+            Func<int, string> getFormula;
+            switch (formula)
+            {
+                case ModelFormula.Linear:
+                    getFormula = LinearModel.LinearFormula;
+                    break;
+
+                default:
+                    throw new ArgumentOutOfRangeException("formula");
+            }
+
+            /* randomForest(formula, data = data)
+             */
+            return GenerateRModelHelper(observed_X, observed_Y, (string data) => string.Format("randomForest({0}, data = {1})", getFormula(numFeatures), data));
+        }
+
+        public static new RandomForestModel LinearModelForClassification(RVector observed_X, RVector observed_Y)
+        {
+            ModelFormula formula = ModelFormula.Linear;
+            ModelPurpose purpose = ModelPurpose.Classification;
+            return new RandomForestModel(GenerateRModel(observed_X, observed_Y, formula), purpose, formula);
         }
     }
 }

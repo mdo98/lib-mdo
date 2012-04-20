@@ -10,4 +10,9 @@ namespace MDo.Interop.R.Models
         Regression,
         Classification,
     }
+
+    public enum ModelFormula
+    {
+        Linear,
+    }
 }

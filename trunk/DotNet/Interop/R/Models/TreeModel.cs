@@ -17,12 +17,36 @@ namespace MDo.Interop.R.Models
 
         #region Constructors
 
-        protected TreeModel(IntPtr ptr) : base(ptr) { }
+        public TreeModel(ModelPurpose purpose, ModelFormula formula = ModelFormula.Linear)
+            : base(purpose)
+        {
+            this.Formula = formula;
+        }
+
+        public TreeModel(IntPtr ptr, ModelPurpose purpose, ModelFormula formula = ModelFormula.Linear)
+            : base(ptr, purpose)
+        {
+            this.Formula = formula;
+        }
 
         #endregion Constructors
 
 
+        #region Properties
+
+        public ModelFormula Formula { get; set; }
+
+        #endregion Properties
+
+
         #region Model
+
+        protected override bool ParametersAvailable { get { return false; } }
+
+        protected override void Train(RVector observed_X, RVector observed_Y)
+        {
+            this.SetModelPtr(GenerateRModel(observed_X, observed_Y, this.Formula, this.Purpose));
+        }
 
         protected override void ReadParameters()
         {
@@ -42,7 +66,9 @@ namespace MDo.Interop.R.Models
         #endregion Model
 
 
-        public static TreeModel LinearModelForClassification(RVector observed_X, RVector observed_Y)
+        #region Static Methods
+
+        private static IntPtr GenerateRModel(RVector observed_X, RVector observed_Y, ModelFormula formula, ModelPurpose purpose)
         {
             if (null == observed_X)
                 throw new ArgumentNullException("observed_X");
@@ -52,27 +78,51 @@ namespace MDo.Interop.R.Models
             if (numFeatures <= 0)
                 throw new ArgumentOutOfRangeException("observed_X.NumCols");
 
-            return new TreeModel(GenerateHelper(observed_X, observed_Y, (string data) => GetTreeModelExpr(LinearModel.LinearFormula(numFeatures), "class", data)));
+            Func<int, string> getFormula;
+            switch (formula)
+            {
+                case ModelFormula.Linear:
+                    getFormula = LinearModel.LinearFormula;
+                    break;
+
+                default:
+                    throw new ArgumentOutOfRangeException("formula");
+            }
+
+            string method;
+            switch (purpose)
+            {
+                case ModelPurpose.Classification:
+                    method = "class";
+                    break;
+
+                case ModelPurpose.Regression:
+                    method = "anova";
+                    break;
+
+                default:
+                    throw new ArgumentOutOfRangeException("purpose");
+            }
+
+            /* rpart(formula, method = "method", data = data)
+             */
+            return GenerateRModelHelper(observed_X, observed_Y, (string data) => string.Format("rpart({0}, method = \"{1}\", data = {2})", getFormula(numFeatures), method, data));
+        }
+
+        public static TreeModel LinearModelForClassification(RVector observed_X, RVector observed_Y)
+        {
+            ModelFormula formula = ModelFormula.Linear;
+            ModelPurpose purpose = ModelPurpose.Classification;
+            return new TreeModel(GenerateRModel(observed_X, observed_Y, formula, purpose), purpose, formula);
         }
 
         public static TreeModel LinearModelForRegression(RVector observed_X, RVector observed_Y)
         {
-            if (null == observed_X)
-                throw new ArgumentNullException("observed_X");
-
-            int numFeatures = observed_X.NumCols;
-
-            if (numFeatures <= 0)
-                throw new ArgumentOutOfRangeException("observed_X.NumCols");
-
-            return new TreeModel(GenerateHelper(observed_X, observed_Y, (string data) => GetTreeModelExpr(LinearModel.LinearFormula(numFeatures), "anova", data)));
+            ModelFormula formula = ModelFormula.Linear;
+            ModelPurpose purpose = ModelPurpose.Regression;
+            return new TreeModel(GenerateRModel(observed_X, observed_Y, formula, purpose), purpose, formula);
         }
 
-        protected static string GetTreeModelExpr(string formula, string method, string data)
-        {
-            /* rpart(formula, method = "method", data = data)
-             */
-            return string.Format("rpart({0}, method = \"{1}\", data = {2})", formula, method, data);
-        }
+        #endregion Static Methods
     }
 }

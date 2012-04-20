@@ -12,10 +12,16 @@ namespace MDo.Interop.R.Models
     {
         #region Constructors
 
-        protected Model(IntPtr ptr)
+        protected Model(IntPtr ptr, ModelPurpose purpose)
+            : this(purpose)
         {
-            this.ModelPtr = ptr;
-            this.ReadParameters();
+            this.SetModelPtr(ptr);
+        }
+
+        protected Model(ModelPurpose purpose)
+        {
+            this.ModelPtr = IntPtr.Zero;
+            this.Purpose = purpose;
         }
 
         #endregion Constructors
@@ -24,17 +30,22 @@ namespace MDo.Interop.R.Models
         #region Properties
 
         public IntPtr ModelPtr  { get; private set; }
+        public bool   Trained   { get { return (IntPtr.Zero != this.ModelPtr || this.ParametersAvailable); } }
+        
+        public ModelPurpose Purpose { get; private set; }
 
         #endregion Properties
 
 
-        #region Abstract Methods
+        #region Abstract Members
 
+        public abstract void Train(RVector observed_X, RVector observed_Y);
+        protected abstract bool ParametersAvailable { get; }
         protected abstract void ReadParameters();
         protected abstract RVector PredictFromParameters(RVector unknown_X);
         protected abstract RVector RVectorFromRSxprResultPtr(IntPtr ptr);
 
-        #endregion Abstract Methods
+        #endregion Abstract Members
 
 
         #region Methods
@@ -53,10 +64,18 @@ namespace MDo.Interop.R.Models
             if (numFeatures <= 0)
                 throw new ArgumentOutOfRangeException("unknown_X.NumCols");
 
-            if (IntPtr.Zero == this.ModelPtr)
+            if (this.ParametersAvailable)
                 return this.PredictFromParameters(unknown_X);
-            else
+            else if (IntPtr.Zero != this.ModelPtr)
                 return RInterop.RsxprPtrToClrValue(PredictHelper(unknown_X, this.ModelPtr), this.RVectorFromRSxprResultPtr);
+            else
+                throw new InvalidOperationException("Cannot predict: Model has not been trained.");
+        }
+
+        protected void SetModelPtr(IntPtr ptr)
+        {
+            this.ModelPtr = ptr;
+            this.ReadParameters();
         }
 
         #endregion Methods
@@ -64,7 +83,7 @@ namespace MDo.Interop.R.Models
 
         #region Static Methods
 
-        protected static IntPtr GenerateHelper(RVector observed_X, RVector observed_Y, Func<string, string> getRModelExprForData)
+        protected static IntPtr GenerateRModelHelper(RVector observed_X, RVector observed_Y, Func<string, string> getRModelExprForData)
         {
             if (null == getRModelExprForData)
                 throw new ArgumentNullException("getRModelExprForData");
@@ -186,7 +205,7 @@ namespace MDo.Interop.R.Models
             if (unknown_X.NumCols != numFeatures)
                 throw new ArgumentOutOfRangeException("unknown_X.NumCols");
 
-            return PredictHelper(unknown_X, GenerateHelper(observed_X, observed_Y, getRModelExprForData));
+            return PredictHelper(unknown_X, GenerateRModelHelper(observed_X, observed_Y, getRModelExprForData));
         }
 
         #endregion Static Methods

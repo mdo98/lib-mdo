@@ -11,7 +11,9 @@ namespace MDo.Interop.R.Models
     {
         #region Constructors
 
-        protected LinearModel(IntPtr ptr) : base(ptr) { }
+        public LinearModel() : base(ModelPurpose.Regression) { }
+
+        public LinearModel(IntPtr ptr) : base(ptr, ModelPurpose.Regression) { }
 
         #endregion Constructors
 
@@ -24,6 +26,16 @@ namespace MDo.Interop.R.Models
 
 
         #region Model
+
+        protected override bool ParametersAvailable
+        {
+            get { return (this.Parameters != null); }
+        }
+
+        protected override void Train(RVector observed_X, RVector observed_Y)
+        {
+            this.SetModelPtr(GenerateRModel(observed_X, observed_Y));
+        }
 
         protected override void ReadParameters()
         {
@@ -67,6 +79,11 @@ namespace MDo.Interop.R.Models
 
         public static LinearModel Generate(RVector observed_X, RVector observed_Y)
         {
+            return new LinearModel(GenerateRModel(observed_X, observed_Y));
+        }
+
+        private static IntPtr GenerateRModel(RVector observed_X, RVector observed_Y)
+        {
             if (null == observed_X)
                 throw new ArgumentNullException("observed_X");
 
@@ -75,7 +92,7 @@ namespace MDo.Interop.R.Models
             /* lm(Y ~ X0+X1,
              * data = data)
              */
-            return new LinearModel(GenerateHelper(observed_X, observed_Y, (string data) => string.Format("lm({0}, data = {1})", LinearFormula(numFeatures), data)));
+            return GenerateRModelHelper(observed_X, observed_Y, (string data) => string.Format("lm({0}, data = {1})", LinearFormula(numFeatures), data));
         }
 
         public static string LinearFormula(int numFeatures)
