@@ -1,6 +1,7 @@
 ﻿Address.USA-DC-Northern Virginia
 25 dims
 262 items
+DefaultDim=ADDRESS
 SALE TYPE::System.String	HOME TYPE::System.String	ADDRESS::System.String	CITY::System.String	STATE::System.String	ZIP::System.String	LIST PRICE::System.Nullable`1[System.Int32]	BEDS::System.Nullable`1[System.Int32]	BATHS::System.Nullable`1[System.Double]	LOCATION::System.String	SQFT::System.Nullable`1[System.Int32]	LOT SIZE::System.Nullable`1[System.Int32]	YEAR BUILT::System.Nullable`1[System.Int32]	PARKING SPOTS::System.Nullable`1[System.Int32]	PARKING TYPE::System.String	ORIGINAL LIST PRICE::System.Nullable`1[System.Int32]	LAST SALE DATE::System.Nullable`1[System.DateTime]	LAST SALE PRICE::System.Nullable`1[System.Int32]	URL::System.String	SOURCE::System.String	LISTING ID::System.String	ORIGINAL SOURCE::System.String	LATITUDE::System.Nullable`1[System.Double]	LONGITUDE::System.Nullable`1[System.Double]	IS SHORT SALE::System.Nullable`1[System.Boolean]
 MLS Listing	Single Family Residential	0 POWELLS FARM Way	ALDIE	VA	20105	479990	3	2.5	VIRGINIA MANOR	3380	7000	2012	2	Garage	464990			http://www.redfin.com/VA/ALDIE/0-POWELLS-FARM-Way-20105/home/39969565	Metropolitan Regional Information Systems, Inc. (MRIS)	LO7755246	RE/MAX Gateway, LLC	38.908823	-77.546139	FALSE
 MLS Listing	Single Family Residential	0 ROYAL HUNTER Dr	ALDIE	VA	20105	579990	4	2.5	VIRGINIA MANOR	3111	10000	2012	2	Garage	569990			http://www.redfin.com/VA/ALDIE/0-ROYAL-HUNTER-Dr-20105/home/40150727	Metropolitan Regional Information Systems, Inc. (MRIS)	LO7641227	RE/MAX Gateway	38.92113	-77.54	FALSE

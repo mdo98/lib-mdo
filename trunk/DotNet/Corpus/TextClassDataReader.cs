@@ -5,13 +5,16 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 
-namespace MDo.Data.Corpus.DataImport
+namespace MDo.Data.Corpus
 {
-    public class ClassDataTextImporter : IClassDataImporter
+    public class TextClassDataReader : IClassDataProvider
     {
         #region Constants
 
         protected const string Extension = ".rc-class";
+        protected const string Header_DimensionCount_Identifier = "dims";
+        protected const string Header_ItemCount_Identifier      = "items";
+        protected const string Header_DefaultDim_Identifier     = "defaultdim";
 
         #endregion Constants
 
@@ -23,7 +26,7 @@ namespace MDo.Data.Corpus.DataImport
         #endregion Fields
 
 
-        public ClassDataTextImporter(string baseDir)
+        public TextClassDataReader(string baseDir)
         {
             this.BaseDir = baseDir;
         }
@@ -135,53 +138,6 @@ namespace MDo.Data.Corpus.DataImport
         #endregion IClassDataProvider
 
 
-        #region IClassDataImporter
-
-        public void Import(string className, string variantName, IClassDataManager destStore)
-        {
-            if (string.IsNullOrWhiteSpace(className))
-                throw new ArgumentNullException("className");
-
-            variantName = ClassMetadata.FixVariantName(variantName);
-
-            ClassMetadata metadata = this.GetMetadata(className, variantName);
-            if (destStore.VariantExists(className, variantName))
-            {
-                ClassMetadata destMetadata = destStore.GetMetadata(className, variantName);
-
-                // Compare metadata
-                bool metaEqual = false;
-                if (metadata.DimensionNames.Length == destMetadata.DimensionNames.Length)
-                {
-                    var indexes = Enumerable.Range(0, metadata.DimensionNames.Length);
-                    metaEqual = indexes.All(j => metadata.DimensionNames[j] == destMetadata.DimensionNames[j])
-                        && indexes.All(j => metadata.DimensionTypes[j] == destMetadata.DimensionTypes[j]);
-                }
-
-                if (metaEqual)
-                {
-                    destStore.ClearItems(className, variantName);
-                }
-                else
-                {
-                    destStore.RemoveVariant(className, variantName);
-                    destStore.AddVariant(metadata);
-                }
-            }
-            else
-            {
-                destStore.AddVariant(metadata);
-            }
-
-            for (int i = 0; i < metadata.Count; i++)
-            {
-                destStore.AddItem(metadata, this.GetItem(className, variantName, i));
-            }
-        }
-
-        #endregion IClassDataImporter
-
-
         #region Internal Ops
 
         protected static void ReadHeader(TextReader reader, ClassMetadata metadata)
@@ -195,19 +151,29 @@ namespace MDo.Data.Corpus.DataImport
                 int num = int.Parse(parts[0].Trim());
                 switch (parts[1].Trim().ToLowerInvariant())
                 {
-                    case "dims":
+                    case Header_DimensionCount_Identifier:
+                        if (num < 0 || num > (int)short.MaxValue)
+                            ThrowInvalidDataStream(string.Format(
+                                "Header: '{0}' must be between [{1}->{2}]",
+                                Header_DimensionCount_Identifier,
+                                0,
+                                short.MaxValue));
                         numCols = num;
                         break;
 
-                    case "items":
-                        metadata.Count = num;
+                    case Header_ItemCount_Identifier:
+                        metadata.NumItems = num;
                         break;
 
                     default:
-                        ThrowInvalidDataStream();
+                        ThrowInvalidDataStream(string.Format(
+                            "Header: '{0}'/'{1}' expected, found '{2}'",
+                            Header_DimensionCount_Identifier,
+                            Header_ItemCount_Identifier,
+                            parts[1]));
                         break;
                 }
-                if (numCols > 0 && metadata.Count > 0)
+                if (numCols > 0 && metadata.NumItems > 0)
                 {
                     metadata.DimensionNames = new string[numCols];
                     metadata.DimensionTypes = new Type[numCols];
@@ -215,13 +181,34 @@ namespace MDo.Data.Corpus.DataImport
                 }
             }
 
+            string[] defaultColMeta = SplitStringAndCheck(reader.ReadLine(), "=", 2);
+            if (defaultColMeta[0].Trim().ToLowerInvariant() != Header_DefaultDim_Identifier)
+                ThrowInvalidDataStream(string.Format(
+                    "Header: '{0}' expected, found '{1}'",
+                    Header_DefaultDim_Identifier,
+                    defaultColMeta[0]));
+            string defaultColName = defaultColMeta[1].Trim();
+
+            ISet<string> colNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             string[] colMetadata = SplitStringAndCheck(reader.ReadLine(), "\t", numCols);
             for (int j = 0; j < numCols; j++)
             {
                 string[] colNameAndType = SplitStringAndCheck(colMetadata[j], "::", 2);
-                metadata.DimensionNames[j] = colNameAndType[0];
-                metadata.DimensionTypes[j] = Type.GetType(colNameAndType[1]);
+                string colName = colNameAndType[0].Trim();
+                if (colNames.Contains(colName))
+                    ThrowInvalidDataStream(string.Format(
+                        "Header: '{0}' is applied to more than one dimension",
+                        colName));
+
+                metadata.DimensionNames[j] = colName;
+                metadata.DimensionTypes[j] = Type.GetType(colNameAndType[1].Trim());
             }
+
+            metadata.DefaultDim = (short)metadata.DimensionNames
+                .Select(item => item.ToUpperInvariant()).ToList()
+                .IndexOf(defaultColName.ToUpperInvariant());
+            if (metadata.DefaultDim < 0)
+                ThrowInvalidDataStream("Header: Default dimension not found");
         }
 
         protected static object[] ReadItem(TextReader reader, Type[] dimTypes)
@@ -239,18 +226,22 @@ namespace MDo.Data.Corpus.DataImport
             StringSplitOptions splitOptions = StringSplitOptions.RemoveEmptyEntries)
         {
             if (null == line)
-                ThrowInvalidDataStream();
+                throw new ArgumentNullException("line");
 
             string[] parts = line.Split(new string[] { splitStr }, splitOptions);
             if (parts.Length != numParts)
-                ThrowInvalidDataStream();
+                ThrowInvalidDataStream(string.Format(
+                    "String expected to split with '{0}' into {1} parts; found {2}",
+                    splitStr,
+                    numParts,
+                    parts.Length));
 
             return parts;
         }
 
-        private static void ThrowInvalidDataStream()
+        private static void ThrowInvalidDataStream(string reason)
         {
-            throw new InvalidDataException("Input stream does not have the expected format.");
+            throw new InvalidDataException(string.Format("Invalid data stream: {0}.", reason));
         }
 
         #endregion Internal Ops

@@ -94,6 +94,9 @@ namespace MDo.Data.Corpus
                             if (reader["Ref"] != DBNull.Value)
                                 variantRef = (string)reader["Ref"];
 
+                            if (reader["DfltColIndx"] != DBNull.Value)
+                                metadata.DefaultDim = (short)reader["DfltColIndx"];
+
                             if (reader["Desc"] != DBNull.Value)
                                 metadata.Desc = (string)reader["Desc"];
                         }
@@ -116,7 +119,7 @@ namespace MDo.Data.Corpus
                 cmd.Parameters.Add("@ClassName",    SqlDbType.VarChar).Value    = className;
                 cmd.Parameters.Add("@VariantName",  SqlDbType.VarChar).Value    = variantName;
 
-                metadata.Count = (int)cmd.ExecuteScalar();
+                metadata.NumItems = (int)cmd.ExecuteScalar();
 
 
                 cmd.CommandType = CommandType.StoredProcedure;
@@ -226,6 +229,7 @@ namespace MDo.Data.Corpus
 
                 cmd.Parameters.Add("@ClassName",    SqlDbType.VarChar).Value    = metadata.Class;
                 cmd.Parameters.Add("@VariantName",  SqlDbType.VarChar).Value    = metadata.Variant;
+                cmd.Parameters.Add("@DfltColIndx",  SqlDbType.SmallInt).Value   = metadata.DefaultDim;
                 cmd.Parameters.Add("@Desc",         SqlDbType.VarChar).Value    = metadata.Desc == null ? (object)DBNull.Value : metadata.Desc;
 
                 object retVal = cmd.ExecuteScalar();
@@ -235,46 +239,88 @@ namespace MDo.Data.Corpus
                 string variantRef = (string)retVal;
                 int numDims = metadata.DimensionNames.Length;
 
-                {
-                    StringBuilder cmdText = new StringBuilder();
-                    cmdText.AppendFormat("CREATE TABLE [RefCorpus].[{0}] ([Id] BIGINT IDENTITY(0,1) PRIMARY KEY", variantRef);
-                    for (int j = 0; j < numDims; j++)
-                    {
-                        cmdText.AppendFormat(", [{0}] {1}", metadata.DimensionNames[j], SqlUtility.ToSqlType(metadata.DimensionTypes[j]));
-                    }
-                    cmdText.Append(");");
-
-                    cmd.CommandType = CommandType.Text;
-                    cmd.CommandText = cmdText.ToString();
-                    cmd.Parameters.Clear();
-
-                    cmd.ExecuteNonQuery();
-                }
-
-                foreach (string dimName in Enumerable.Range(0, numDims)
-                        .Where(j => typeof(byte[]) != metadata.DimensionTypes[j] && typeof(string) != metadata.DimensionTypes[j])
-                        .Select(j => metadata.DimensionNames[j]))
-                {
-                    cmd.CommandType = CommandType.Text;
-                    cmd.CommandText = string.Format(
-                        "CREATE NONCLUSTERED INDEX [IDX_{0}_{1}_{2}] ON [RefCorpus].[{3}]([{4}] ASC);",
-                        variantRef.Substring(0, Math.Min(variantRef.Length, 60)),
-                        dimName.Substring(0, Math.Min(dimName.Length, 30)),
-                        Guid.NewGuid().ToString("N"),
-                        variantRef,
-                        dimName);
-                    cmd.Parameters.Clear();
-
-                    cmd.ExecuteNonQuery();
-                }
-
-                // Consider adding full-text index for varchar and varbinary columns.
+                CreateTableForVariant(metadata, variantRef, cmd);
 
                 return variantRef;
             }, ShouldThrowOnDbOperationException);
 
             if (string.IsNullOrWhiteSpace(status))
                 throw new ArgumentException("metadata");
+        }
+
+        public void EditVariant(ClassMetadata metadata)
+        {
+            {
+                if (null == metadata)
+                    throw new ArgumentNullException("metadata");
+
+                if (string.IsNullOrWhiteSpace(metadata.Class))
+                    throw new ArgumentNullException("metadata.Class");
+
+                if (string.IsNullOrWhiteSpace(metadata.Variant))
+                    throw new ArgumentNullException("metadata.Variant");
+
+                if (null == metadata.DimensionNames)
+                    throw new ArgumentNullException("metadata.DimensionNames");
+
+                if (null == metadata.DimensionTypes)
+                    throw new ArgumentNullException("metadata.DimensionTypes");
+
+                int dimNamesLength = metadata.DimensionNames.Length,
+                    dimTypesLength = metadata.DimensionTypes.Length;
+
+                if (dimNamesLength <= 0)
+                    throw new ArgumentOutOfRangeException("metadata.DimensionNames.Length");
+
+                if (dimTypesLength <= 0)
+                    throw new ArgumentOutOfRangeException("metadata.DimensionTypes.Length");
+
+                if (dimNamesLength != dimTypesLength)
+                    throw new ArgumentException("metadata.Dimensions");
+            }
+
+            if (!this.VariantExists(metadata.Class, metadata.Variant))
+                throw new InvalidOperationException(string.Format(
+                    "Class {0}, Variant {1} does not exist.",
+                    metadata.Class,
+                    metadata.Variant));
+
+            ClassMetadata oldMetadata = this.GetMetadata(metadata.Class, metadata.Variant);
+
+            SqlUtility.ExecuteDbOperation(this.DbConnString, (SqlCommand cmd) =>
+            {
+                if (metadata.DefaultDim != oldMetadata.DefaultDim ||
+                    metadata.Desc != oldMetadata.Desc)
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.CommandText = "[RefCorpus].[EditClassVariant]";
+
+                    cmd.Parameters.Add("@ClassName",    SqlDbType.VarChar).Value    = metadata.Class;
+                    cmd.Parameters.Add("@VariantName",  SqlDbType.VarChar).Value    = metadata.Variant;
+                    cmd.Parameters.Add("@DfltColIndx",  SqlDbType.SmallInt).Value   = metadata.DefaultDim;
+                    cmd.Parameters.Add("@Desc",         SqlDbType.VarChar).Value    = metadata.Desc == null ? (object)DBNull.Value : metadata.Desc;
+
+                    cmd.ExecuteNonQuery();
+                }
+
+                // Compare metadata
+                bool schemaEqual = false;
+                if (metadata.DimensionNames.Length == oldMetadata.DimensionNames.Length)
+                {
+                    var indexes = Enumerable.Range(0, metadata.DimensionNames.Length);
+                    schemaEqual = indexes.All(j => metadata.DimensionNames[j] == oldMetadata.DimensionNames[j])
+                            &&    indexes.All(j => metadata.DimensionTypes[j] == oldMetadata.DimensionTypes[j]);
+                }
+
+                if (!schemaEqual)
+                {
+                    string variantRef = this.GetVariantRef(metadata.Class, metadata.Variant);
+                    DropTableForVariant(variantRef, cmd);
+                    CreateTableForVariant(metadata, variantRef, cmd);
+                }
+
+                return null;
+            }, ShouldThrowOnDbOperationException);
         }
 
         public bool VariantExists(string className, string variantName)
@@ -459,6 +505,54 @@ namespace MDo.Data.Corpus
 
                 return variantRef;
             }, ShouldThrowOnDbOperationException);
+        }
+
+        private static void CreateTableForVariant(ClassMetadata metadata, string variantRef, SqlCommand cmd)
+        {
+            int numDims = metadata.DimensionNames.Length;
+            {
+                StringBuilder cmdText = new StringBuilder();
+                cmdText.AppendFormat("CREATE TABLE [RefCorpus].[{0}] ([Id] BIGINT IDENTITY(0,1) PRIMARY KEY", variantRef);
+                for (int j = 0; j < numDims; j++)
+                {
+                    cmdText.AppendFormat(", [{0}] {1}", metadata.DimensionNames[j], SqlUtility.ToSqlType(metadata.DimensionTypes[j]));
+                }
+                cmdText.Append(");");
+
+                cmd.CommandType = CommandType.Text;
+                cmd.CommandText = cmdText.ToString();
+                cmd.Parameters.Clear();
+
+                cmd.ExecuteNonQuery();
+            }
+
+            foreach (string dimName in Enumerable.Range(0, numDims)
+                    .Where(j => typeof(byte[]) != metadata.DimensionTypes[j] && typeof(string) != metadata.DimensionTypes[j])
+                    .Select(j => metadata.DimensionNames[j]))
+            {
+                cmd.CommandType = CommandType.Text;
+                cmd.CommandText = string.Format(
+                    "CREATE NONCLUSTERED INDEX [IDX_{0}_{1}_{2}] ON [RefCorpus].[{3}]([{4}] ASC);",
+                    variantRef.Substring(0, Math.Min(variantRef.Length, 60)),
+                    dimName.Substring(0, Math.Min(dimName.Length, 30)),
+                    Guid.NewGuid().ToString("N"),
+                    variantRef,
+                    dimName);
+                cmd.Parameters.Clear();
+
+                cmd.ExecuteNonQuery();
+            }
+
+            // Consider adding full-text index for varchar and varbinary columns.
+        }
+
+        private static void DropTableForVariant(string variantRef, SqlCommand cmd)
+        {
+            cmd.CommandType = CommandType.Text;
+            cmd.CommandText = string.Format("DROP TABLE [RefCorpus].[{0}]", variantRef);
+            cmd.Parameters.Clear();
+
+            cmd.ExecuteNonQuery();
         }
 
         private static bool ShouldThrowOnDbOperationException(Exception ex)

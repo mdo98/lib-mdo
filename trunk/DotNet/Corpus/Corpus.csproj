@@ -53,9 +53,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ClassMetadata.cs" />
-    <Compile Include="DataImport\ClassDataTextCachedImporter.cs" />
-    <Compile Include="DataImport\ClassDataTextImporter.cs" />
-    <Compile Include="DataImport\IClassDataImporter.cs" />
+    <Compile Include="ClassDataOperation.cs" />
+    <Compile Include="TextClassDataCachedReader.cs" />
+    <Compile Include="TextClassDataReader.cs" />
     <Compile Include="Modules\ValidateTextClassData.cs" />
     <Compile Include="IClassDataManager.cs" />
     <Compile Include="IClassDataProvider.cs" />

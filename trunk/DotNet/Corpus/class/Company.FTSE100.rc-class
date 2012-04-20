@@ -1,6 +1,7 @@
 ﻿Company.FTSE100
 2 dims
 100 items
+DefaultDim=Name
 Ticker::System.String	Name::System.String
 AAL	Anglo American
 ABF	Associated British Foods

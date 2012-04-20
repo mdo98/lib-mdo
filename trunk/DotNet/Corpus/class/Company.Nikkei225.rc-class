@@ -1,6 +1,7 @@
 ﻿Company.Nikkei225
 3 dims
 225 items
+DefaultDim=Name
 Ticker::System.Int32	Name::System.String	Sector::System.String
 1332	Nippon Suisan Kaisha, Ltd.	Fishery
 1334	Maruha Nichiro Holdings, Inc.	Fishery

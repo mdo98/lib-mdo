@@ -4,9 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace MDo.Data.Corpus.DataImport
+namespace MDo.Data.Corpus
 {
-    public class ClassDataTextCachedImporter : ClassDataTextImporter
+    public class TextClassDataCachedReader : TextClassDataReader
     {
         #region Fields
 
@@ -16,7 +16,7 @@ namespace MDo.Data.Corpus.DataImport
         #endregion Fields
 
 
-        public ClassDataTextCachedImporter(string baseDir, string className, string variantName) : base(baseDir)
+        public TextClassDataCachedReader(string baseDir, string className, string variantName) : base(baseDir)
         {
             this.ClassName = className;
             this.VariantName = ClassMetadata.FixVariantName(variantName);
@@ -102,7 +102,7 @@ namespace MDo.Data.Corpus.DataImport
                         ClassMetadata metadata = new ClassMetadata(className, variantName);
                         ReadHeader(reader, metadata);
 
-                        for (int i = 0; i < metadata.Count; i++)
+                        for (int i = 0; i < metadata.NumItems; i++)
                         {
                             this.CachedItems.Add(ReadItem(reader, metadata.DimensionTypes));
                         }

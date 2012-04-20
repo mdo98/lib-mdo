@@ -9,7 +9,7 @@ GO
 
 CREATE TABLE [RefCorpus].[Classes]
   ([Id] BIGINT IDENTITY(1,1) NOT NULL
-  ,[Name] VARCHAR(116) NOT NULL
+  ,[Name] VARCHAR(108) NOT NULL
   );
 GO
 
@@ -32,10 +32,11 @@ GO
 
 CREATE TABLE [RefCorpus].[ClassVariants]
   ([ClassId] BIGINT NOT NULL
-  ,[VariantId] INT NOT NULL DEFAULT(0)
+  ,[VariantId] BIGINT IDENTITY(1,1) NOT NULL
   ,[Name] VARCHAR(100) NOT NULL
-  ,[Desc] NVARCHAR(MAX)
   ,[Ref] VARCHAR(128) NOT NULL
+  ,[DfltColIndx] SMALLINT NOT NULL
+  ,[Desc] NVARCHAR(MAX)
   ,[CreatedTime] DATETIME NOT NULL DEFAULT(GETUTCDATE())
   ,[LastModifiedTime] DATETIME NOT NULL DEFAULT(GETUTCDATE())
   );
@@ -66,6 +67,11 @@ ALTER TABLE [RefCorpus].[ClassVariants]
   )
   ON DELETE CASCADE
   ON UPDATE CASCADE;
+GO
+
+ALTER TABLE [RefCorpus].[ClassVariants]
+  WITH CHECK ADD CONSTRAINT [CK__RefCorpus_ClassVariants__DfltColIndx]
+  CHECK([DfltColIndx] >= 0);
 GO
 
 /* ============================================================ */
@@ -122,8 +128,9 @@ CREATE PROCEDURE [RefCorpus].[ListClassVariants]
 AS
 BEGIN
 SELECT [ClassVariants].[Name]
-      ,[Desc]
       ,[Ref]
+	  ,[DfltColIndx]
+      ,[Desc]
       ,[CreatedTime]
       ,[LastModifiedTime]
   FROM [ClassVariants]
@@ -142,8 +149,9 @@ CREATE PROCEDURE [RefCorpus].[GetClassVariant]
 )
 AS
 BEGIN
-SELECT [Desc]
-      ,[Ref]
+SELECT [Ref]
+	  ,[DfltColIndx]
+      ,[Desc]
       ,[CreatedTime]
       ,[LastModifiedTime]
   FROM [ClassVariants]
@@ -159,11 +167,11 @@ GO
 CREATE PROCEDURE [RefCorpus].[AddClassVariant]
 (@ClassName VARCHAR(MAX)
 ,@VariantName VARCHAR(MAX)
+,@DfltColIndx SMALLINT
 ,@Desc NVARCHAR(MAX) = NULL
 )
 AS
 BEGIN
-
 DECLARE @ClassId BIGINT;
 SELECT @ClassId = [Id] FROM [Classes]
  WHERE [Name] = @ClassName;
@@ -178,18 +186,50 @@ BEGIN
   SET @ClassId = SCOPE_IDENTITY();
 END
 
-DECLARE @VariantId INT;
-SET @VariantId = [RefCorpus].[CountClassVariants](@ClassName);
+INSERT INTO [ClassVariants]
+  ([ClassId], [Name], [Ref], [DfltColIndx], [Desc])
+  VALUES
+  (@ClassId, @VariantName, '', @DfltColIndx, @Desc);
+
+DECLARE @VariantId BIGINT;
+SET @VariantId = SCOPE_IDENTITY();
 
 DECLARE @Ref VARCHAR(MAX);
 SET @Ref = @ClassName + '_' + CONVERT(VARCHAR(MAX), @VariantId);
 
-INSERT INTO [ClassVariants]
-  ([ClassId], [VariantId], [Name], [Desc], [Ref])
-  VALUES
-  (@ClassId, @VariantId, @VariantName, @Desc, @Ref);
+UPDATE [ClassVariants]
+   SET [Ref] = @Ref
+ WHERE [ClassId] = @ClassId
+   AND [VariantId] = @VariantId;
 
 SELECT @Ref;
+END
+GO
+
+/* ============================================================ */
+/* Procedure: EditClassVariant */
+
+CREATE PROCEDURE [RefCorpus].[EditClassVariant]
+(@ClassName VARCHAR(MAX)
+,@VariantName VARCHAR(MAX)
+,@DfltColIndx SMALLINT
+,@Desc NVARCHAR(MAX) = NULL
+)
+AS
+BEGIN
+DECLARE @ClassId BIGINT;
+SELECT @ClassId = [Id] FROM [Classes]
+ WHERE [Name] = @ClassName;
+
+IF @ClassId IS NOT NULL
+BEGIN
+  UPDATE [ClassVariants]
+     SET [DfltColIndx] = @DfltColIndx
+        ,[Desc] = COALESCE(@Desc, [Desc])
+		,[LastModifiedTime] = GETUTCDATE()
+   WHERE [ClassId] = @ClassId
+     AND [Name] = @VariantName;
+END
 END
 GO
 
@@ -202,10 +242,12 @@ CREATE PROCEDURE [RefCorpus].[RemoveClassVariant]
 )
 AS
 BEGIN
+DECLARE @ClassId BIGINT;
+SELECT @ClassId = [Id] FROM [Classes]
+ WHERE [Name] = @ClassName;
+
 DELETE FROM [ClassVariants]
- WHERE [ClassId] = (SELECT [Id] FROM [Classes]
-                     WHERE [Name] = @ClassName
-                   )
+ WHERE [ClassId] = @ClassId
    AND [Name] = @VariantName;
 END
 GO

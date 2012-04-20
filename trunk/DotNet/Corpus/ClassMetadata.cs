@@ -13,13 +13,14 @@ namespace MDo.Data.Corpus
             this.Variant = FixVariantName(variantName);
         }
 
-        public string Class             { get; private set;  }
-        public string Variant           { get; private set;  }
+        public string   Class           { get; private set;  }
+        public string   Variant         { get; private set;  }
         public string[] VariantNames    { get; internal set; }
         public string[] DimensionNames  { get; internal set; }
         public Type[]   DimensionTypes  { get; internal set; }
-        public int Count                { get; internal set; }
-        public string Desc              { get; internal set; }
+        public short    DefaultDim      { get; internal set; }
+        public int      NumItems        { get; internal set; }
+        public string   Desc            { get; internal set; }
 
         public const string DefaultVariantName = "default";
         public static string FixVariantName(string variantName)

@@ -8,6 +8,7 @@ namespace MDo.Data.Corpus
     public interface IClassDataManager : IClassDataProvider
     {
         void AddVariant(ClassMetadata metadata);
+        void EditVariant(ClassMetadata metadata);
         bool VariantExists(string className, string variantName);
         void AddItem(ClassMetadata metadata, object[] item);
         void ClearItems(string className, string variantName);

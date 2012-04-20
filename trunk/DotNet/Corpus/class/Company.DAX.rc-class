@@ -1,6 +1,7 @@
 ﻿Company.DAX
 3 dims
 30 items
+DefaultDim=Name
 Ticker::System.String	Name::System.String	Sector::System.String
 ADS	Adidas	Clothing and footwear
 ALV	Allianz	Insurance

@@ -1,6 +1,7 @@
 ﻿Company.SP500
 4 dims
 500 items
+DefaultDim=Name
 Ticker::System.String	Name::System.String	Sector::System.String	HeadquartersLocation::System.String
 MMM	3M Co.	Industrials	St Paul, Minnesota
 ACE	ACE Limited	Financials	Zurich, Switzerland

@@ -1,6 +1,7 @@
 ﻿Address.USA-CA-San Francisco
 25 dims
 407 items
+DefaultDim=ADDRESS
 SALE TYPE::System.String	HOME TYPE::System.String	ADDRESS::System.String	CITY::System.String	STATE::System.String	ZIP::System.String	LIST PRICE::System.Nullable`1[System.Int32]	BEDS::System.Nullable`1[System.Int32]	BATHS::System.Nullable`1[System.Double]	LOCATION::System.String	SQFT::System.Nullable`1[System.Int32]	LOT SIZE::System.Nullable`1[System.Int32]	YEAR BUILT::System.Nullable`1[System.Int32]	PARKING SPOTS::System.Nullable`1[System.Int32]	PARKING TYPE::System.String	ORIGINAL LIST PRICE::System.Nullable`1[System.Int32]	LAST SALE DATE::System.Nullable`1[System.DateTime]	LAST SALE PRICE::System.Nullable`1[System.Int32]	URL::System.String	SOURCE::System.String	LISTING ID::System.String	ORIGINAL SOURCE::System.String	LATITUDE::System.Nullable`1[System.Double]	LONGITUDE::System.Nullable`1[System.Double]	IS SHORT SALE::System.Nullable`1[System.Boolean]
 MLS Listing	Single Family Residential	210 SAN FERNANDO Way	Daly City	CA	94015	548000	3	3	St. Francis Heights	2490	3300	1959	1	Garage	548000	3/23/2007	860000	http://www.redfin.com/CA/Daly-City/210-San-Fernando-Way-94015/home/2055872	MLSListings Inc. (MLSLI)	81213125	CoMax Realty Inc	37.680538	-122.476112	TRUE
 MLS Listing	Single Family Residential	3632 Vicente St	San Francisco	CA	94116	759000	3	2	Outer Parkside	1624		1941	1	Garage	759000			http://www.redfin.com/CA/San-Francisco/3632-Vicente-St-94116/home/1013822	San Francisco Association of Realtors (SFARMLS)	395644	Prudential California Realty	37.738194	-122.50605	FALSE
