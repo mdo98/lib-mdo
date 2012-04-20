@@ -1,6 +1,7 @@
 ﻿Company.ASX50
 4 dims
 50 items
+DefaultDim=Name
 Ticker::System.String	Name::System.String	Sector::System.String	HeadquartersLocation::System.String
 AGK	AGL Energy Ltd	Utilities	Sydney, Australia
 AMP	AMP Ltd	Financials	Sydney, Australia

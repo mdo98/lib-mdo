@@ -5,17 +5,15 @@ using System.Text;
 
 using MDo.Common.App.CLI;
 
-using MDo.Data.Corpus.DataImport;
-
 namespace MDo.Data.Corpus.Modules
 {
-    public class ImportClassDataFromText : ConsoleAppModule
+    internal class ImportClassDataFromText : ConsoleAppModule
     {
         public static void Run(string baseDir, string server, string database, string userId, string password, bool encrypt = true)
         {
             SqlUtility.EncryptConnection = encrypt;
-            IClassDataManager destStore = new SqlClassDataManager(SqlUtility.GetSqlConnectionString(server, database, userId, password));
-            ClassDataTextImporter metaReader = new ClassDataTextImporter(baseDir);
+            IClassDataManager dest = new SqlClassDataManager(SqlUtility.GetSqlConnectionString(server, database, userId, password));
+            TextClassDataReader metaReader = new TextClassDataReader(baseDir);
             foreach (string className in metaReader.ListClasses())
             {
                 foreach (string variantName in metaReader.ListVariants(className))
@@ -23,8 +21,8 @@ namespace MDo.Data.Corpus.Modules
                     try
                     {
                         Console.Write("Importing {0}/{1}.{2}...", baseDir, className, variantName);
-                        IClassDataImporter srcStore = new ClassDataTextCachedImporter(baseDir, className, variantName);
-                        srcStore.Import(className, variantName, destStore);
+                        IClassDataProvider src = new TextClassDataCachedReader(baseDir, className, variantName);
+                        ClassDataOperation.Import(src, dest, className, variantName);
                         Console.WriteLine(" Done.");
                     }
                     catch (Exception ex)

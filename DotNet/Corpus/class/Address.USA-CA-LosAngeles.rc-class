@@ -1,6 +1,7 @@
 ﻿Address.USA-CA-Los Angeles
 25 dims
 431 items
+DefaultDim=ADDRESS
 SALE TYPE::System.String	HOME TYPE::System.String	ADDRESS::System.String	CITY::System.String	STATE::System.String	ZIP::System.String	LIST PRICE::System.Nullable`1[System.Int32]	BEDS::System.Nullable`1[System.Int32]	BATHS::System.Nullable`1[System.Double]	LOCATION::System.String	SQFT::System.Nullable`1[System.Int32]	LOT SIZE::System.Nullable`1[System.Int32]	YEAR BUILT::System.Nullable`1[System.Int32]	PARKING SPOTS::System.Nullable`1[System.Int32]	PARKING TYPE::System.String	ORIGINAL LIST PRICE::System.Nullable`1[System.Int32]	LAST SALE DATE::System.Nullable`1[System.DateTime]	LAST SALE PRICE::System.Nullable`1[System.Int32]	URL::System.String	SOURCE::System.String	LISTING ID::System.String	ORIGINAL SOURCE::System.String	LATITUDE::System.Nullable`1[System.Double]	LONGITUDE::System.Nullable`1[System.Double]	IS SHORT SALE::System.Nullable`1[System.Boolean]
 MLS Listing	Single Family Residential	1671 North ROCKY Rd	Upland	CA	91784	528888	4	3	Upland	2844	6600	2000	3	Garage	528888	3/1/2012	380000	http://www.redfin.com/CA/Upland/1671-N-Rocky-Rd-91784/home/4195615	California Real Estate Technology Services (CARETS)	C12031255	ZAP HOME REALTY	34.124157	-117.68325	FALSE
 MLS Listing	Single Family Residential	1864 North MILLSWEET Dr	Upland	CA	91784	499900	3	3	Upland	2631	15078	2007	3	Garage	499900	7/20/2009	535000	http://www.redfin.com/CA/UPLAND/1864-N-MILLSWEET-DR-91784/home/17254259	California Real Estate Technology Services (CARETS)	H12031507	Golden Diamond	34.13142	-117.681437	FALSE

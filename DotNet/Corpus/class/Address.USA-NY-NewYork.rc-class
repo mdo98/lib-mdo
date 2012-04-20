@@ -1,6 +1,7 @@
 ﻿Address.USA-NY-New York
 25 dims
 444 items
+DefaultDim=ADDRESS
 SALE TYPE::System.String	HOME TYPE::System.String	ADDRESS::System.String	CITY::System.String	STATE::System.String	ZIP::System.String	LIST PRICE::System.Nullable`1[System.Int32]	BEDS::System.Nullable`1[System.Int32]	BATHS::System.Nullable`1[System.Double]	LOCATION::System.String	SQFT::System.Nullable`1[System.Int32]	LOT SIZE::System.Nullable`1[System.Int32]	YEAR BUILT::System.Nullable`1[System.Int32]	PARKING SPOTS::System.Nullable`1[System.Int32]	PARKING TYPE::System.String	ORIGINAL LIST PRICE::System.Nullable`1[System.Int32]	LAST SALE DATE::System.Nullable`1[System.DateTime]	LAST SALE PRICE::System.Nullable`1[System.Int32]	URL::System.String	SOURCE::System.String	LISTING ID::System.String	ORIGINAL SOURCE::System.String	LATITUDE::System.Nullable`1[System.Double]	LONGITUDE::System.Nullable`1[System.Double]	IS SHORT SALE::System.Nullable`1[System.Boolean]
 MLS Listing	Single Family Residential	846 Fanwood Ave	N. Woodmere	NY	11581	489000	4	3	N. Woodmere		6500	1959	1	Garage	557000			http://www.redfin.com/NY/Valley-Stream/Undisclosed-address-11581/home/20392631	Multiple Listing Service of Long Island	2416287	Julia Stevens Realty	40.650173	-73.726158	FALSE
 MLS Listing	Single Family Residential	80-46 246th St	Bellerose	NY	11426	529000	2	1.5	Bellerose	4000	4000	1935	1	Garage	529000	2/19/2008	440000	http://www.redfin.com/NY/Jamaica/8046-246th-St-11426/home/20796080	Multiple Listing Service of Long Island	2475875	Prudential Douglas Elliman RE	40.740337	-73.723488	FALSE

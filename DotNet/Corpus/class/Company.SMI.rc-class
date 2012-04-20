@@ -1,6 +1,7 @@
 ﻿Company.SMI
 3 dims
 20 items
+DefaultDim=Name
 Ticker::System.String	Name::System.String	Sector::System.String
 ABBN	ABB	Electronic equipment
 ATLN	Actelion	Biotechnology

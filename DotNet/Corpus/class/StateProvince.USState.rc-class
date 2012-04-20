@@ -1,6 +1,7 @@
 ﻿StateProvince.USState
 4 dims
 55 items
+DefaultDim=Name
 Name::System.String	USPSAbbr::System.String	Latitude::System.Double	Longitude::System.Double
 Alaska	AK	61.385	-152.2683
 Alabama	AL	32.799	-86.8073

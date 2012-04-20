@@ -5,18 +5,16 @@ using System.Text;
 
 using MDo.Common.App.CLI;
 
-using MDo.Data.Corpus.DataImport;
-
 namespace MDo.Data.Corpus.Modules
 {
-    public class ValidateTextClassData : ConsoleAppModule
+    internal class ValidateTextClassData : ConsoleAppModule
     {
         public static void Run(string baseDir, string className = null, string variantName = null)
         {
             if (string.IsNullOrEmpty(baseDir))
                 throw new ArgumentNullException("baseDir");
 
-            IClassDataProvider metaReader = new ClassDataTextImporter(baseDir);
+            IClassDataProvider metaReader = new TextClassDataReader(baseDir);
             if (string.IsNullOrEmpty(className))
             {
                 foreach (string cls in metaReader.ListClasses())
@@ -37,7 +35,7 @@ namespace MDo.Data.Corpus.Modules
                 Console.WriteLine("Validating text classification data {0}/{1}.{2}...", baseDir, className, variantName);
                 try
                 {
-                    IClassDataProvider provider = new ClassDataTextImporter(baseDir);
+                    IClassDataProvider provider = new TextClassDataReader(baseDir);
                     bool isValid = true;
                     ClassMetadata metadata = null;
                     try
@@ -51,7 +49,7 @@ namespace MDo.Data.Corpus.Modules
                     }
                     if (isValid)
                     {
-                        for (int i = 0; i < metadata.Count; i++)
+                        for (int i = 0; i < metadata.NumItems; i++)
                         {
                             try
                             {
@@ -94,11 +92,11 @@ namespace MDo.Data.Corpus.Modules
                             break;
 
                         case "CLS":
-                            baseDir = kv[1].Trim();
+                            className = kv[1].Trim();
                             break;
 
                         case "VAR":
-                            baseDir = kv[1].Trim();
+                            variantName = kv[1].Trim();
                             break;
 
                         default:

@@ -8,7 +8,6 @@ using System.Resources;
 using System.Text;
 
 using MDo.Common.App.CLI;
-using MDo.Data.Corpus.DataImport;
 
 namespace MDo.Data.Corpus.Modules
 {
