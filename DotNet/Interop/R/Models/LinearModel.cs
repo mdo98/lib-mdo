@@ -27,14 +27,14 @@ namespace MDo.Interop.R.Models
 
         #region Model
 
+        public override void Train(RVector observed_X, RVector observed_Y)
+        {
+            this.SetModelPtr(GenerateRModel(observed_X, observed_Y));
+        }
+
         protected override bool ParametersAvailable
         {
             get { return (this.Parameters != null); }
-        }
-
-        protected override void Train(RVector observed_X, RVector observed_Y)
-        {
-            this.SetModelPtr(GenerateRModel(observed_X, observed_Y));
         }
 
         protected override void ReadParameters()

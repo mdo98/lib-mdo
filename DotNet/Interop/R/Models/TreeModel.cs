@@ -41,12 +41,12 @@ namespace MDo.Interop.R.Models
 
         #region Model
 
-        protected override bool ParametersAvailable { get { return false; } }
-
-        protected override void Train(RVector observed_X, RVector observed_Y)
+        public override void Train(RVector observed_X, RVector observed_Y)
         {
             this.SetModelPtr(GenerateRModel(observed_X, observed_Y, this.Formula, this.Purpose));
         }
+
+        protected override bool ParametersAvailable { get { return false; } }
 
         protected override void ReadParameters()
         {
