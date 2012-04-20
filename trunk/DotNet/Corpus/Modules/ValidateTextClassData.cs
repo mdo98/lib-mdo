@@ -45,7 +45,7 @@ namespace MDo.Data.Corpus.Modules
                     catch (Exception ex)
                     {
                         isValid = false;
-                        Console.WriteLine("\t{0}/{1}.{2}: Invalid header: {3}.", baseDir, className, variantName, ex.Message);
+                        Console.WriteLine("\t{0}/{1}.{2}: Invalid header: {3}", baseDir, className, variantName, ex.Message);
                     }
                     if (isValid)
                     {
