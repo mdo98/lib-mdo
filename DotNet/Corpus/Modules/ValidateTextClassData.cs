@@ -42,10 +42,10 @@ namespace MDo.Data.Corpus.Modules
                     {
                         metadata = provider.GetMetadata(className, variantName);
                     }
-                    catch
+                    catch (Exception ex)
                     {
                         isValid = false;
-                        Console.WriteLine("\t{0}/{1}.{2}: Invalid header.", baseDir, className, variantName);
+                        Console.WriteLine("\t{0}/{1}.{2}: Invalid header: {3}.", baseDir, className, variantName, ex.Message);
                     }
                     if (isValid)
                     {

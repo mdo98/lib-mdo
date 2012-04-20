@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-using MDo.Common.App;
+using MDo.Common.App.CLI;
 
 namespace MDo.Interop.R.Test
 {
