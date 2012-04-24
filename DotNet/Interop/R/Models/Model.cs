@@ -33,6 +33,7 @@ namespace MDo.Interop.R.Models
         public bool   Trained   { get { return (IntPtr.Zero != this.ModelPtr || this.ParametersAvailable); } }
         
         public ModelPurpose Purpose { get; private set; }
+        public string       Name    { get; private set; }
 
         #endregion Properties
 
@@ -72,10 +73,23 @@ namespace MDo.Interop.R.Models
                 throw new InvalidOperationException("Cannot predict: Model has not been trained.");
         }
 
+        public void SetName(string name)
+        {
+            this.Name = name;
+            this.SetModelVariable();
+        }
+
         protected void SetModelPtr(IntPtr ptr)
         {
             this.ModelPtr = ptr;
+            this.SetModelVariable();
             this.ReadParameters();
+        }
+
+        private void SetModelVariable()
+        {
+            if (IntPtr.Zero != this.ModelPtr && !string.IsNullOrWhiteSpace(this.Name))
+                RInterop.InternalSetVariable(this.Name, this.ModelPtr);
         }
 
         #endregion Methods
