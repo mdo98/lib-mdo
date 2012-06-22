@@ -16,7 +16,7 @@ namespace MDo.Interop.R
             int vLength = ans.Content.VLength;
 
             RVector vector = new RVector();
-            if (attribPtr == RInterop.R_NilValue)
+            if (attribPtr == RInterop.NullPtr)
             {
                 vector.Values = new object[vLength, 1];
             }
@@ -26,34 +26,35 @@ namespace MDo.Interop.R
 
                 Action<IntPtr, int, IList<string>> getRowOrColNames = (IntPtr ptr, int numItems, IList<string> itemList) =>
                 {
+                    RInterop.RSEXPREC names = RInterop.RSEXPREC.FromPointer(ptr);
+                    if (names.Header.SxpInfo.Type == RInterop.RSXPTYPE.NILSXP)
+                        return;
+
                     {
-                        RInterop.RSEXPREC names = RInterop.RSEXPREC.FromPointer(ptr);
-                        {
-                            const RInterop.RSXPTYPE expectedSxpType = RInterop.RSXPTYPE.STRSXP;
-                            if (names.Header.SxpInfo.Type != expectedSxpType)
-                                throw new RInteropException(string.Format(
-                                    "Invalid type for R name attribute node: expecting {0}, actual {1}.",
-                                    expectedSxpType,
-                                    names.Header.SxpInfo.Type));
+                        const RInterop.RSXPTYPE expectedSxpType = RInterop.RSXPTYPE.STRSXP;
+                        if (names.Header.SxpInfo.Type != expectedSxpType)
+                            throw new RInteropException(string.Format(
+                                "Invalid type for R name attribute node: expecting {0}, actual {1}.",
+                                expectedSxpType,
+                                names.Header.SxpInfo.Type));
 
-                            int expectedVLength = numItems;
-                            if (names.Content.VLength < expectedVLength)
-                                throw new RInteropException(string.Format(
-                                    "Invalid length for R name attribute node: expecting {0}, actual {1}.",
-                                    expectedVLength,
-                                    names.Content.VLength));
-                        }
+                        int expectedVLength = numItems;
+                        if (names.Content.VLength < expectedVLength)
+                            throw new RInteropException(string.Format(
+                                "Invalid length for R name attribute node: expecting {0}, actual {1}.",
+                                expectedVLength,
+                                names.Content.VLength));
+                    }
 
-                        for (int i = 0; i < numItems; i++)
-                        {
-                            string name;
-                            unsafe { name = new string((sbyte*)RInterop.RSEXPREC.ValSxp_GetElement(RInterop.RSEXPREC.VecSxp_GetElement(ptr, i), 0, sizeof(sbyte))); }
-                            itemList.Add(name);
-                        }
+                    for (int i = 0; i < numItems; i++)
+                    {
+                        string name;
+                        unsafe { name = new string((sbyte*)RInterop.RSEXPREC.ValSxp_GetElement(RInterop.RSEXPREC.VecSxp_GetElement(ptr, i), 0, sizeof(sbyte))); }
+                        itemList.Add(name);
                     }
                 };
 
-                if (attrib.Content.listsxp_cdrval == RInterop.R_NilValue)
+                if (attrib.Content.listsxp_cdrval == RInterop.NullPtr)
                 {
                     vector.Values = new object[vLength, 1];
                     getRowOrColNames(attrib.Content.listsxp_carval, vLength, vector.RowNames);

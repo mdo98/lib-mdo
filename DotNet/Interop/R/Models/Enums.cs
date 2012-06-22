@@ -7,6 +7,7 @@ namespace MDo.Interop.R.Models
 {
     public enum ModelPurpose
     {
+        Unknown,
         Regression,
         Classification,
     }

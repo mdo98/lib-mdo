@@ -8,20 +8,19 @@ using MDo.Interop.R.Core;
 
 namespace MDo.Interop.R.Models
 {
-    public abstract class Model
+    public abstract class Model : RObject
     {
         #region Constructors
 
-        protected Model(IntPtr ptr, ModelPurpose purpose)
-            : this(purpose)
+        protected Model(IntPtr ptr, string name, ModelPurpose purpose)
+            : base(ptr, name)
         {
-            this.SetModelPtr(ptr);
+            this.Purpose = purpose;
         }
 
-        protected Model(ModelPurpose purpose)
+        protected Model(string name, ModelPurpose purpose)
+            : this(IntPtr.Zero, name, purpose)
         {
-            this.ModelPtr = IntPtr.Zero;
-            this.Purpose = purpose;
         }
 
         #endregion Constructors
@@ -29,13 +28,23 @@ namespace MDo.Interop.R.Models
 
         #region Properties
 
-        public IntPtr ModelPtr  { get; private set; }
-        public bool   Trained   { get { return (IntPtr.Zero != this.ModelPtr || this.ParametersAvailable); } }
+        public bool         Trained { get { return (IntPtr.Zero != this.Ptr || this.ParametersAvailable); } }
         
         public ModelPurpose Purpose { get; private set; }
-        public string       Name    { get; private set; }
+        
+        public string       Config  { get; set; }
 
         #endregion Properties
+
+
+        #region RObject
+
+        protected override void OnPtrSet()
+        {
+            this.ReadParameters();
+        }
+
+        #endregion RObject
 
 
         #region Abstract Members
@@ -44,7 +53,6 @@ namespace MDo.Interop.R.Models
         protected abstract bool ParametersAvailable { get; }
         protected abstract void ReadParameters();
         protected abstract RVector PredictFromParameters(RVector unknown_X);
-        protected abstract RVector RVectorFromRSxprResultPtr(IntPtr ptr);
 
         #endregion Abstract Members
 
@@ -67,29 +75,50 @@ namespace MDo.Interop.R.Models
 
             if (this.ParametersAvailable)
                 return this.PredictFromParameters(unknown_X);
-            else if (IntPtr.Zero != this.ModelPtr)
-                return RInterop.RsxprPtrToClrValue(PredictHelper(unknown_X, this.ModelPtr), this.RVectorFromRSxprResultPtr);
             else
+                return this.PredictHelper(unknown_X);
+        }
+
+        protected virtual RVector InitRVectorFromRSxprResultPtr(IntPtr val)
+        {
+            return RSxprUtils.RVectorFromStdRSxpr(val);
+        }
+
+        protected RVector PredictHelper(RVector unknown_X)
+        {
+            if (IntPtr.Zero == this.Ptr)
                 throw new InvalidOperationException("Cannot predict: Model has not been trained.");
-        }
 
-        public void SetName(string name)
-        {
-            this.Name = name;
-            this.SetModelVariable();
-        }
+            if (null == unknown_X)
+                throw new ArgumentNullException("unknown_X");
 
-        protected void SetModelPtr(IntPtr ptr)
-        {
-            this.ModelPtr = ptr;
-            this.SetModelVariable();
-            this.ReadParameters();
-        }
+            int numObserved = unknown_X.NumRows;
+            int numFeatures = unknown_X.NumCols;
 
-        private void SetModelVariable()
-        {
-            if (IntPtr.Zero != this.ModelPtr && !string.IsNullOrWhiteSpace(this.Name))
-                RInterop.InternalSetVariable(this.Name, this.ModelPtr);
+            if (numObserved <= 0)
+                throw new ArgumentOutOfRangeException("unknown_X.NumRows");
+
+            if (numFeatures <= 0)
+                throw new ArgumentOutOfRangeException("unknown_X.NumCols");
+
+            /* data.frame(
+             * X0 = c(0, 1, 2, 3),
+             * X1 = c(4, 5, 6, 7))
+             */
+
+            RVector x = new RVector(unknown_X.Values);
+            x.SetXVarColNames();
+
+            /* predict(model, newdata = data)
+             */
+
+            StringBuilder expr = new StringBuilder();
+
+            expr.AppendFormat("predict({0}, newdata = {1})",
+                this.Name,
+                DataFrame.ExpressionFromVectors(x));
+
+            return RInterop.EvalToVector(expr.ToString(), this.InitRVectorFromRSxprResultPtr);
         }
 
         #endregion Methods
@@ -97,7 +126,7 @@ namespace MDo.Interop.R.Models
 
         #region Static Methods
 
-        protected static IntPtr GenerateRModelHelper(RVector observed_X, RVector observed_Y, Func<string, string> getRModelExprForData)
+        protected static IntPtr GenerateRModelHelper(string name, RVector observed_X, RVector observed_Y, Func<string, string> getRModelExprForData)
         {
             if (null == getRModelExprForData)
                 throw new ArgumentNullException("getRModelExprForData");
@@ -137,73 +166,18 @@ namespace MDo.Interop.R.Models
             RVector y = new RVector(observed_Y.Values);
             y.SetYVarColNames();
 
-            DataFrame.FromVectors(RInterop.MakePrivateVariable("data"), x, y);
-
             #endregion Set up data frame
-
-            StringBuilder expr = new StringBuilder();
-
+            
             #region Fit model
 
-            IntPtr model = RInterop.InternalEval(getRModelExprForData(RInterop.MakePrivateVariable("data")));
+            IntPtr model = RInterop.Eval(getRModelExprForData(DataFrame.ExpressionFromVectors(x, y)), name);
 
             #endregion Fit model
 
             return model;
         }
 
-        protected static IntPtr PredictHelper(RVector unknown_X, IntPtr model)
-        {
-            if (IntPtr.Zero == model)
-                throw new NullReferenceException("model cannot be a zero-pointer.");
-
-            if (null == unknown_X)
-                throw new ArgumentNullException("unknown_X");
-
-            int numObserved = unknown_X.NumRows;
-            int numFeatures = unknown_X.NumCols;
-
-            if (numObserved <= 0)
-                throw new ArgumentOutOfRangeException("unknown_X.NumRows");
-
-            if (numFeatures <= 0)
-                throw new ArgumentOutOfRangeException("unknown_X.NumCols");
-
-            RInterop.InternalSetPrivateVariable("model", model);
-
-            #region Set up data frame
-
-            /* unkn = data.frame(
-             * X0 = c(0, 1, 2, 3),
-             * X1 = c(4, 5, 6, 7))
-             */
-
-            RVector x = new RVector(unknown_X.Values);
-            x.SetXVarColNames();
-
-            DataFrame.FromVectors(RInterop.MakePrivateVariable("unkn"), x);
-
-            #endregion Set up data frame
-
-            StringBuilder expr = new StringBuilder();
-
-            #region Predict
-
-            /* predict(model, data = unkn)
-             */
-
-            expr.AppendFormat("predict({0}, newdata = {1})",
-                RInterop.MakePrivateVariable("model"),
-                RInterop.MakePrivateVariable("unkn"));
-
-            IntPtr unknown_Y = RInterop.InternalEval(expr.ToString());
-
-            #endregion Predict
-
-            return unknown_Y;
-        }
-
-        public static IntPtr GenerateAndPredict(RVector observed_X, RVector observed_Y, RVector unknown_X, Func<string, string> getRModelExprForData)
+        public static RVector GenerateAndPredict(RVector observed_X, RVector observed_Y, RVector unknown_X, Func<string, string> getRModelExprForData)
         {
             if (null == observed_X)
                 throw new ArgumentNullException("observed_X");
@@ -219,9 +193,34 @@ namespace MDo.Interop.R.Models
             if (unknown_X.NumCols != numFeatures)
                 throw new ArgumentOutOfRangeException("unknown_X.NumCols");
 
-            return PredictHelper(unknown_X, GenerateRModelHelper(observed_X, observed_Y, getRModelExprForData));
+            string name = AutoName<GenericModel>();
+            return (new GenericModel(GenerateRModelHelper(name, observed_X, observed_Y, getRModelExprForData), name)).PredictHelper(unknown_X);
         }
 
         #endregion Static Methods
+    }
+
+    internal class GenericModel : Model
+    {
+        public GenericModel(IntPtr ptr, string name) : base(ptr, name, ModelPurpose.Unknown) { }
+
+        public override void Train(RVector observed_X, RVector observed_Y)
+        {
+            throw new NotSupportedException();
+        }
+
+        protected override bool ParametersAvailable
+        {
+            get { return false; }
+        }
+
+        protected override void ReadParameters()
+        {
+        }
+
+        protected override RVector PredictFromParameters(RVector unknown_X)
+        {
+            throw new NotSupportedException();
+        }
     }
 }

@@ -5,32 +5,40 @@ using System.Text;
 
 namespace MDo.Interop.R.Core
 {
-    public class DataFrame
+    public class DataFrame : RObject
     {
         #region Constructors
 
-        private DataFrame(string name, IntPtr ptr)
+        private DataFrame(IntPtr ptr, string name = null) : base(ptr, name)
         {
-            this.Name = name;
-            this.DataPtr = ptr;
         }
 
         #endregion Constructors
 
 
-        #region Properties
+        #region RObject
 
-        public string Name      { get; private set; }
-        public IntPtr DataPtr   { get; private set; }
+        protected override void OnPtrSet()
+        {
+            // No-Ops
+        }
 
-        #endregion Properties
+        #endregion RObject
 
 
         public static DataFrame FromVectors(string name, params RVector[] vectors)
         {
+            if (string.IsNullOrWhiteSpace(name))
+                throw new ArgumentNullException("name");
+
             if (null == vectors || vectors.Length <= 0)
                 throw new ArgumentOutOfRangeException("vector.Length");
 
+            return new DataFrame(RInterop.Eval(ExpressionFromVectors(vectors), name), name);
+        }
+
+        public static string ExpressionFromVectors(params RVector[] vectors)
+        {
             StringBuilder expr = new StringBuilder();
             
             /* data = data.frame(
@@ -42,10 +50,16 @@ namespace MDo.Interop.R.Core
             expr.Append("data.frame(");
 
             int numVectors = 0;
+            int numRows = -1;
             for (int n = 0; n < vectors.Length; n++)
             {
                 RVector vector = vectors[n];
                 vector.Validate();
+
+                if (numRows < 0)
+                    numRows = vector.NumRows;
+                else if (vector.NumRows != numRows)
+                    throw new ArgumentException("Vectors must have the same number of rows.");
 
                 for (int j = 0; j < vector.NumCols; j++)
                 {
@@ -72,7 +86,64 @@ namespace MDo.Interop.R.Core
                 }
             }
 
-            return new DataFrame(name, RInterop.SetVariable(name, expr.ToString()));
+            return expr.ToString();
+        }
+
+        public static string CsvFromVectors(params RVector[] vectors)
+        {
+            if (null == vectors || vectors.Length <= 0)
+                throw new ArgumentOutOfRangeException("vector.Length");
+
+            StringBuilder expr = new StringBuilder();
+
+            // Header
+            int numVectors = 0;
+            int numRows = -1;
+            for (int n = 0; n < vectors.Length; n++)
+            {
+                RVector vector = vectors[n];
+                vector.Validate();
+
+                if (numRows < 0)
+                    numRows = vector.NumRows;
+                else if (vector.NumRows != numRows)
+                    throw new ArgumentException("Vectors must have the same number of rows.");
+
+                for (int j = 0; j < vector.NumCols; j++)
+                {
+                    string colName = vector.GetColName(j);
+                    expr.Append(string.IsNullOrWhiteSpace(colName) ? "V" + (numVectors++) : colName);
+
+                    if (n < vectors.Length-1 || j < vector.NumCols-1)
+                        expr.Append("\t");
+                }
+            }
+            expr.Append(Environment.NewLine);
+
+            // Data
+            for (int i = 0; i < numRows; i++)
+            {
+                for (int n = 0; n < vectors.Length; n++)
+                {
+                    RVector vector = vectors[n];
+                    for (int j = 0; j < vector.NumCols; j++)
+                    {
+                        Type type = vector.Values[i, j].GetType();
+                        if (typeof(double) == type || typeof(int) == type  || typeof(long) == type  || typeof(short) == type ||
+                            typeof(float) == type  || typeof(uint) == type || typeof(ulong) == type || typeof(ushort) == type)
+                            expr.Append(vector.Values[i, j]);
+                        else
+                            expr.AppendFormat("\"{0}\"", vector.Values[i, j]);
+
+                        if (n < vectors.Length-1 || j < vector.NumCols-1)
+                            expr.Append("\t");
+                    }
+                }
+                if (i < numRows-1)
+                    expr.Append(Environment.NewLine);
+            }
+
+            return expr.ToString();
         }
     }
 }

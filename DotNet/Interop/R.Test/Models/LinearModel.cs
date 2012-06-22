@@ -76,7 +76,7 @@ namespace MDo.Interop.R.Models.Test
                         TimeSpan elapsed = TestUtils.Time(() => model = LinearModel.Generate(training_X, training_Y));
                         Console.WriteLine("\tTime: {0:F3} seconds.", elapsed.TotalSeconds);
 
-                        RInterop.Print(model.ModelPtr);
+                        RInterop.Print(model.Ptr);
                         Console.WriteLine();
 
                         Console.WriteLine("Fitting model over training set...");

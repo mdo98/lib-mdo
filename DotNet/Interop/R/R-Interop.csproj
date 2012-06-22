@@ -43,6 +43,7 @@
   <ItemGroup>
     <Compile Include="Models\Enums.cs" />
     <Compile Include="Models\TreeModel.cs" />
+    <Compile Include="RObject.cs" />
     <Compile Include="RSxprUtils.cs" />
     <Compile Include="RVector.cs" />
     <Compile Include="Models\RandomForestModel.cs" />
