@@ -11,9 +11,9 @@ namespace MDo.Interop.R.Models
     {
         #region Constructors
 
-        public LinearModel() : base(ModelPurpose.Regression) { }
+        public LinearModel(string name) : base(name, ModelPurpose.Regression) { }
 
-        public LinearModel(IntPtr ptr) : base(ptr, ModelPurpose.Regression) { }
+        public LinearModel(IntPtr ptr, string name) : base(ptr, name, ModelPurpose.Regression) { }
 
         #endregion Constructors
 
@@ -29,7 +29,7 @@ namespace MDo.Interop.R.Models
 
         public override void Train(RVector observed_X, RVector observed_Y)
         {
-            this.SetModelPtr(GenerateRModel(observed_X, observed_Y));
+            this.SetPtr(GenerateRModel(this.Name, observed_X, observed_Y));
         }
 
         protected override bool ParametersAvailable
@@ -39,10 +39,10 @@ namespace MDo.Interop.R.Models
 
         protected override void ReadParameters()
         {
-            if (RInterop.RSEXPREC.FromPointer(this.ModelPtr).Header.SxpInfo.Type != RInterop.RSXPTYPE.VECSXP)
-                throw new ArgumentException("this.ModelPtr");
+            if (RInterop.RSEXPREC.FromPointer(this.Ptr).Header.SxpInfo.Type != RInterop.RSXPTYPE.VECSXP)
+                throw new ArgumentException("this.Ptr");
 
-            this.Parameters = new LinearModelParameters(RInterop.RsxprPtrToClrValue(RInterop.RSEXPREC.VecSxp_GetElement(this.ModelPtr, 0), RSxprUtils.RVectorFromStdRSxpr));
+            this.Parameters = new LinearModelParameters(RInterop.RsxprPtrToClrValue(RInterop.RSEXPREC.VecSxp_GetElement(this.Ptr, 0), RSxprUtils.RVectorFromStdRSxpr));
             this.Parameters.Validate();
         }
 
@@ -51,7 +51,7 @@ namespace MDo.Interop.R.Models
             int numObserved = unknown_X.NumRows;
             int numFeatures = unknown_X.NumCols;
 
-            if (numFeatures != this.Parameters.NumRows + 1)
+            if (numFeatures != this.Parameters.NumRows - 1)
                 throw new ArgumentOutOfRangeException("unknown_X.NumCols");
 
             RVector y = new RVector(new object[numObserved, 1]);
@@ -60,16 +60,13 @@ namespace MDo.Interop.R.Models
                 double sum = 0.0;
                 for (int j = 0; j < numFeatures; j++)
                 {
-                    sum += (this.Parameters.Coefficient(j) * (double)unknown_X.Values[i,j]);
+                    double cof = this.Parameters.Coefficient(j);
+                    if (!double.IsNaN(cof))
+                        sum += (cof * (double)unknown_X.Values[i,j]);
                 }
                 y.Values[i,0] = sum + this.Parameters.Intercept;
             }
             return y;
-        }
-
-        protected override RVector RVectorFromRSxprResultPtr(IntPtr val)
-        {
-            return RSxprUtils.RVectorFromStdRSxpr(val);
         }
 
         #endregion Model
@@ -77,12 +74,14 @@ namespace MDo.Interop.R.Models
 
         #region Static Methods
 
-        public static LinearModel Generate(RVector observed_X, RVector observed_Y)
+        public static LinearModel Generate(RVector observed_X, RVector observed_Y, string name = null)
         {
-            return new LinearModel(GenerateRModel(observed_X, observed_Y));
+            if (string.IsNullOrWhiteSpace(name))
+                name = AutoName<LinearModel>();
+            return new LinearModel(GenerateRModel(name, observed_X, observed_Y), name);
         }
 
-        private static IntPtr GenerateRModel(RVector observed_X, RVector observed_Y)
+        private static IntPtr GenerateRModel(string name, RVector observed_X, RVector observed_Y)
         {
             if (null == observed_X)
                 throw new ArgumentNullException("observed_X");
@@ -92,7 +91,7 @@ namespace MDo.Interop.R.Models
             /* lm(Y ~ X0+X1,
              * data = data)
              */
-            return GenerateRModelHelper(observed_X, observed_Y, (string data) => string.Format("lm({0}, data = {1})", LinearFormula(numFeatures), data));
+            return GenerateRModelHelper(name, observed_X, observed_Y, (string data) => string.Format("lm({0}, data = {1})", LinearFormula(numFeatures), data));
         }
 
         public static string LinearFormula(int numFeatures)

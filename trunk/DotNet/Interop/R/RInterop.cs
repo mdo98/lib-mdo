@@ -11,14 +11,16 @@ namespace MDo.Interop.R
 {
     public static class RInterop
     {
-        private const string R_HOME = @"lib\R";
+        internal const string R_HOME = @"lib\R";
 #if X86
-        private const string R_DLL = @"bin\i386\R.dll";
-        private const string RGraphApp_DLL = @"bin\i386\Rgraphapp.dll";
+        internal const string R_DLL = @"bin\i386\R.dll";
+        internal const string RGraphApp_DLL = @"bin\i386\Rgraphapp.dll";
 #else
-        private const string R_DLL = @"bin\x64\R.dll";
-        private const string RGraphApp_DLL = @"bin\x64\Rgraphapp.dll";
+        internal const string R_DLL = @"bin\x64\R.dll";
+        internal const string RGraphApp_DLL = @"bin\x64\Rgraphapp.dll";
 #endif
+
+        private static readonly object SyncRoot = new object();
 
         
         #region Interop: R
@@ -463,8 +465,8 @@ namespace MDo.Interop.R
         private static IntPtr RDllPtr;
         private static RStartStruct RStartInfo;
         private static IntPtr RStartInfoPtr;
-        private static IntPtr R_GlobalEnv;
-        internal static IntPtr R_NilValue;
+        private static IntPtr R_GlobalEnvPtr;
+        private static IntPtr R_NullPtr;
 
         #endregion Fields
 
@@ -528,14 +530,14 @@ namespace MDo.Interop.R
             setup_Rmainloop();
             R_ReplDLLinit();
 
-            R_GlobalEnv = Marshal.ReadIntPtr(GetProcAddress(RDllPtr, "R_GlobalEnv"));
-            R_NilValue = Marshal.ReadIntPtr(GetProcAddress(RDllPtr, "R_NilValue"));
+            R_GlobalEnvPtr = Marshal.ReadIntPtr(GetProcAddress(RDllPtr, "R_GlobalEnv"));
+            R_NullPtr = Marshal.ReadIntPtr(GetProcAddress(RDllPtr, "R_NilValue"));
         }
 
         private static void EndRSession(object sender, EventArgs e)
         {
-            R_GlobalEnv = IntPtr.Zero;
-            R_NilValue = IntPtr.Zero;
+            R_GlobalEnvPtr = IntPtr.Zero;
+            R_NullPtr = IntPtr.Zero;
 
             Rf_endEmbeddedR(0);
 
@@ -551,10 +553,10 @@ namespace MDo.Interop.R
         /// </summary>
         /// <param name="statement">An R-parsable statement.</param>
         /// <returns>A pointer to the result of the evaluation in unmanaged memory.</returns>
-        public static IntPtr InternalEval(string statement)
+        private static IntPtr InternalEval(string statement)
         {
             RParseStatus status = RParseStatus.PARSE_NULL;
-            IntPtr expr = R_ParseVector(Rf_mkString(statement), -1, ref status, R_NilValue);
+            IntPtr expr = R_ParseVector(Rf_mkString(statement), -1, ref status, R_NullPtr);
             if (status != RParseStatus.PARSE_OK)
                 throw new RInteropException(string.Format(
                     "Error {0} while parsing statement: {1}",
@@ -565,11 +567,11 @@ namespace MDo.Interop.R
             try
             {
                 IntPtr val = IntPtr.Zero;
-                int pExprLen = Rf_length(pExpr);
-                for (int i = 0; i < pExprLen; i++)
+                int exprLen = Rf_length(expr);
+                for (int i = 0; i < exprLen; i++)
                 {
                     int evalError = 0;
-                    val = R_tryEval(RSEXPREC.VecSxp_GetElement(pExpr, i), IntPtr.Zero, ref evalError);
+                    val = R_tryEval(RSEXPREC.VecSxp_GetElement(expr, i), IntPtr.Zero, ref evalError);
                     if (evalError != 0)
                         throw new RInteropException(string.Format(
                             "Error {0} while evaluating R expression: {1}",
@@ -591,9 +593,28 @@ namespace MDo.Interop.R
         /// <param name="initRVectorFromRsxpr">An optional variable, if custom steps are necessary to properly initialize an RVector
         /// from an unmanaged pointer.</param>
         /// <returns>The result of the evaluation as an array of CLR objects.</returns>
-        public static RVector Eval(string statement, Func<IntPtr, RVector> initRVectorFromRsxpr = null)
+        public static RVector EvalToVector(string statement, Func<IntPtr, RVector> initRVectorFromRsxpr = null)
         {
-            return RsxprPtrToClrValue(InternalEval(statement), initRVectorFromRsxpr);
+            lock (SyncRoot)
+            {
+                return RsxprPtrToClrValue(InternalEval(statement), initRVectorFromRsxpr);
+            }
+        }
+
+        /// <summary>
+        /// Evaluates an R-parsable statement, and returns a pointer to the result of the evaluation in unmanaged memory.
+        /// </summary>
+        /// <param name="statement">An R-parsable statement.</param>
+        /// <returns>A pointer to the result of the evaluation in unmanaged memory.</returns>
+        public static IntPtr Eval(string statement, string name)
+        {
+            lock (SyncRoot)
+            {
+                IntPtr val = InternalEval(statement);
+                if (!string.IsNullOrWhiteSpace(name))
+                    InternalSetVariable(name, val);
+                return val;
+            }
         }
 
         /// <summary>
@@ -601,25 +622,33 @@ namespace MDo.Interop.R
         /// </summary>
         /// <param name="val">A pointer to an R expression in unmanaged memory.</param>
         /// <returns>An array of CLR objects.</returns>
-        public static RVector RsxprPtrToClrValue(IntPtr val, Func<IntPtr, RVector> initRVectorFromRsxpr = null)
+        internal static RVector RsxprPtrToClrValue(IntPtr val, Func<IntPtr, RVector> initRVectorFromRsxpr = null)
         {
             if (val == IntPtr.Zero)
                 return null;
 
-            RSEXPREC ans = RSEXPREC.FromPointer(val);
-            RVector vector;
-            if (null != initRVectorFromRsxpr)
-                vector = initRVectorFromRsxpr(val);
-            else
-                vector = new RVector(new object[ans.Content.VLength, 1]);
-
-            IList<object> values = ans.ValSxp_Get(val, ans.Content.VLength);
-            int numRows = vector.NumRows;
-            for (int i = 0; i < ans.Content.VLength; i++)
+            IntPtr pVal = Rf_protect(val);
+            try
             {
-                vector.Values[i%numRows, i/numRows] = values[i];
+                RSEXPREC ans = RSEXPREC.FromPointer(val);
+                RVector vector;
+                if (null != initRVectorFromRsxpr)
+                    vector = initRVectorFromRsxpr(val);
+                else
+                    vector = new RVector(new object[ans.Content.VLength, 1]);
+
+                IList<object> values = ans.ValSxp_Get(val, ans.Content.VLength);
+                int numRows = vector.NumRows;
+                for (int i = 0; i < ans.Content.VLength; i++)
+                {
+                    vector.Values[i % numRows, i / numRows] = values[i];
+                }
+                return vector;
             }
-            return vector;
+            finally
+            {
+                Rf_unprotect_ptr(pVal);
+            }
         }
 
         /// <summary>
@@ -636,56 +665,50 @@ namespace MDo.Interop.R
         }
 
         /// <summary>
-        /// Declares and sets the value of a variable as an R expression in R's global environment.
-        /// </summary>
-        /// <param name="name">The name to refer to the variable by.</param>
-        /// <param name="expression">An R expression that will be evaluated and assigned to the variable.</param>
-        /// <returns>A pointer to the evaluated expression assigned to the variable.</returns>
-        public static IntPtr SetVariable(string name, string expression)
-        {
-            IntPtr val = InternalEval(expression);
-            InternalSetVariable(name, val);
-            return val;
-        }
-
-        /// <summary>
-        /// Declares and sets the value of a private variable as an R expression in R's global environment.
-        /// </summary>
-        /// <remarks>
-        /// This method is intended for use only within the R-Interop project.  A prefix will be appended
-        /// to the variable name.
-        /// </remarks>
-        /// <param name="name">The name to refer to the variable by.</param>
-        /// <param name="expression">An R expression that will be evaluated and assigned to the variable.</param>
-        /// <returns>A pointer to the evaluated expression assigned to the variable.</returns>
-        internal static IntPtr SetPrivateVariable(string name, string expression)
-        {
-            return SetVariable(MakePrivateVariable(name), expression);
-        }
-
-        /// <summary>
         /// Declares and sets the value of a variable from a pointer to an evaluated R expression.
         /// </summary>
         /// <param name="name">The name to refer to the variable by.</param>
         /// <param name="val">A pointer to an evaluated R expression.</param>
-        public static void InternalSetVariable(string name, IntPtr val)
+        private static void InternalSetVariable(string name, IntPtr val)
         {
             IntPtr sym = Rf_install(name);
-            Rf_setVar(sym, val, R_GlobalEnv);
+            Rf_setVar(sym, val, R_GlobalEnvPtr);
         }
 
         /// <summary>
         /// Declares and sets the value of a variable from a pointer to an evaluated R expression.
         /// </summary>
-        /// <remarks>
-        /// This method is intended for use only within the R-Interop project.  A prefix will be appended
-        /// to the variable name.
-        /// </remarks>
         /// <param name="name">The name to refer to the variable by.</param>
         /// <param name="val">A pointer to an evaluated R expression.</param>
-        internal static void InternalSetPrivateVariable(string name, IntPtr val)
+        public static void SetVariable(string name, IntPtr val)
         {
-            InternalSetVariable(MakePrivateVariable(name), val);
+            if (string.IsNullOrWhiteSpace(name))
+                throw new ArgumentNullException("name");
+
+            if (IntPtr.Zero == val)
+                throw new ArgumentNullException("val");
+
+            // Concurrency support in R is not well understood.
+            lock (SyncRoot)
+            {
+                InternalSetVariable(name, val);
+            }
+        }
+
+        /// <summary>
+        /// Sets a variable to R's null pointer.
+        /// </summary>
+        /// <param name="name">The name of the variable.</param>
+        public static void ClearVariable(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+                throw new ArgumentNullException("name");
+
+            // Concurrency support in R is not well understood.
+            lock (SyncRoot)
+            {
+                InternalSetVariable(name, R_NullPtr);
+            }
         }
 
         /// <summary>
@@ -693,22 +716,13 @@ namespace MDo.Interop.R
         /// </summary>
         /// <param name="name">The name of the variable.</param>
         /// <returns>A pointer to the variable's evaluated expression.</returns>
-        public static IntPtr InternalGetVariable(string name)
+        public static IntPtr GetVariablePtr(string name)
         {
-            return Rf_findVar(Rf_install(name), R_GlobalEnv);
-        }
-
-        /// <summary>
-        /// Looks up a private variable from R's global environment and returns the pointer to its evaluated expression.
-        /// </summary>
-        /// <remarks>
-        /// This method is intended for use only within the R-Interop project.
-        /// </remarks>
-        /// <param name="name">The name of the variable.</param>
-        /// <returns>A pointer to the variable's evaluated expression.</returns>
-        internal static IntPtr InternalGetPrivateVariable(string name)
-        {
-            return InternalGetVariable(MakePrivateVariable(name));
+            // Concurrency support in R is not well understood.
+            lock (SyncRoot)
+            {
+                return Rf_findVar(Rf_install(name), R_GlobalEnvPtr);
+            }
         }
 
         /// <summary>
@@ -720,20 +734,7 @@ namespace MDo.Interop.R
         /// <returns>The value of the variable as an array of CLR objects.</returns>
         public static RVector GetVariable(string name, Func<IntPtr, RVector> initRVectorFromRsxpr = null)
         {
-            return RsxprPtrToClrValue(InternalGetVariable(name), initRVectorFromRsxpr);
-        }
-
-        /// <summary>
-        /// Looks up a private variable from R's global environment and returns its value as an array of CLR objects.
-        /// </summary>
-        /// <remarks>
-        /// This method is intended for use only within the R-Interop project.
-        /// </remarks>
-        /// <param name="name">The name of the variable.</param>
-        /// <returns>The value of the variable as an array of CLR objects.</returns>
-        internal static RVector GetPrivateVariable(string name)
-        {
-            return GetVariable(MakePrivateVariable(name));
+            return RsxprPtrToClrValue(GetVariablePtr(name), initRVectorFromRsxpr);
         }
 
         /// <summary>
@@ -772,7 +773,7 @@ namespace MDo.Interop.R
         /// <summary>
         /// Gets the version of R-Interop.
         /// </summary>
-        public static string Verion     { get { return "2.14.2"; } }
+        public static string Version    { get { return "2.14.2"; } }
 
         /// <summary>
         /// Gets or sets the version of R that the R-Interop is linked to.
@@ -788,6 +789,8 @@ namespace MDo.Interop.R
         /// Gets or sets the home folder of the runas user.
         /// </summary>
         public static string RUserHome  { get; private set; }
+
+        internal static IntPtr NullPtr  { get { return R_NullPtr; } }
 
         #endregion Properties
 
@@ -866,19 +869,6 @@ namespace MDo.Interop.R
                 return path;
             else
                 return Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), path);
-        }
-
-        /// <summary>
-        /// Makes a variable private by appending a prefix to its name.
-        /// </summary>
-        /// <remarks>
-        /// This method is intended for use only within the R-Interop project.
-        /// </remarks>
-        /// <param name="name">The name of a variable.</param>
-        /// <returns>The private representation of the variable's name.</returns>
-        internal static string MakePrivateVariable(string name)
-        {
-            return "priv_" + name;
         }
 
         #endregion Helper Methods

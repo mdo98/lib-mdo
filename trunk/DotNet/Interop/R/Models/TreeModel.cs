@@ -11,20 +11,20 @@ namespace MDo.Interop.R.Models
     {
         static TreeModel()
         {
-            RInterop.InternalEval("library(rpart)");
+            RInterop.Eval("library(rpart)", null);
         }
 
 
         #region Constructors
 
-        public TreeModel(ModelPurpose purpose, ModelFormula formula = ModelFormula.Linear)
-            : base(purpose)
+        public TreeModel(string name, ModelPurpose purpose, ModelFormula formula = ModelFormula.Linear)
+            : base(name, purpose)
         {
             this.Formula = formula;
         }
 
-        public TreeModel(IntPtr ptr, ModelPurpose purpose, ModelFormula formula = ModelFormula.Linear)
-            : base(ptr, purpose)
+        public TreeModel(IntPtr ptr, string name, ModelPurpose purpose, ModelFormula formula = ModelFormula.Linear)
+            : base(ptr, name, purpose)
         {
             this.Formula = formula;
         }
@@ -43,7 +43,7 @@ namespace MDo.Interop.R.Models
 
         public override void Train(RVector observed_X, RVector observed_Y)
         {
-            this.SetModelPtr(GenerateRModel(observed_X, observed_Y, this.Formula, this.Purpose));
+            this.SetPtr(GenerateRModel(this.Name, observed_X, observed_Y, this.Formula, this.Purpose, this.Config));
         }
 
         protected override bool ParametersAvailable { get { return false; } }
@@ -55,12 +55,7 @@ namespace MDo.Interop.R.Models
 
         protected override RVector PredictFromParameters(RVector unknown_X)
         {
-            throw new NotImplementedException();
-        }
-
-        protected override RVector RVectorFromRSxprResultPtr(IntPtr val)
-        {
-            return RSxprUtils.RVectorFromStdRSxpr(val);
+            throw new NotSupportedException();
         }
 
         #endregion Model
@@ -68,7 +63,7 @@ namespace MDo.Interop.R.Models
 
         #region Static Methods
 
-        private static IntPtr GenerateRModel(RVector observed_X, RVector observed_Y, ModelFormula formula, ModelPurpose purpose)
+        private static IntPtr GenerateRModel(string name, RVector observed_X, RVector observed_Y, ModelFormula formula, ModelPurpose purpose, string config = null)
         {
             if (null == observed_X)
                 throw new ArgumentNullException("observed_X");
@@ -104,23 +99,36 @@ namespace MDo.Interop.R.Models
                     throw new ArgumentOutOfRangeException("purpose");
             }
 
-            /* rpart(formula, method = "method", data = data)
+            /* rpart(formula, method = "method", data = data, control = config)
              */
-            return GenerateRModelHelper(observed_X, observed_Y, (string data) => string.Format("rpart({0}, method = \"{1}\", data = {2})", getFormula(numFeatures), method, data));
+            Func<string, string> getModelExprForData = (string data) =>
+            {
+                StringBuilder expr = new StringBuilder();
+                expr.AppendFormat("rpart({0}, method = \"{1}\", data = {2}", getFormula(numFeatures), method, data);
+                if (!string.IsNullOrWhiteSpace(config))
+                    expr.AppendFormat(", control = rpart.control({0})", config);
+                expr.Append(")");
+                return expr.ToString();
+            };
+            return GenerateRModelHelper(name, observed_X, observed_Y, getModelExprForData);
         }
 
-        public static TreeModel LinearModelForClassification(RVector observed_X, RVector observed_Y)
+        public static TreeModel LinearModelForClassification(RVector observed_X, RVector observed_Y, string config = null, string name = null)
         {
+            if (string.IsNullOrWhiteSpace(name))
+                name = AutoName<TreeModel>();
             ModelFormula formula = ModelFormula.Linear;
             ModelPurpose purpose = ModelPurpose.Classification;
-            return new TreeModel(GenerateRModel(observed_X, observed_Y, formula, purpose), purpose, formula);
+            return new TreeModel(GenerateRModel(name, observed_X, observed_Y, formula, purpose, config), name, purpose, formula);
         }
 
-        public static TreeModel LinearModelForRegression(RVector observed_X, RVector observed_Y)
+        public static TreeModel LinearModelForRegression(RVector observed_X, RVector observed_Y, string config = null, string name = null)
         {
+            if (string.IsNullOrWhiteSpace(name))
+                name = AutoName<TreeModel>();
             ModelFormula formula = ModelFormula.Linear;
             ModelPurpose purpose = ModelPurpose.Regression;
-            return new TreeModel(GenerateRModel(observed_X, observed_Y, formula, purpose), purpose, formula);
+            return new TreeModel(GenerateRModel(name, observed_X, observed_Y, formula, purpose, config), name, purpose, formula);
         }
 
         #endregion Static Methods
