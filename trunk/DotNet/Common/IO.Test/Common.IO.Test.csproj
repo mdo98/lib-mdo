@@ -55,11 +55,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="data\SP500.csv">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\App\Common.App.csproj">
       <Project>{977159D4-FDB7-447E-8D09-04C4A7F88E52}</Project>
       <Name>Common.App</Name>
