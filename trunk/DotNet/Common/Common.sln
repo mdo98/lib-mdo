@@ -20,6 +20,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.Numerics", "Numerics
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.Numerics.Test", "Numerics.Test\Common.Numerics.Test.csproj", "{98A1EB7A-E1E6-44C8-986C-04F539C745B8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.Data", "Data\Common.Data.csproj", "{8554F4BF-5DD8-4CDC-AE4C-0C539F12F414}"
+EndProject
 Global
 	GlobalSection(SubversionScc) = preSolution
 		Svn-Managed = True
@@ -57,6 +59,10 @@ Global
 		{98A1EB7A-E1E6-44C8-986C-04F539C745B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{98A1EB7A-E1E6-44C8-986C-04F539C745B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{98A1EB7A-E1E6-44C8-986C-04F539C745B8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8554F4BF-5DD8-4CDC-AE4C-0C539F12F414}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8554F4BF-5DD8-4CDC-AE4C-0C539F12F414}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8554F4BF-5DD8-4CDC-AE4C-0C539F12F414}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8554F4BF-5DD8-4CDC-AE4C-0C539F12F414}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
