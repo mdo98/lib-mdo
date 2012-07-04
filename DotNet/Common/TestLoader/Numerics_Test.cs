@@ -30,6 +30,7 @@ namespace MDo.Common.TestLoader
         [TestCategory("Numerics_Test"), TestMethod]
         public void Rng_TestRngs()
         {
+            Console.WriteLine(Environment.CurrentDirectory);
             Numerics_RNG_RandomnessCheck.Run();
         }
 
