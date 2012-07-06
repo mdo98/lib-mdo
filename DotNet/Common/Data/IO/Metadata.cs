@@ -7,8 +7,6 @@ namespace MDo.Common.Data.IO
 {
     public class Metadata
     {
-        private const int DefaultPageSize = 10000;
-
         internal Metadata(string folderName, string fileName)
         {
             if (string.IsNullOrWhiteSpace(folderName))
@@ -19,19 +17,27 @@ namespace MDo.Common.Data.IO
 
             this.FolderName = folderName;
             this.FileName = fileName;
+        }
 
-            this.PageSize = DefaultPageSize;
+        internal Metadata(Metadata metadata)
+        {
+            if (null == metadata)
+                throw new ArgumentNullException("metadata");
+
+            this.FolderName = metadata.FolderName;
+            this.FileName   = metadata.FileName;
+            this.FieldNames = metadata.FieldNames;
+            this.FieldTypes = metadata.FieldTypes;
+            this.ItemCount  = metadata.ItemCount;
+            this.Desc       = metadata.Desc;
         }
 
         public string   FolderName      { get; private set;  }
         public string   FileName        { get; private set;  }
         public string[] FieldNames      { get; internal set; }
         public Type[]   FieldTypes      { get; internal set; }
-        public short    DefaultField    { get; internal set; }
         public long     ItemCount       { get; internal set; }
         public string   Desc            { get; internal set; }
-
-        public int      PageSize        { get; internal set; }
 
         public bool SchemaEquals(Metadata other)
         {

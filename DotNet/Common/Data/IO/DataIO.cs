@@ -8,40 +8,7 @@ namespace MDo.Common.Data.IO
 {
     public static class DataIO
     {
-        internal const string MetaSchemaResx = "DataIO.sql";
-        internal const string MetaSchemaName = "DataIO";
-
-        public static void ProvisionDatabase(string connString)
-        {
-            string script;
-            Type thisType = typeof(DataIO);
-            using (Stream resxStream = thisType.Assembly.GetManifestResourceStream(string.Format(
-                   "{0}.{1}", thisType.Namespace, DataIO.MetaSchemaResx)))
-            {
-                using (TextReader reader = new StreamReader(resxStream))
-                {
-                    script = reader.ReadToEnd();
-                }
-            }
-            SqlUtility.ExecuteSqlScript(connString, script);
-        }
-
-        public static void ProvisionDatabase(string server, string database, string userId, string password)
-        {
-            string script;
-            Type thisType = typeof(DataIO);
-            using (Stream resxStream = thisType.Assembly.GetManifestResourceStream(string.Format(
-                   "{0}.{1}", thisType.Namespace, DataIO.MetaSchemaResx)))
-            {
-                using (TextReader reader = new StreamReader(resxStream))
-                {
-                    script = reader.ReadToEnd();
-                }
-            }
-            SqlUtility.ExecuteSqlScript(server, database, userId, password, script);
-        }
-
-        public static void ImportData(IDataProvider src, IDataManager dest, bool append)
+        public static void CopyData(IDataProvider src, IDataManager dest, CopyOptions options)
         {
             ICollection<Exception> exceptions = new List<Exception>();
             foreach (string folderName in src.ListFolders())
@@ -54,21 +21,18 @@ namespace MDo.Common.Data.IO
 
                         if (!dest.FileExists(folderName, fileName))
                         {
-                            long srcItemCount = srcMetadata.ItemCount;
-                            srcMetadata.ItemCount = 0L;
                             dest.AddFile(srcMetadata);
-                            srcMetadata.ItemCount = srcItemCount;
                         }
                         else
                         {
-                            if (!append)
+                            if (!options.AppendDest)
                                 dest.ClearItems(folderName, fileName);
 
                             dest.EditFile(srcMetadata);
                         }
 
                         Metadata destMetadata = dest.GetMetadata(folderName, fileName);
-                        long startIndx = destMetadata.ItemCount;
+                        long startIndx = options.EchoSource ? 0L : destMetadata.ItemCount;
                         long numItems = srcMetadata.ItemCount - startIndx;
 
                         if (numItems <= 0L)

@@ -13,5 +13,6 @@ namespace MDo.Common.Data.IO
         Metadata GetMetadata(string folderName, string fileName);
         object[] GetItem(string folderName, string fileName, long indx);
         ICollection<object[]> GetItems(string folderName, string fileName, long startIndx, long numItems);
+        ICollection<object[]> GetItems(string folderName, string fileName);
     }
 }
