@@ -52,12 +52,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IO\CopyOptions.cs" />
     <Compile Include="IO\DataIO.cs" />
     <Compile Include="IO\IDataManager.cs" />
     <Compile Include="IO\IDataProvider.cs" />
     <Compile Include="IO\SqlDataManager.cs" />
+    <Compile Include="IO\SqlMetadata.cs" />
     <Compile Include="IO\TextDataManager.cs" />
     <Compile Include="IO\Metadata.cs" />
+    <Compile Include="IO\TextMetadata.cs" />
     <Compile Include="SqlUtility.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -66,9 +69,6 @@
       <Project>{977159D4-FDB7-447E-8D09-04C4A7F88E52}</Project>
       <Name>Common.App</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="IO\DataIO.sql" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

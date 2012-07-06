@@ -7,11 +7,11 @@ using MDo.Common.App.CLI;
 
 namespace MDo.Common.Data.IO.Test
 {
-    public class TransferData : ConsoleAppModule
+    public class CopyData : ConsoleAppModule
     {
         public static void Run(
             bool toDb, string baseDir, string server, string database, string userId, string password,
-            bool append = false, bool encrypt = false)
+            bool echoSource = false, bool appendDest = false, bool encrypt = false)
         {
             bool encryptState = SqlUtility.EncryptConnection;
             SqlUtility.EncryptConnection = encrypt;
@@ -22,6 +22,9 @@ namespace MDo.Common.Data.IO.Test
             IDataManager dest;
             if (toDb)
             {
+                if (!SqlUtility.DatabaseExists(server, database, userId, password))
+                    SqlUtility.CreateDatabase(server, database, userId, password);
+
                 src = txtDataMgr;
                 dest = sqlDataMgr;
             }
@@ -30,7 +33,12 @@ namespace MDo.Common.Data.IO.Test
                 src = sqlDataMgr;
                 dest = txtDataMgr;
             }
-            DataIO.ImportData(src, dest, append);
+            CopyOptions options = new CopyOptions()
+            {
+                EchoSource = echoSource,
+                AppendDest = appendDest,
+            };
+            DataIO.CopyData(src, dest, options);
             SqlUtility.EncryptConnection = encryptState;
         }
 
@@ -40,7 +48,7 @@ namespace MDo.Common.Data.IO.Test
             string baseDir = string.Empty;
             string server = string.Empty, database = string.Empty,
                    userId = string.Empty, password = string.Empty;
-            bool append = false, encrypt = false;
+            bool echoSource = false, appendDest = false, encrypt = false;
 
             if (null != args && args.Length > 0)
             {
@@ -77,8 +85,12 @@ namespace MDo.Common.Data.IO.Test
                             password = kv[1].Trim();
                             break;
 
+                        case "ECHO":
+                            echoSource = bool.Parse(kv[1].Trim());
+                            break;
+
                         case "APPEND":
-                            append = bool.Parse(kv[1].Trim());
+                            appendDest = bool.Parse(kv[1].Trim());
                             break;
 
                         case "ENCRYPT":
@@ -170,13 +182,13 @@ namespace MDo.Common.Data.IO.Test
                 password = password.Trim();
             }
 
-            Run(toDb, baseDir, server, database, userId, password, append, encrypt);
+            Run(toDb, baseDir, server, database, userId, password, echoSource, appendDest, encrypt);
         }
 
         public override void PrintUsage()
         {
             Console.WriteLine("{0}: [TXT2DB / DB2TXT] [DIR=(baseDir)] [SRV=(server)] [DB=(database)] [UID=(userId)] [PWD=(password)]", this.Name);
-            Console.WriteLine("[OPT: APPEND=(true/FALSE)] [OPT: ENCRYPT=(true/FALSE)]");
+            Console.WriteLine("[OPT: ECHO=(true/FALSE)] [OPT: APPEND=(true/FALSE)] [OPT: ENCRYPT=(true/FALSE)]");
             Console.WriteLine("\tUID=(WAuth) to use Integrated Security.");
         }
     }

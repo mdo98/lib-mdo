@@ -53,7 +53,7 @@ namespace MDo.Common.Data.IO
             if (string.IsNullOrWhiteSpace(fileName))
                 throw new ArgumentNullException("fileName");
 
-            Metadata metadata = new Metadata(folderName, fileName);
+            TextMetadata metadata = new TextMetadata(folderName, fileName);
             using (Stream inStream = File.OpenRead(this.GetMetaPath(folderName, fileName)))
             {
                 using (TextReader reader = new StreamReader(inStream))
@@ -66,33 +66,7 @@ namespace MDo.Common.Data.IO
 
         public object[] GetItem(string folderName, string fileName, long indx)
         {
-            if (string.IsNullOrWhiteSpace(folderName))
-                throw new ArgumentNullException("folderName");
-
-            if (string.IsNullOrWhiteSpace(fileName))
-                throw new ArgumentNullException("fileName");
-
-            if (indx < 0L)
-                throw new ArgumentOutOfRangeException("indx");
-
-            Metadata metadata = this.GetMetadata(folderName, fileName);
-            if (indx >= metadata.ItemCount)
-                throw new ArgumentOutOfRangeException("indx");
-
-            long page = indx / metadata.PageSize, pageIndx = indx % metadata.PageSize;
-
-            object[] item;
-            using (Stream inStream = File.OpenRead(this.GetDataPath(folderName, fileName, page)))
-            {
-                using (TextReader reader = new StreamReader(inStream))
-                {
-                    for (long i = 0; i < pageIndx; i++)
-                        reader.ReadLine();
-
-                    item = ReadItem(reader, metadata.FieldTypes);
-                }
-            }
-            return item;
+            return this.GetItems(folderName, fileName, indx, 1L).FirstOrDefault();
         }
 
         public ICollection<object[]> GetItems(string folderName, string fileName, long startIndx, long numItems)
@@ -111,11 +85,11 @@ namespace MDo.Common.Data.IO
 
             ICollection<object[]> items = new List<object[]>();
 
-            Metadata metadata = this.GetMetadata(folderName, fileName);
+            TextMetadata metadata = (TextMetadata)this.GetMetadata(folderName, fileName);
             if (startIndx >= metadata.ItemCount)
                 return items;
 
-            long endIndx = Math.Min(startIndx + numItems, metadata.ItemCount);
+            long endIndx = Math.Min(startIndx+numItems, metadata.ItemCount);
 
             long startPage = startIndx / metadata.PageSize,
                  endPage = endIndx / metadata.PageSize;
@@ -132,6 +106,37 @@ namespace MDo.Common.Data.IO
                     numItemsToSkip = (int)(startIndx % metadata.PageSize);
 
                 numItemsToRead -= numItemsToSkip;
+
+                using (Stream inStream = File.OpenRead(this.GetDataPath(folderName, fileName, p)))
+                {
+                    using (TextReader reader = new StreamReader(inStream))
+                    {
+                        for (int i = 0; i < numItemsToRead; i++)
+                        {
+                            items.Add(ReadItem(reader, metadata.FieldTypes));
+                        }
+                    }
+                }
+            }
+            return items;
+        }
+
+        public ICollection<object[]> GetItems(string folderName, string fileName)
+        {
+            if (string.IsNullOrWhiteSpace(folderName))
+                throw new ArgumentNullException("folderName");
+
+            if (string.IsNullOrWhiteSpace(fileName))
+                throw new ArgumentNullException("fileName");
+
+            ICollection<object[]> items = new List<object[]>();
+
+            TextMetadata metadata = (TextMetadata)this.GetMetadata(folderName, fileName);
+            long endPage = metadata.ItemCount / metadata.PageSize;
+
+            for (long p = 0L; p <= endPage; p++)
+            {
+                int numItemsToRead = (p != endPage ? metadata.PageSize : (int)(metadata.ItemCount % metadata.PageSize));
 
                 using (Stream inStream = File.OpenRead(this.GetDataPath(folderName, fileName, p)))
                 {
@@ -200,7 +205,7 @@ namespace MDo.Common.Data.IO
             {
                 using (TextWriter writer = new StreamWriter(outStream))
                 {
-                    WriteMetadata(writer, metadata);
+                    WriteMetadata(writer, new TextMetadata(metadata) { ItemCount = 0L });
                 }
             }
         }
@@ -242,21 +247,14 @@ namespace MDo.Common.Data.IO
                     metadata.FolderName,
                     metadata.FileName));
 
-            Metadata fileMetadata = this.GetMetadata(metadata.FolderName, metadata.FileName);
+            TextMetadata fileMetadata = (TextMetadata)this.GetMetadata(metadata.FolderName, metadata.FileName);
 
-            if (fileMetadata.DefaultField != metadata.DefaultField)
-            {
-                fileMetadata.DefaultField = metadata.DefaultField;
-            }
-            else if (fileMetadata.Desc != metadata.Desc)
+            if (fileMetadata.Desc != metadata.Desc)
             {
                 fileMetadata.Desc = metadata.Desc;
             }
             else if (!fileMetadata.SchemaEquals(metadata))
             {
-                if (metadata.PageSize <= 0)
-                    throw new ArgumentOutOfRangeException("metadata.PageSize");
-
                 this.DeleteDataFiles(fileMetadata);
                 fileMetadata.ItemCount = 0L;
 
@@ -292,7 +290,7 @@ namespace MDo.Common.Data.IO
             if (null == items)
                 throw new ArgumentNullException("items");
 
-            Metadata metadata = this.GetMetadata(folderName, fileName);
+            TextMetadata metadata = (TextMetadata)this.GetMetadata(folderName, fileName);
             var itemIterator = items.GetEnumerator();
             bool hasNext = itemIterator.MoveNext();
             while (hasNext)
@@ -334,7 +332,7 @@ namespace MDo.Common.Data.IO
             if (string.IsNullOrWhiteSpace(fileName))
                 throw new ArgumentNullException("fileName");
 
-            Metadata metadata = this.GetMetadata(folderName, fileName);
+            TextMetadata metadata = (TextMetadata)this.GetMetadata(folderName, fileName);
             this.DeleteDataFiles(metadata);
             metadata.ItemCount = 0L;
             using (Stream outStream = File.Open(this.GetMetaPath(folderName, fileName), FileMode.Truncate, FileAccess.Write, FileShare.None))
@@ -354,7 +352,7 @@ namespace MDo.Common.Data.IO
             if (string.IsNullOrWhiteSpace(fileName))
                 throw new ArgumentNullException("fileName");
 
-            Metadata metadata = this.GetMetadata(folderName, fileName);
+            TextMetadata metadata = (TextMetadata)this.GetMetadata(folderName, fileName);
             File.Delete(this.GetMetaPath(folderName, fileName));
             this.DeleteDataFiles(metadata);
         }
@@ -374,7 +372,7 @@ namespace MDo.Common.Data.IO
             return Path.Combine(this.BaseDir, folderName, string.Format("{0}{1}", fileName, MetaFileExtension));
         }
 
-        private static void ReadMetadata(TextReader reader, Metadata metadata)
+        private static void ReadMetadata(TextReader reader, TextMetadata metadata)
         {
             metadata.Desc = reader.ReadLine();
 
@@ -449,14 +447,6 @@ namespace MDo.Common.Data.IO
             metadata.FieldNames = new string[numCols];
             metadata.FieldTypes = new Type[numCols];
 
-            string[] defaultColMeta = SplitStringAndCheck(reader.ReadLine(), "=", 2);
-            if (defaultColMeta[0].Trim().ToLowerInvariant() != Header_DefaultDim_Identifier)
-                ThrowInvalidDataStream(string.Format(
-                    "Metadata: '{0}' expected, found '{1}'",
-                    Header_DefaultDim_Identifier,
-                    defaultColMeta[0]));
-            string defaultColName = defaultColMeta[1].Trim();
-
             ISet<string> colNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             string[] colMetadata = SplitStringAndCheck(reader.ReadLine(), "\t", numCols);
             for (short j = 0; j < numCols; j++)
@@ -466,25 +456,19 @@ namespace MDo.Common.Data.IO
                 string colName = colNameAndType[0].Trim();
                 if (colNames.Contains(colName))
                     ThrowInvalidDataStream(string.Format(
-                        "Metadata: '{0}' is applied to more than one dimension",
+                        "Metadata: '{0}' is applied to more than one field",
                         colName));
+                colNames.Add(colName);
 
                 Type colType = Type.GetType(colNameAndType[1].Trim());
                 if (null == colType)
                     ThrowInvalidDataStream(string.Format(
-                        "Metadata: '{0}' is not a valid type",
+                        "Metadata: '{0}' is not a valid CLR type",
                         colNameAndType[1].Trim()));
 
                 metadata.FieldNames[j] = colName;
                 metadata.FieldTypes[j] = colType;
             }
-
-            metadata.DefaultField = (short)metadata.FieldNames
-                .Select(item => item.ToUpperInvariant()).ToList()
-                .IndexOf(defaultColName.ToUpperInvariant());
-
-            if (metadata.DefaultField < 0)
-                ThrowInvalidDataStream("Metadata: Default field definition not found");
         }
 
         private static object[] ReadItem(TextReader reader, Type[] dimTypes)
@@ -498,14 +482,13 @@ namespace MDo.Common.Data.IO
             return item;
         }
 
-        private static void WriteMetadata(TextWriter writer, Metadata metadata)
+        private static void WriteMetadata(TextWriter writer, TextMetadata metadata)
         {
             writer.WriteLine(metadata.Desc ?? string.Empty);
             writer.WriteLine(string.Format("{0} {1}", metadata.ItemCount, Header_ItemCount_Identifier));
             writer.WriteLine(string.Format("{0} {1}", metadata.PageSize, Header_PageSize_Identifier));
             writer.WriteLine(string.Format("{0} {1}", metadata.FieldNames.Length, Header_FieldCount_Identifier));
             writer.WriteLine();
-            writer.WriteLine(string.Format("{0}={1}", Header_DefaultDim_Identifier, metadata.FieldNames[metadata.DefaultField]));
             for (short j = 0; j < metadata.FieldNames.Length; j++)
             {
                 writer.Write("{0}::{1}", metadata.FieldNames[j], metadata.FieldTypes[j].FullName);
@@ -531,7 +514,7 @@ namespace MDo.Common.Data.IO
             }
         }
 
-        private void DeleteDataFiles(Metadata metadata)
+        private void DeleteDataFiles(TextMetadata metadata)
         {
             long page = metadata.ItemCount / metadata.PageSize;
             for (long p = 0; p <= page; p++)
