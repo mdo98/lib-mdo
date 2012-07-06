@@ -127,7 +127,7 @@ namespace MDo.Common.Data.IO
 
                     foreach (DataRow row in schemaTable.Rows)
                     {
-                        if (((string)row["ColumnName"]).Equals("Id", StringComparison.OrdinalIgnoreCase) &&
+                        if (((string)row["ColumnName"]).Equals("_ID_", StringComparison.OrdinalIgnoreCase) &&
                             (Type)row["DataType"] == typeof(long) &&
                             (bool)row["AllowDBNull"] == false)
                         {
@@ -143,7 +143,7 @@ namespace MDo.Common.Data.IO
                             cmd2.Transaction = cmd.Transaction;
 
                             cmd2.CommandType = CommandType.Text;
-                            cmd2.CommandText = string.Format("SELECT COUNT_BIG(Id), MIN(Id), MAX(Id) FROM {0};", qualifiedTableName);
+                            cmd2.CommandText = string.Format("SELECT COUNT_BIG(_ID_), MIN(_ID_), MAX(_ID_) FROM {0};", qualifiedTableName);
                             cmd2.Parameters.Clear();
 
                             using (SqlDataReader reader2 = cmd2.ExecuteReader())
@@ -223,7 +223,7 @@ namespace MDo.Common.Data.IO
 
                 cmd.CommandType = CommandType.Text;
                 cmd.CommandText = metadata.SupportsIndexing
-                    ? string.Format("SELECT TOP({2}) * FROM {0} WHERE Id >= {1};", qualifiedTableName, (metadata.StartIndex ?? 0L) + startIndx, numItems)
+                    ? string.Format("SELECT TOP({2}) * FROM {0} WHERE _ID_ >= {1};", qualifiedTableName, (metadata.StartIndex ?? 0L) + startIndx, numItems)
                     : string.Format("SELECT TOP({1}) * FROM {0};", qualifiedTableName, startIndx+numItems);
                 cmd.Parameters.Clear();
 
@@ -462,7 +462,16 @@ namespace MDo.Common.Data.IO
                 cmd.CommandText = string.Format("TRUNCATE TABLE {0};", GetQualifiedObjectName(folderName, fileName));
                 cmd.Parameters.Clear();
 
-                return cmd.ExecuteNonQuery();
+                cmd.ExecuteNonQuery();
+
+
+                cmd.CommandType = CommandType.Text;
+                cmd.CommandText = string.Format("DBCC CHECKIDENT('{0}', RESEED, 0);", GetQualifiedObjectName(folderName, fileName));
+                cmd.Parameters.Clear();
+
+                cmd.ExecuteNonQuery();
+
+                return null;
             }, ShouldThrowOnDbOperationException);
         }
 
@@ -517,7 +526,7 @@ namespace MDo.Common.Data.IO
             int numDims = metadata.FieldNames.Length;
             {
                 StringBuilder cmdText = new StringBuilder();
-                cmdText.AppendFormat("CREATE TABLE {0} (Id BIGINT IDENTITY(0,1) PRIMARY KEY", qualifiedTableName);
+                cmdText.AppendFormat("CREATE TABLE {0} (_ID_ BIGINT IDENTITY(0,1) PRIMARY KEY", qualifiedTableName);
                 for (int j = 0; j < numDims; j++)
                 {
                     cmdText.AppendFormat(", [{0}] {1}", metadata.FieldNames[j], SqlUtility.ToSqlType(metadata.FieldTypes[j]));
