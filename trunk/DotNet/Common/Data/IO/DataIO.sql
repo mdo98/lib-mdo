@@ -8,7 +8,7 @@ GO
 /* Table: Folders */
 
 CREATE TABLE [DataIO].[Folders]
-  ([Id] BIGINT IDENTITY(1,1) NOT NULL
+  ([Id] BIGINT IDENTITY(0,1) NOT NULL
   ,[Name] VARCHAR(128) NOT NULL
   );
 GO
@@ -32,7 +32,7 @@ GO
 
 CREATE TABLE [DataIO].[Files]
   ([FolderId] BIGINT NOT NULL
-  ,[FileId] BIGINT IDENTITY(1,1) NOT NULL
+  ,[FileId] BIGINT IDENTITY(0,1) NOT NULL
   ,[Name] VARCHAR(128) NOT NULL
   ,[DfltColIndx] SMALLINT NOT NULL
   ,[Desc] NVARCHAR(MAX)
@@ -181,12 +181,14 @@ BEGIN
     ([Name])
     VALUES
     (@FolderName);
+
+  SET @FolderId = SCOPE_IDENTITY();
 END
 
 INSERT INTO [Files]
-  ([FolderId], [Name], [Ref], [DfltColIndx], [Desc])
+  ([FolderId], [Name], [DfltColIndx], [Desc])
   VALUES
-  (@FolderId, @FileName, '', @DfltColIndx, @Desc);
+  (@FolderId, @FileName, @DfltColIndx, @Desc);
 END
 GO
 
@@ -236,67 +238,5 @@ BEGIN
    WHERE [FolderId] = @FolderId
      AND [Name] = @FileName;
 END
-END
-GO
-
-/* ============================================================ */
-/* Procedure: CountItems */
-
-CREATE PROCEDURE [DataIO].[CountItems]
-(@FolderName VARCHAR(MAX)
-,@FileName VARCHAR(MAX)
-)
-AS
-BEGIN
-DECLARE @CMD VARCHAR(MAX);
-SET @CMD = 'SELECT COUNT(*) FROM [' + @FolderName + '].[' + @FileName + '];';
-EXEC(@CMD);
-END
-GO
-
-/* ============================================================ */
-/* Procedure: ListItems */
-
-CREATE PROCEDURE [DataIO].[ListItems]
-(@FolderName VARCHAR(MAX)
-,@FileName VARCHAR(MAX)
-)
-AS
-BEGIN
-DECLARE @CMD VARCHAR(MAX);
-SET @CMD = 'SELECT * FROM [' + @FolderName + '].[' + @FileName + '];';
-EXEC(@CMD);
-END
-GO
-
-/* ============================================================ */
-/* Procedure: PeekItems */
-
-CREATE PROCEDURE [DataIO].[PeekItems]
-(@FolderName VARCHAR(MAX)
-,@FileName VARCHAR(MAX)
-,@NumItems BIGINT
-)
-AS
-BEGIN
-DECLARE @CMD VARCHAR(MAX);
-SET @CMD = 'SELECT TOP(' + CONVERT(VARCHAR(MAX), @NumItems) + ') * FROM [' + @FolderName + '].[' + @FileName + '];';
-EXEC(@CMD);
-END
-GO
-
-/* ============================================================ */
-/* Procedure: GetItem */
-
-CREATE PROCEDURE [DataIO].[GetItem]
-(@FolderName VARCHAR(MAX)
-,@FileName VARCHAR(MAX)
-,@ItemId BIGINT
-)
-AS
-BEGIN
-DECLARE @CMD VARCHAR(MAX);
-SET @CMD = 'SELECT * FROM [' + @FolderName + '].[' + @FileName + '] WHERE [Id] = ' + CONVERT(VARCHAR(MAX), @ItemId) + ';';
-EXEC(@CMD);
 END
 GO

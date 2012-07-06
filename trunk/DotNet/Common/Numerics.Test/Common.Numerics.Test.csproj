@@ -60,10 +60,6 @@
       <Project>{977159D4-FDB7-447E-8D09-04C4A7F88E52}</Project>
       <Name>Common.App</Name>
     </ProjectReference>
-    <ProjectReference Include="..\IO\Common.IO.csproj">
-      <Project>{E08B4654-FBCA-4C9D-9F20-35136D6AD344}</Project>
-      <Name>Common.IO</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Numerics\Common.Numerics.csproj">
       <Project>{32B7261A-CF53-4A10-AA11-FB3C5755BCD6}</Project>
       <Name>Common.Numerics</Name>

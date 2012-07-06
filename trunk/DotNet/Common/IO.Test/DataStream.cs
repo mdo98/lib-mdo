@@ -31,7 +31,7 @@ namespace MDo.Common.IO.Test
 
                 using (MemoryStream clearStream = new MemoryStream())
                 {
-                    using (Stream inStream = FS.OpenRead(testData))
+                    using (Stream inStream = File.OpenRead(testData))
                     {
                         inStream.Transfer(clearStream);
                     }

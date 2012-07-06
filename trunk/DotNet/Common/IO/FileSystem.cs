@@ -15,21 +15,6 @@ namespace MDo.Common.IO
 
     public static partial class FS
     {
-        public static FileStream OpenRead(string filePath)
-        {
-            return new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
-        }
-
-        public static FileStream OpenWrite(string filePath)
-        {
-            return new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.Read);
-        }
-
-        public static FileStream OpenReadWrite(string filePath)
-        {
-            return new FileStream(filePath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.Read);
-        }
-
         public static void ApplyFileOperation(IApplyFileOperation fileOperator, string path, bool recursive, object initialState, TextWriter log)
         {
             try

@@ -9,9 +9,6 @@ namespace MDo.Common.Data.IO
 {
     public class SqlDataManager : IDataManager
     {
-        private const string MetaSchemaResx = "DataIO.sql";
-        private const string MetaSchemaName = "DataIO";
-
         private readonly string DbConnString;
 
         public SqlDataManager(string connString)
@@ -27,7 +24,7 @@ namespace MDo.Common.Data.IO
             return (string[])SqlUtility.ExecuteDbOperation(this.DbConnString, (SqlCommand cmd) =>
             {
                 cmd.CommandType = CommandType.StoredProcedure;
-                cmd.CommandText = GetQualifiedObjectName(MetaSchemaName, "ListFolders");
+                cmd.CommandText = GetQualifiedObjectName(DataIO.MetaSchemaName, "ListFolders");
                 cmd.Parameters.Clear();
 
                 ICollection<string> classes = new List<string>();
@@ -48,7 +45,7 @@ namespace MDo.Common.Data.IO
             return (string[])SqlUtility.ExecuteDbOperation(this.DbConnString, (SqlCommand cmd) =>
             {
                 cmd.CommandType = CommandType.StoredProcedure;
-                cmd.CommandText = GetQualifiedObjectName(MetaSchemaName, "ListFiles");
+                cmd.CommandText = GetQualifiedObjectName(DataIO.MetaSchemaName, "ListFiles");
                 cmd.Parameters.Clear();
 
                 cmd.Parameters.Add("@FolderName", SqlDbType.VarChar).Value = folderName;
@@ -66,6 +63,24 @@ namespace MDo.Common.Data.IO
             }, ShouldThrowOnDbOperationException);
         }
 
+        public bool FileExists(string folderName, string fileName)
+        {
+            return (bool)SqlUtility.ExecuteDbOperation(this.DbConnString, (SqlCommand cmd) =>
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.CommandText = GetQualifiedObjectName(DataIO.MetaSchemaName, "FileExists");
+                cmd.Parameters.Clear();
+
+                cmd.Parameters.Add("@FolderName",   SqlDbType.VarChar).Value    = folderName;
+                cmd.Parameters.Add("@FileName",     SqlDbType.VarChar).Value    = fileName;
+                cmd.Parameters.Add("@Exists",       SqlDbType.Bit).Direction    = ParameterDirection.ReturnValue;
+
+                cmd.ExecuteNonQuery();
+
+                return cmd.Parameters["@Exists"].Value;
+            }, ShouldThrowOnDbOperationException);
+        }
+
         public Metadata GetMetadata(string folderName, string fileName)
         {
             if (string.IsNullOrWhiteSpace(folderName))
@@ -79,7 +94,7 @@ namespace MDo.Common.Data.IO
             SqlUtility.ExecuteDbOperation(this.DbConnString, (SqlCommand cmd) =>
             {
                 cmd.CommandType = CommandType.StoredProcedure;
-                cmd.CommandText = GetQualifiedObjectName(MetaSchemaName, "GetFile");
+                cmd.CommandText = GetQualifiedObjectName(DataIO.MetaSchemaName, "GetFile");
                 cmd.Parameters.Clear();
 
                 cmd.Parameters.Add("@FolderName",   SqlDbType.VarChar).Value    = folderName;
@@ -95,26 +110,26 @@ namespace MDo.Common.Data.IO
                         if (reader["Desc"] != DBNull.Value)
                             metadata.Desc = (string)reader["Desc"];
                     }
+                    else
+                    {
+                        throw new InvalidOperationException(string.Format(
+                            "Folder '{0}', File '{1}' does not exist.",
+                            folderName,
+                            fileName));
+                    }
                 }
 
                 // Get item count & field information
-                cmd.CommandType = CommandType.StoredProcedure;
-                cmd.CommandText = GetQualifiedObjectName(MetaSchemaName, "CountItems");
+                cmd.CommandType = CommandType.Text;
+                cmd.CommandText = string.Format("SELECT COUNT(*) FROM {0};", GetQualifiedObjectName(folderName, fileName));
                 cmd.Parameters.Clear();
-
-                cmd.Parameters.Add("@FolderName",   SqlDbType.VarChar).Value    = folderName;
-                cmd.Parameters.Add("@FileName",     SqlDbType.VarChar).Value    = fileName;
 
                 metadata.ItemCount = (int)cmd.ExecuteScalar();
 
 
-                cmd.CommandType = CommandType.StoredProcedure;
-                cmd.CommandText = GetQualifiedObjectName(MetaSchemaName, "PeekItems");
+                cmd.CommandType = CommandType.Text;
+                cmd.CommandText = string.Format("SELECT TOP(0) * FROM {0};", GetQualifiedObjectName(folderName, fileName));
                 cmd.Parameters.Clear();
-
-                cmd.Parameters.Add("@FolderName",   SqlDbType.VarChar).Value    = folderName;
-                cmd.Parameters.Add("@FileName",     SqlDbType.VarChar).Value    = fileName;
-                cmd.Parameters.Add("@ItemCount",    SqlDbType.BigInt).Value     = 0L;
 
                 using (SqlDataReader reader = cmd.ExecuteReader())
                 {
@@ -125,7 +140,12 @@ namespace MDo.Common.Data.IO
                     for (int j = 1; j < numDims; j++)
                     {
                         metadata.FieldNames[j-1] = reader.GetName(j);
-                        metadata.FieldTypes[j-1] = reader.GetFieldType(j);
+
+                        Type dimType = reader.GetFieldType(j);
+                        if (dimType.IsValueType)
+                            dimType = typeof(Nullable<>).MakeGenericType(dimType);
+
+                        metadata.FieldTypes[j-1] = dimType;
                     }
                 }
 
@@ -148,25 +168,16 @@ namespace MDo.Common.Data.IO
 
             return (object[])SqlUtility.ExecuteDbOperation(this.DbConnString, (SqlCommand cmd) =>
             {
-                cmd.CommandType = CommandType.StoredProcedure;
-                cmd.CommandText = GetQualifiedObjectName(MetaSchemaName, "GetItem");
+                cmd.CommandType = CommandType.Text;
+                cmd.CommandText = string.Format("SELECT * FROM {0} WHERE [Id] = {1};", GetQualifiedObjectName(folderName, fileName), indx);
                 cmd.Parameters.Clear();
-
-                cmd.Parameters.Add("@FolderName",   SqlDbType.VarChar).Value    = folderName;
-                cmd.Parameters.Add("@FileName",     SqlDbType.VarChar).Value    = fileName;
-                cmd.Parameters.Add("@ItemId",       SqlDbType.BigInt).Value     = indx;
 
                 object[] item;
                 using (SqlDataReader reader = cmd.ExecuteReader())
                 {
                     if (reader.Read())
                     {
-                        int numDims = reader.FieldCount;
-                        item = new object[numDims-1];
-                        for (int j = 1; j < numDims; j++)
-                        {
-                            item[j-1] = reader[j];
-                        }
+                        item = ReadItem(reader, reader.FieldCount);
                     }
                     else
                     {
@@ -176,6 +187,46 @@ namespace MDo.Common.Data.IO
                 return item;
             }, ShouldThrowOnDbOperationException);
         }
+
+        public ICollection<object[]> GetItems(string folderName, string fileName, long startIndx, long numItems)
+        {
+            if (string.IsNullOrWhiteSpace(folderName))
+                throw new ArgumentNullException("folderName");
+
+            if (string.IsNullOrWhiteSpace(fileName))
+                throw new ArgumentNullException("fileName");
+
+            if (startIndx < 0L)
+                throw new ArgumentOutOfRangeException("startIndx");
+
+            if (numItems < 0L)
+                throw new ArgumentOutOfRangeException("numItems");
+
+            ICollection<object[]> items = new List<object[]>();
+            SqlUtility.ExecuteDbOperation(this.DbConnString, (SqlCommand cmd) =>
+            {
+                cmd.CommandType = CommandType.Text;
+                cmd.CommandText = string.Format("SELECT TOP({0}) * FROM {1} WHERE [Id] >= {2};",
+                    numItems,
+                    GetQualifiedObjectName(folderName, fileName),
+                    startIndx);
+                cmd.Parameters.Clear();
+
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    int numDims = reader.FieldCount;
+                    while (reader.Read())
+                    {
+                        items.Add(ReadItem(reader, numDims));
+                    }
+                }
+
+                return null;
+            }, ShouldThrowOnDbOperationException);
+            return items;
+        }
+
+        public bool SupportsPages { get { return false; } }
 
         #endregion IDataProvider
 
@@ -216,7 +267,7 @@ namespace MDo.Common.Data.IO
             SqlUtility.ExecuteDbOperation(this.DbConnString, (SqlCommand cmd) =>
             {
                 cmd.CommandType = CommandType.StoredProcedure;
-                cmd.CommandText = GetQualifiedObjectName(MetaSchemaName, "AddFile");
+                cmd.CommandText = GetQualifiedObjectName(DataIO.MetaSchemaName, "AddFile");
                 cmd.Parameters.Clear();
 
                 cmd.Parameters.Add("@FolderName",   SqlDbType.VarChar).Value    = metadata.FolderName;
@@ -277,7 +328,7 @@ namespace MDo.Common.Data.IO
                     metadata.Desc != oldMetadata.Desc)
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.CommandText = GetQualifiedObjectName(MetaSchemaName, "EditFile");
+                    cmd.CommandText = GetQualifiedObjectName(DataIO.MetaSchemaName, "EditFile");
                     cmd.Parameters.Clear();
 
                     cmd.Parameters.Add("@FolderName",   SqlDbType.VarChar).Value    = metadata.FolderName;
@@ -288,16 +339,7 @@ namespace MDo.Common.Data.IO
                     cmd.ExecuteNonQuery();
                 }
 
-                // Compare metadata
-                bool schemaEqual = false;
-                if (metadata.FieldNames.Length == oldMetadata.FieldNames.Length)
-                {
-                    var indexes = Enumerable.Range(0, metadata.FieldNames.Length);
-                    schemaEqual = indexes.All(j => metadata.FieldNames[j] == oldMetadata.FieldNames[j])
-                            &&    indexes.All(j => metadata.FieldTypes[j] == oldMetadata.FieldTypes[j]);
-                }
-
-                if (!schemaEqual)
+                if (!metadata.SchemaEquals(oldMetadata))
                 {
                     DropTable(metadata.FolderName, metadata.FileName, cmd);
                     CreateTable(metadata, cmd);
@@ -307,60 +349,23 @@ namespace MDo.Common.Data.IO
             }, ShouldThrowOnDbOperationException);
         }
 
-        public bool FileExists(string folderName, string fileName)
+        public void AddItem(string folderName, string fileName, object[] item)
         {
-            return (bool)SqlUtility.ExecuteDbOperation(this.DbConnString, (SqlCommand cmd) =>
-            {
-                cmd.CommandType = CommandType.StoredProcedure;
-                cmd.CommandText = GetQualifiedObjectName(MetaSchemaName, "FileExists");
-                cmd.Parameters.Clear();
-
-                cmd.Parameters.Add("@FolderName",   SqlDbType.VarChar).Value    = folderName;
-                cmd.Parameters.Add("@FileName",     SqlDbType.VarChar).Value    = fileName;
-                cmd.Parameters.Add("@Exists",       SqlDbType.Bit);
-
-                cmd.ExecuteNonQuery();
-
-                return cmd.Parameters["@Exists"].Value;
-            }, ShouldThrowOnDbOperationException);
+            this.AddItems(folderName, fileName, new object[][] { item });
         }
 
-        public void AddItem(Metadata metadata, object[] item)
+        public void AddItems(string folderName, string fileName, IEnumerable<object[]> items)
         {
-            {
-                if (null == metadata)
-                    throw new ArgumentNullException("metadata");
+            if (string.IsNullOrWhiteSpace(folderName))
+                throw new ArgumentNullException("folderName");
 
-                if (string.IsNullOrWhiteSpace(metadata.FolderName))
-                    throw new ArgumentNullException("metadata.FolderName");
+            if (string.IsNullOrWhiteSpace(fileName))
+                throw new ArgumentNullException("fileName");
 
-                if (string.IsNullOrWhiteSpace(metadata.FileName))
-                    throw new ArgumentNullException("metadata.FileName");
+            if (null == items)
+                throw new ArgumentNullException("items");
 
-                if (null == metadata.FieldNames)
-                    throw new ArgumentNullException("metadata.FieldNames");
-
-                if (null == metadata.FieldTypes)
-                    throw new ArgumentNullException("metadata.FieldTypes");
-
-                int dimNamesLength = metadata.FieldNames.Length,
-                    dimTypesLength = metadata.FieldTypes.Length;
-
-                if (dimNamesLength <= 0)
-                    throw new ArgumentOutOfRangeException("metadata.FieldNames.Length");
-
-                if (dimTypesLength <= 0)
-                    throw new ArgumentOutOfRangeException("metadata.FieldTypes.Length");
-
-                if (dimNamesLength != dimTypesLength)
-                    throw new ArgumentException("metadata.Fields");
-
-                if (null == item)
-                    throw new ArgumentNullException("item");
-
-                if (item.Length != dimNamesLength)
-                    throw new ArgumentOutOfRangeException("item.Length");
-            }
+            Metadata metadata = this.GetMetadata(folderName, fileName);
 
             SqlUtility.ExecuteDbOperation(this.DbConnString, (SqlCommand cmd) =>
             {
@@ -389,15 +394,33 @@ namespace MDo.Common.Data.IO
 
                 cmd.CommandType = CommandType.Text;
                 cmd.CommandText = cmdText.ToString();
-                cmd.Parameters.Clear();
 
-                for (int j = 0; j < numDims; j++)
+                ICollection<Exception> exceptions = new List<Exception>();
+
+                foreach (object[] item in items)
                 {
-                    cmd.Parameters.Add("@P_" + j, SqlUtility.ToSqlDbType(metadata.FieldTypes[j]))
-                        .Value = (null == item[j] ? DBNull.Value : item[j]);
+                    try
+                    {
+                        cmd.Parameters.Clear();
+
+                        for (int j = 0; j < numDims; j++)
+                        {
+                            cmd.Parameters.Add("@P_" + j, SqlUtility.ToSqlDbType(metadata.FieldTypes[j]))
+                                .Value = (null == item[j] ? DBNull.Value : item[j]);
+                        }
+
+                        cmd.ExecuteNonQuery();
+                    }
+                    catch (SqlException ex)
+                    {
+                        exceptions.Add(ex);
+                    }
                 }
 
-                return cmd.ExecuteNonQuery();
+                if (exceptions.Count > 0)
+                    throw new AggregateException(exceptions);
+                else
+                    return null;
             }, ShouldThrowOnDbOperationException);
         }
 
@@ -439,7 +462,7 @@ namespace MDo.Common.Data.IO
             SqlUtility.ExecuteDbOperation(this.DbConnString, (SqlCommand cmd) =>
             {
                 cmd.CommandType = CommandType.StoredProcedure;
-                cmd.CommandText = GetQualifiedObjectName(MetaSchemaName, "RemoveFile");
+                cmd.CommandText = GetQualifiedObjectName(DataIO.MetaSchemaName, "RemoveFile");
                 cmd.Parameters.Clear();
 
                 cmd.Parameters.Add("@FolderName",   SqlDbType.VarChar).Value    = folderName;
@@ -464,8 +487,27 @@ namespace MDo.Common.Data.IO
             return string.Format("[{0}].[{1}]", schemaName, objectName);
         }
 
-        private void CreateTable(Metadata metadata, SqlCommand cmd)
+        private static void CreateTable(Metadata metadata, SqlCommand cmd)
         {
+            {
+                StringBuilder cmdTxt = new StringBuilder();
+                cmdTxt.AppendFormat("IF NOT EXISTS (SELECT 1 FROM [sys].[schemas] WHERE name = '{0}')", SqlUtility.SqlEscapeStringValue(metadata.FolderName));
+                cmdTxt.AppendLine();
+                cmdTxt.AppendLine("BEGIN");
+                cmdTxt.AppendLine("  DECLARE @cmd NVARCHAR(MAX);");
+                cmdTxt.AppendFormat("  SET @cmd = 'CREATE SCHEMA [{0}]';", metadata.FolderName);
+                cmdTxt.AppendLine();
+                cmdTxt.AppendLine("  EXEC(@cmd);");
+                cmdTxt.AppendLine("END");
+
+                cmd.CommandType = CommandType.Text;
+                cmd.CommandText = cmdTxt.ToString();
+                cmd.Parameters.Clear();
+
+                cmd.ExecuteNonQuery();
+            }
+
+
             string qualifiedTableName = GetQualifiedObjectName(metadata.FolderName, metadata.FileName);
 
             int numDims = metadata.FieldNames.Length;
@@ -506,13 +548,26 @@ namespace MDo.Common.Data.IO
             // Consider adding full-text index for varchar and varbinary columns.
         }
 
-        private void DropTable(string folderName, string fileName, SqlCommand cmd)
+        private static void DropTable(string folderName, string fileName, SqlCommand cmd)
         {
             cmd.CommandType = CommandType.Text;
             cmd.CommandText = string.Format("DROP TABLE {0}", GetQualifiedObjectName(folderName, fileName));
             cmd.Parameters.Clear();
 
             cmd.ExecuteNonQuery();
+        }
+
+        private static object[] ReadItem(SqlDataReader reader, int numDims)
+        {
+            object[] item = new object[numDims-1];
+            for (int j = 1; j < numDims; j++)
+            {
+                object obj = reader[j];
+                if (obj is DBNull)
+                    obj = null;
+                item[j-1] = obj;
+            }
+            return item;
         }
 
         private static bool ShouldThrowOnDbOperationException(Exception ex)

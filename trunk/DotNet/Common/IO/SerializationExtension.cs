@@ -25,7 +25,7 @@ namespace MDo.Common.IO
 
         public static void Serialize(this object obj, string fileName, CompressionAlgorithm compressionAlgorithm = CompressionAlgorithm.Default)
         {
-            using (Stream outStream = OpenWrite(fileName))
+            using (Stream outStream = File.OpenWrite(fileName))
             {
                 obj.Serialize(outStream, compressionAlgorithm);
             }
@@ -45,7 +45,7 @@ namespace MDo.Common.IO
         public static T Deserialize<T>(string fileName, CompressionAlgorithm compressionAlgorithm = CompressionAlgorithm.Default)
         {
             T obj = default(T);
-            using (Stream inStream = OpenRead(fileName))
+            using (Stream inStream = File.OpenRead(fileName))
             {
                 obj = Deserialize<T>(inStream, compressionAlgorithm);
             }
@@ -127,7 +127,7 @@ namespace MDo.Common.IO
 
         public static void ToXmlFile(this object obj, string xmlFilePath, XmlWriterSettings xmlWriterSettings)
         {
-            using (Stream output = OpenWrite(xmlFilePath))
+            using (Stream output = File.OpenWrite(xmlFilePath))
             {
                 obj.ToXmlStream(output, xmlWriterSettings);
             }
@@ -182,7 +182,7 @@ namespace MDo.Common.IO
             T obj = default(T);
             if (!string.IsNullOrWhiteSpace(xmlFilePath))
             {
-                using (Stream input = OpenRead(xmlFilePath))
+                using (Stream input = File.OpenRead(xmlFilePath))
                 {
                     obj = FromXml<T>(input);
                 }

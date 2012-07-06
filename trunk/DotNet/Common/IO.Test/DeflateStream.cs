@@ -24,8 +24,8 @@ namespace MDo.Common.IO.Test
             {
                 string compressedOutputFile = testData + DeflateOutputExtension;
 
-                using (Stream inStream = FS.OpenRead(testData),
-                              outStream = FS.OpenWrite(compressedOutputFile))
+                using (Stream inStream = File.OpenRead(testData),
+                              outStream = File.OpenWrite(compressedOutputFile))
                 {
                     using (Stream encodeStream = new DeflateEncodeStream(outStream))
                     {
@@ -33,8 +33,8 @@ namespace MDo.Common.IO.Test
                     }
                 }
 
-                using (Stream inStream = FS.OpenRead(compressedOutputFile),
-                              outStream = FS.OpenWrite(compressedOutputFile + DecompressedOutputExtension))
+                using (Stream inStream = File.OpenRead(compressedOutputFile),
+                              outStream = File.OpenWrite(compressedOutputFile + DecompressedOutputExtension))
                 {
                     using (Stream decodeStream = new DeflateDecodeStream(inStream))
                     {
