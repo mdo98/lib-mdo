@@ -7,13 +7,16 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 
+using Microsoft.SqlServer.Management.Common;
+using Microsoft.SqlServer.Management.Smo;
+
 namespace MDo.Common.Data
 {
     public static class SqlUtility
     {
         public const string SqlServer_MasterDb = "master";
 
-        public static bool EncryptConnection = true;
+        public static bool EncryptConnection = false;
         private static int CommandTimeoutInSeconds = 600;
 
         public static bool DatabaseExists(string server, string database, string userId, string password)
@@ -212,6 +215,26 @@ namespace MDo.Common.Data
                         return null;
                     },
                     (Exception ex) => false);
+            }
+        }
+
+        public static void ExecuteSqlScript(string dbConnString, string sqlScript)
+        {
+            using (SqlConnection conn = new SqlConnection(GetSqlConnectionString(dbConnString)))
+            {
+                conn.Open();
+                Server sqlServer = new Server(new ServerConnection(conn));
+                sqlServer.ConnectionContext.ExecuteNonQuery(sqlScript);
+            }
+        }
+
+        public static void ExecuteSqlScript(string server, string database, string userId, string password, string sqlScript)
+        {
+            using (SqlConnection conn = new SqlConnection(GetSqlConnectionString(server, database, userId, password)))
+            {
+                conn.Open();
+                Server sqlServer = new Server(new ServerConnection(conn));
+                sqlServer.ConnectionContext.ExecuteNonQuery(sqlScript);
             }
         }
 
@@ -423,11 +446,15 @@ namespace MDo.Common.Data
             }
             else if (typeof(byte[]) == type)
             {
-                string[] bStr = str.Split(new char[] { '-' }, StringSplitOptions.RemoveEmptyEntries);
-                byte[] b = new byte[bStr.Length];
-                for (int i = 0; i < bStr.Length; i++)
+                byte[] b = null;
+                if (!string.IsNullOrWhiteSpace(str))
                 {
-                    b[i] = byte.Parse(bStr[i], System.Globalization.NumberStyles.HexNumber);
+                    string[] bStr = str.Split(new char[] { '-' }, StringSplitOptions.RemoveEmptyEntries);
+                    b = new byte[bStr.Length];
+                    for (int i = 0; i < bStr.Length; i++)
+                    {
+                        b[i] = byte.Parse(bStr[i], System.Globalization.NumberStyles.HexNumber);
+                    }
                 }
                 obj = b;
             }

@@ -121,7 +121,7 @@ namespace MDo.Common.IO
         {
             uint crc;
             byte[] data = new byte[dataBufferSize];
-            using (Stream fileStream = FS.OpenRead(filePath))
+            using (Stream fileStream = File.OpenRead(filePath))
             {
                 int numBytesRead = fileStream.Read(data, 0, dataBufferSize);
                 crc = Calculate(data, numBytesRead);

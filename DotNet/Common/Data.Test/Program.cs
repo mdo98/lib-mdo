@@ -5,7 +5,7 @@ using System.Text;
 
 using MDo.Common.App.CLI;
 
-namespace MDo.Common.IO.Test
+namespace MDo.Common.Data.Test
 {
     static class Program
     {

@@ -5,12 +5,12 @@ using System.Text;
 
 namespace MDo.Common.Data.IO
 {
-    public interface IDataManager
+    public interface IDataManager : IDataProvider
     {
         void AddFile(Metadata metadata);
         void EditFile(Metadata metadata);
-        bool FileExists(string folderName, string fileName);
-        void AddItem(Metadata metadata, object[] item);
+        void AddItem(string folderName, string fileName, object[] item);
+        void AddItems(string folderName, string fileName, IEnumerable<object[]> items);
         void ClearItems(string folderName, string fileName);
         void RemoveFile(string folderName, string fileName);
     }
