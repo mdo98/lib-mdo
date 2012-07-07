@@ -35,12 +35,12 @@ namespace MDo.Interop.R.Core
 
         public string GetColName(int indx)
         {
-            return (indx <= this.ColNames.Count ? this.ColNames[indx] : string.Empty);
+            return (indx < this.ColNames.Count ? this.ColNames[indx] : string.Empty);
         }
 
         public string GetRowName(int indx)
         {
-            return (indx <= this.RowNames.Count ? this.RowNames[indx] : string.Empty);
+            return (indx < this.RowNames.Count ? this.RowNames[indx] : string.Empty);
         }
 
         internal void SetXVarColNames()

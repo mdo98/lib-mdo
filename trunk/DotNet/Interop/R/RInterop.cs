@@ -606,7 +606,7 @@ namespace MDo.Interop.R
         /// </summary>
         /// <param name="statement">An R-parsable statement.</param>
         /// <returns>A pointer to the result of the evaluation in unmanaged memory.</returns>
-        public static IntPtr Eval(string statement, string name)
+        public static IntPtr Eval(string statement, string name = null)
         {
             lock (SyncRoot)
             {

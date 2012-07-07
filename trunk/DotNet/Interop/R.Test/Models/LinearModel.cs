@@ -34,7 +34,7 @@ namespace MDo.Interop.R.Models.Test
 
                         double[,] x; double[,] y;
                         int numItems, numTrainingItems, numTestItems;
-                        using (Stream input = FS.OpenRead(testFile))
+                        using (Stream input = File.OpenRead(testFile))
                         {
                             numItems = ModelsTestUtils.Parse_LinearModelData(input, out x, out y);
                         }
