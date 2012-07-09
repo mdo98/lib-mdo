@@ -11,6 +11,7 @@ namespace MDo.Common.Data.IO.Test
     {
         public static void Run(
             bool toDb, string baseDir, string server, string database, string userId, string password,
+            ICollection<string> files,
             bool echoSource = false, bool appendDest = false, bool encrypt = false)
         {
             bool encryptState = SqlUtility.EncryptConnection;
@@ -38,7 +39,32 @@ namespace MDo.Common.Data.IO.Test
                 EchoSource = echoSource,
                 AppendDest = appendDest,
             };
-            DataIO.CopyData(src, dest, options);
+
+            if (null != files && files.Count > 0)
+            {
+                foreach (string file in files)
+                {
+                    string[] f = file.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+                    switch (f.Length)
+                    {
+                        case 1:
+                            DataIO.CopyData(src, dest, options, f[0]);
+                            break;
+
+                        case 2:
+                            DataIO.CopyData(src, dest, options, f[0], f[1] == "*" ? null : f[1]);
+                            break;
+
+                        default:
+                            Console.Error.WriteLine("file: {0} is invalid.", file);
+                            break;
+                    }
+                }
+            }
+            else
+            {
+                DataIO.CopyData(src, dest, options);
+            }
             SqlUtility.EncryptConnection = encryptState;
         }
 
@@ -49,6 +75,7 @@ namespace MDo.Common.Data.IO.Test
             string server = string.Empty, database = string.Empty,
                    userId = string.Empty, password = string.Empty;
             bool echoSource = false, appendDest = false, encrypt = false;
+            ICollection<string> files = new List<string>();
 
             if (null != args && args.Length > 0)
             {
@@ -63,6 +90,10 @@ namespace MDo.Common.Data.IO.Test
 
                         case "DB2TXT":
                             db2txt = true;
+                            break;
+
+                        case "F":
+                            files.Add(kv[1].Trim());
                             break;
 
                         case "DIR":
@@ -182,13 +213,14 @@ namespace MDo.Common.Data.IO.Test
                 password = password.Trim();
             }
 
-            Run(toDb, baseDir, server, database, userId, password, echoSource, appendDest, encrypt);
+            Run(toDb, baseDir, server, database, userId, password, files, echoSource, appendDest, encrypt);
         }
 
         public override void PrintUsage()
         {
-            Console.WriteLine("{0}: [TXT2DB / DB2TXT] [DIR=(baseDir)] [SRV=(server)] [DB=(database)] [UID=(userId)] [PWD=(password)]", this.Name);
-            Console.WriteLine("[OPT: ECHO=(true/FALSE)] [OPT: APPEND=(true/FALSE)] [OPT: ENCRYPT=(true/FALSE)]");
+            Console.WriteLine("{0}: [TXT2DB / DB2TXT] [DIR=baseDir] [SRV=server] [DB=database] [UID=userId] [PWD=password]", this.Name);
+            Console.WriteLine("[OPT: F=folder1 F=folder2/* F=folder3/file3-1 F=folder3/file3-2]");
+            Console.WriteLine("[OPT: ECHO=true/FALSE] [OPT: APPEND=true/FALSE] [OPT: ENCRYPT=true/FALSE]");
             Console.WriteLine("\tUID=(WAuth) to use Integrated Security.");
         }
     }

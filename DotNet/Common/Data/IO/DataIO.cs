@@ -8,12 +8,16 @@ namespace MDo.Common.Data.IO
 {
     public static class DataIO
     {
-        public static void CopyData(IDataProvider src, IDataManager dest, CopyOptions options)
+        public static void CopyData(IDataProvider src, IDataManager dest, CopyOptions options, string folder = null, string file = null)
         {
             ICollection<Exception> exceptions = new List<Exception>();
-            foreach (string folderName in src.ListFolders())
+            foreach (string folderName in string.IsNullOrWhiteSpace(folder)
+                    ? src.ListFolders()
+                    : src.ListFolders().Where(item => item.Equals(folder, StringComparison.OrdinalIgnoreCase)))
             {
-                foreach (string fileName in src.ListFiles(folderName))
+                foreach (string fileName in string.IsNullOrWhiteSpace(file)
+                        ? src.ListFiles(folderName)
+                        : src.ListFiles(folderName).Where(item => item.Equals(file, StringComparison.OrdinalIgnoreCase)))
                 {
                     try
                     {
