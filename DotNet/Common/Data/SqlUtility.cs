@@ -364,8 +364,11 @@ namespace MDo.Common.Data
             else if (typeof(bool) == type || typeof(bool?) == type)
                 sqlType = "BIT";
 
+            else if (typeof(Guid) == type || typeof(Guid?) == type)
+                sqlType = "UNIQUEIDENTIFIER";
+
             else if (typeof(DateTime) == type || typeof(DateTime?) == type)
-                sqlType = "DATETIME2";
+                sqlType = "DATETIME";
 
             else if (typeof(byte[]) == type)
                 sqlType = "VARBINARY(MAX)";
@@ -401,8 +404,11 @@ namespace MDo.Common.Data
             else if (typeof(bool) == type || typeof(bool?) == type)
                 sqlType = SqlDbType.Bit;
 
+            else if (typeof(Guid) == type || typeof(Guid?) == type)
+                sqlType = SqlDbType.UniqueIdentifier;
+
             else if (typeof(DateTime) == type || typeof(DateTime?) == type)
-                sqlType = SqlDbType.DateTime2;
+                sqlType = SqlDbType.DateTime;
 
             else if (typeof(byte[]) == type)
                 sqlType = SqlDbType.VarBinary;
@@ -426,6 +432,7 @@ namespace MDo.Common.Data
                  ||  typeof(short?)     == type
                  ||  typeof(byte?)      == type
                  ||  typeof(bool?)      == type
+                 ||  typeof(Guid?)      == type
                  ||  typeof(DateTime?)  == type)
             {
                 obj = string.IsNullOrWhiteSpace(str) ? null : type.GetGenericArguments()[0]
@@ -438,6 +445,7 @@ namespace MDo.Common.Data
                  ||  typeof(short)      == type
                  ||  typeof(byte)       == type
                  ||  typeof(bool)       == type
+                 ||  typeof(Guid)       == type
                  ||  typeof(DateTime)   == type)
             {
                 obj = type

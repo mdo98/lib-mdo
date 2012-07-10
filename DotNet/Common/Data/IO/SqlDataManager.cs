@@ -179,7 +179,7 @@ namespace MDo.Common.Data.IO
                             continue;
 
                         Type dimType = (Type)row["DataType"];
-                        if (dimType.IsValueType)
+                        if (dimType.IsValueType && (bool)row["AllowDBNull"])
                             dimType = typeof(Nullable<>).MakeGenericType(dimType);
 
                         metadata.FieldNames[j] = (string)row["ColumnName"];
@@ -530,6 +530,8 @@ namespace MDo.Common.Data.IO
                 for (int j = 0; j < numDims; j++)
                 {
                     cmdText.AppendFormat(", [{0}] {1}", metadata.FieldNames[j], SqlUtility.ToSqlType(metadata.FieldTypes[j]));
+                    if (metadata.FieldTypes[j].IsValueType && !typeof(Nullable<>).IsAssignableFrom(metadata.FieldTypes[j]))
+                        cmdText.Append(" NOT NULL");
                 }
                 cmdText.Append(");");
 
