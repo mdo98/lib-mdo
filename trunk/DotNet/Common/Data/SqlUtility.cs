@@ -10,6 +10,8 @@ using System.Threading;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
 
+using MDo.Common.App;
+
 namespace MDo.Common.Data
 {
     public static class SqlUtility
@@ -21,7 +23,7 @@ namespace MDo.Common.Data
 
         public static bool DatabaseExists(string server, string database, string userId, string password)
         {
-            return (bool)ExecuteDbOperation(
+            return (bool)ExecuteSqlCommand(
                 GetSqlConnectionString(server, SqlServer_MasterDb, userId, password),
                 (SqlCommand cmd) =>
                 {
@@ -38,8 +40,7 @@ namespace MDo.Common.Data
                         }
                     }
                     return dbExists;
-                },
-                (Exception ex) => false);
+                });
         }
 
         public static void CreateDatabase(string server, string database, string userId, string password, bool dropExisting = false, int? maxSizeInGB = null)
@@ -53,7 +54,7 @@ namespace MDo.Common.Data
 
             if (createDatabase)
             {
-                ExecuteDbOperation(
+                ExecuteSqlCommand(
                     GetSqlConnectionString(server, SqlServer_MasterDb, userId, password),
                     (SqlCommand cmd) =>
                     {
@@ -65,7 +66,6 @@ namespace MDo.Common.Data
 
                         return cmd.ExecuteNonQuery();
                     },
-                    (Exception ex) => false,
                     false);
             }
         }
@@ -74,7 +74,7 @@ namespace MDo.Common.Data
         {
             if (DatabaseExists(server, database, userId, password))
             {
-                ExecuteDbOperation(
+                ExecuteSqlCommand(
                     GetSqlConnectionString(server, SqlServer_MasterDb, userId, password),
                     (SqlCommand cmd) =>
                     {
@@ -96,14 +96,13 @@ namespace MDo.Common.Data
 
                         return cmd.ExecuteNonQuery();
                     },
-                    (Exception ex) => false,
                     false);
             }
         }
 
         public static void CreateSqlLogin(string server, string userId, string password, string newLogin, string newPassword)
         {
-            ExecuteDbOperation(
+            ExecuteSqlCommand(
                 GetSqlConnectionString(server, SqlServer_MasterDb, userId, password),
                 (SqlCommand cmd) =>
                 {
@@ -144,13 +143,12 @@ namespace MDo.Common.Data
                     }
                     return null;
                 },
-                (Exception ex) => false,
                 false);
         }
 
         public static void CreateSqlUser(string server, string database, string userId, string password, string userName, string fromLogin)
         {
-            ExecuteDbOperation(
+            ExecuteSqlCommand(
                 GetSqlConnectionString(server, database, userId, password),
                 (SqlCommand cmd) =>
                 {
@@ -170,7 +168,6 @@ namespace MDo.Common.Data
                     cmd.ExecuteNonQuery();
                     return null;
                 },
-                (Exception ex) => false,
                 false);
         }
 
@@ -178,7 +175,7 @@ namespace MDo.Common.Data
         {
             if (null != permissions)
             {
-                ExecuteDbOperation(
+                ExecuteSqlCommand(
                     GetSqlConnectionString(server, database, userId, password),
                     (SqlCommand cmd) =>
                     {
@@ -191,8 +188,7 @@ namespace MDo.Common.Data
                             cmd.ExecuteNonQuery();
                         }
                         return null;
-                    },
-                    (Exception ex) => false);
+                    });
             }
         }
 
@@ -200,7 +196,7 @@ namespace MDo.Common.Data
         {
             if (null != roleNames)
             {
-                ExecuteDbOperation(
+                ExecuteSqlCommand(
                     GetSqlConnectionString(server, database, userId, password),
                     (SqlCommand cmd) =>
                     {
@@ -213,14 +209,13 @@ namespace MDo.Common.Data
                             cmd.ExecuteNonQuery();
                         }
                         return null;
-                    },
-                    (Exception ex) => false);
+                    });
             }
         }
 
-        public static void ExecuteSqlScript(string dbConnString, string sqlScript)
+        public static void ExecuteSqlScript(string connString, string sqlScript)
         {
-            using (SqlConnection conn = new SqlConnection(GetSqlConnectionString(dbConnString)))
+            using (SqlConnection conn = new SqlConnection(GetSqlConnectionString(connString)))
             {
                 conn.Open();
                 Server sqlServer = new Server(new ServerConnection(conn));
@@ -275,29 +270,145 @@ namespace MDo.Common.Data
             return connString.ToString();
         }
 
-        public static object ExecuteDbOperation(string dbConnString, Func<SqlCommand, object> dbOperation, Func<Exception, bool> shouldThrow,
+        private const int
+            QuickNap    = 500,      //  0.5 second
+            ShortSleep  = 5000,     //  5   seconds
+            LongSleep   = 15000;    // 15   seconds
+
+        // Based on http://windowsazurecat.com/2010/10/best-practices-for-handling-transient-conditions-in-sql-azure-client-applications/
+        private static readonly IDictionary<int, int> RetryableSqlErrorCodes = new Dictionary<int, int>()
+        {
+            /* Timeout expired. The timeout period elapsed prior to completion of the operation or the server is not responding. */
+            { -2, ShortSleep },
+
+            /* The instance of SQL Server you attempted to connect to does not support encryption. */
+            { 20, QuickNap },
+
+            /* A connection was successfully established with the server, but then an error occurred during the login process.
+             * (provider: TCP Provider, error: 0 – The specified network name is no longer available.) */
+            { 64, QuickNap },
+
+            /* The client was unable to establish a connection because of an error during connection initialization process before login.
+             * Possible causes include the following: the client tried to connect to an unsupported version of SQL Server; the server was
+             * too busy to accept new connections; or there was a resource limitation (insufficient memory or maximum allowed connections)
+             * on the server. (provider: TCP Provider, error: 0 – An existing connection was forcibly closed by the remote host.) */
+            { 233, ShortSleep },
+
+            /* Process ID %d attempted to unlock a resource it does not own: %.*ls. Retry the transaction, because this error may be caused
+             * by a timing condition. If the problem persists, contact the database administrator. */
+            { 1203, QuickNap },
+
+            /* The instance of the SQL Server Database Engine cannot obtain a LOCK resource at this time. Rerun your statement when there are
+             * fewer active users. Ask the database administrator to check the lock and memory configuration for this instance, or to check
+             * for long-running transactions. */
+            { 1204, QuickNap },
+
+            /* Transaction (Process ID %d) was deadlocked on %.*ls resources with another process and has been chosen as the deadlock victim.
+             * Rerun the transaction. */
+            { 1205, QuickNap },
+
+            /* The Microsoft Distributed Transaction Coordinator (MS DTC) has cancelled the distributed transaction. */
+            { 1206, QuickNap },
+
+            /* A transport-level error has occurred when receiving results from the server. An established connection was aborted by the
+             * software in your host machine. */
+            { 10053, QuickNap },
+
+            /* A transport-level error has occurred when sending the request to the server. (provider: TCP Provider, error: 0 - An existing
+             * connection was forcibly closed by the remote host.) */
+            { 10054, QuickNap },
+
+            /* A network-related or instance-specific error occurred while establishing a connection to SQL Server. The server was not found
+             * or was not accessible. Verify that the instance name is correct and that SQL Server is configured to allow remote connections.
+             * (provider: TCP Provider, error: 0 - A connection attempt failed because the connected party did not properly respond after a
+             * period of time, or established connection failed because connected host has failed to respond.) */
+            { 10060, QuickNap },
+
+            /* The service has encountered an error processing your request. Please try again. */
+            { 40143, QuickNap },
+
+            /* The service has encountered an error processing your request. Please try again. Error code %d. */
+            { 40197, QuickNap },
+
+            /* The service is currently busy. Retry the request after 10 seconds. Incident ID: %ls. Code: %d. */
+            { 40501, LongSleep },
+
+            /* Database '%.*ls' on server '%.*ls' is not currently available. Please retry the connection later. If the problem persists,
+             * contact customer support, and provide them the session tracing ID of '%.*ls'. */
+            { 40613, ShortSleep },
+        };
+
+        private static bool ShouldRetry(Exception ex)
+        {
+            if (ex is SqlException)
+            {
+                return (ex as SqlException).Errors.Cast<SqlError>().Any(item => RetryableSqlErrorCodes.Keys.Contains(item.Number));
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        private static void Recover(Exception ex)
+        {
+            SqlException sqlEx = ex as SqlException;
+            if (null != sqlEx)
+            {
+                int sleepTime = 0;
+                foreach (SqlError error in sqlEx.Errors)
+                {
+                    if (RetryableSqlErrorCodes.ContainsKey(error.Number))
+                    {
+                        int s = RetryableSqlErrorCodes[error.Number];
+                        if (sleepTime < s)
+                            sleepTime = s;
+                    }
+                }
+                if (sleepTime > 0)
+                {
+                    Thread.Sleep(sleepTime);
+                }
+            }
+        }
+
+        private static readonly RetryStrategy DefaultSqlRetryStrategy = new RetryStrategy()
+        {
+            MaxTries = RetryStrategy.DefaultMaxTries,
+            IsRetryable = ShouldRetry,
+            RecoveryAction = Recover,
+        };
+
+        public static object ExecuteSqlCommand(string connString, Func<SqlCommand, object> executeSqlCommand,
             bool transactable = true, IsolationLevel isolationLevel = IsolationLevel.Unspecified)
         {
-            dbConnString = GetSqlConnectionString(dbConnString);
-            SqlConnection conn = new SqlConnection(dbConnString);
-            conn.Open();
-            object retVal = MDo.Common.App.Utility.ExecuteWithRetry(() =>
+            return ExecuteSqlCommand(connString, executeSqlCommand, DefaultSqlRetryStrategy, transactable, isolationLevel);
+        }
+
+        public static object ExecuteSqlCommand(string connString, Func<SqlCommand, object> executeSqlCommand, RetryStrategy retryStrategy,
+            bool transactable = true, IsolationLevel isolationLevel = IsolationLevel.Unspecified)
+        {
+            connString = GetSqlConnectionString(connString);
+            return retryStrategy.Execute(() =>
+            {
+                using (SqlConnection conn = new SqlConnection(connString))
                 {
+                    conn.Open();
                     SqlTransaction transaction = null;
                     if (transactable)
                         transaction = conn.BeginTransaction(isolationLevel);
                     try
                     {
-                        object dbOperationResult;
+                        object result;
                         using (SqlCommand cmd = conn.CreateCommand())
                         {
                             cmd.Transaction = transaction;
                             cmd.CommandTimeout = CommandTimeoutInSeconds;
-                            dbOperationResult = dbOperation(cmd);
+                            result = executeSqlCommand(cmd);
                         }
                         if (transactable)
                             transaction.Commit();
-                        return dbOperationResult;
+                        return result;
                     }
                     catch
                     {
@@ -309,21 +420,39 @@ namespace MDo.Common.Data
                     {
                         if (transactable)
                             transaction.Dispose();
+                        conn.Close();
                     }
-                },
-                shouldThrow,
-                () =>
+                }
+            });
+        }
+
+        public static object ExecuteSqlOperation(string connString, Func<SqlConnection, object> executeSqlOperation)
+        {
+            return ExecuteSqlOperation(connString, executeSqlOperation, DefaultSqlRetryStrategy);
+        }
+
+        public static object ExecuteSqlOperation(string connString, Func<SqlConnection, object> executeSqlOperation, RetryStrategy retryStrategy)
+        {
+            connString = GetSqlConnectionString(connString);
+            return retryStrategy.Execute(() =>
+            {
+                using (SqlConnection conn = new SqlConnection(connString))
                 {
-                    Thread.Sleep(500);
-                    if (conn.State != ConnectionState.Open)
+                    conn.Open();
+                    try
+                    {
+                        return executeSqlOperation(conn);
+                    }
+                    catch
+                    {
+                        throw;
+                    }
+                    finally
                     {
                         conn.Close();
-                        conn = new SqlConnection(dbConnString);
-                        conn.Open();
                     }
-                });
-            conn.Close();
-            return retVal;
+                }
+            });
         }
 
         public static void SetCommandTimeout(int timeoutSeconds)
