@@ -22,7 +22,7 @@ namespace MDo.Common.Data.IO
         public string[] ListFolders()
         {
             ICollection<string> schemas = new List<string>();
-            SqlUtility.ExecuteDbOperation(this.DbConnString, (SqlCommand cmd) =>
+            SqlUtility.ExecuteSqlCommand(this.DbConnString, (SqlCommand cmd) =>
             {
                 cmd.CommandType = CommandType.Text;
                 cmd.CommandText = "SELECT DISTINCT S.name AS SchemaName FROM sys.tables T JOIN sys.schemas S ON T.schema_id = S.schema_id";
@@ -37,14 +37,14 @@ namespace MDo.Common.Data.IO
                 }
 
                 return null;
-            }, ShouldThrowOnDbOperationException);
+            });
             return schemas.ToArray();
         }
 
         public string[] ListFiles(string folderName)
         {
             ICollection<string> tables = new List<string>();
-            SqlUtility.ExecuteDbOperation(this.DbConnString, (SqlCommand cmd) =>
+            SqlUtility.ExecuteSqlCommand(this.DbConnString, (SqlCommand cmd) =>
             {
                 cmd.CommandType = CommandType.Text;
                 cmd.CommandText = string.Format(
@@ -61,13 +61,13 @@ namespace MDo.Common.Data.IO
                 }
 
                 return null;
-            }, ShouldThrowOnDbOperationException);
+            });
             return tables.ToArray();
         }
 
         public bool FileExists(string folderName, string fileName)
         {
-            return (bool)SqlUtility.ExecuteDbOperation(this.DbConnString, (SqlCommand cmd) =>
+            return (bool)SqlUtility.ExecuteSqlCommand(this.DbConnString, (SqlCommand cmd) =>
             {
                 cmd.CommandType = CommandType.Text;
                 cmd.CommandText = string.Format(
@@ -84,7 +84,7 @@ namespace MDo.Common.Data.IO
                 }
 
                 return exists;
-            }, ShouldThrowOnDbOperationException);
+            });
         }
 
         public Metadata GetMetadata(string folderName, string fileName)
@@ -103,7 +103,7 @@ namespace MDo.Common.Data.IO
 
             SqlMetadata metadata = new SqlMetadata(folderName, fileName);
 
-            SqlUtility.ExecuteDbOperation(this.DbConnString, (SqlCommand cmd) =>
+            SqlUtility.ExecuteSqlCommand(this.DbConnString, (SqlCommand cmd) =>
             {
                 string qualifiedTableName = GetQualifiedObjectName(folderName, fileName);
 
@@ -190,7 +190,7 @@ namespace MDo.Common.Data.IO
                 }
 
                 return null;
-            }, ShouldThrowOnDbOperationException);
+            });
 
             return metadata;
         }
@@ -217,7 +217,7 @@ namespace MDo.Common.Data.IO
             SqlMetadata metadata = (SqlMetadata)this.GetMetadata(folderName, fileName);
 
             ICollection<object[]> items = new List<object[]>();
-            SqlUtility.ExecuteDbOperation(this.DbConnString, (SqlCommand cmd) =>
+            SqlUtility.ExecuteSqlCommand(this.DbConnString, (SqlCommand cmd) =>
             {
                 string qualifiedTableName = GetQualifiedObjectName(folderName, fileName);
 
@@ -241,7 +241,7 @@ namespace MDo.Common.Data.IO
                 }
 
                 return null;
-            }, ShouldThrowOnDbOperationException);
+            });
             return items;
         }
 
@@ -256,7 +256,7 @@ namespace MDo.Common.Data.IO
             SqlMetadata metadata = (SqlMetadata)this.GetMetadata(folderName, fileName);
 
             ICollection<object[]> items = new List<object[]>();
-            SqlUtility.ExecuteDbOperation(this.DbConnString, (SqlCommand cmd) =>
+            SqlUtility.ExecuteSqlCommand(this.DbConnString, (SqlCommand cmd) =>
             {
                 cmd.CommandType = CommandType.Text;
                 cmd.CommandText = string.Format("SELECT * FROM {0};", GetQualifiedObjectName(folderName, fileName));
@@ -272,7 +272,7 @@ namespace MDo.Common.Data.IO
                 }
 
                 return null;
-            }, ShouldThrowOnDbOperationException);
+            });
             return items;
         }
 
@@ -312,12 +312,12 @@ namespace MDo.Common.Data.IO
                     throw new ArgumentException("metadata.Fields");
             }
 
-            SqlUtility.ExecuteDbOperation(this.DbConnString, (SqlCommand cmd) =>
+            SqlUtility.ExecuteSqlCommand(this.DbConnString, (SqlCommand cmd) =>
             {
                 CreateTable(metadata, cmd);
 
                 return null;
-            }, ShouldThrowOnDbOperationException);
+            });
         }
 
         public void EditFile(Metadata metadata)
@@ -361,13 +361,13 @@ namespace MDo.Common.Data.IO
 
             if (!metadata.SchemaEquals(oldMetadata))
             {
-                SqlUtility.ExecuteDbOperation(this.DbConnString, (SqlCommand cmd) =>
+                SqlUtility.ExecuteSqlCommand(this.DbConnString, (SqlCommand cmd) =>
                 {
                     DropTable(metadata.FolderName, metadata.FileName, cmd);
                     CreateTable(metadata, cmd);
 
                     return null;
-                }, ShouldThrowOnDbOperationException);
+                });
             }
         }
 
@@ -389,7 +389,7 @@ namespace MDo.Common.Data.IO
 
             SqlMetadata metadata = (SqlMetadata)this.GetMetadata(folderName, fileName);
 
-            SqlUtility.ExecuteDbOperation(this.DbConnString, (SqlCommand cmd) =>
+            SqlUtility.ExecuteSqlCommand(this.DbConnString, (SqlCommand cmd) =>
             {
                 int numDims = metadata.FieldNames.Length;
 
@@ -445,7 +445,7 @@ namespace MDo.Common.Data.IO
                     throw new AggregateException(exceptions);
                 else
                     return null;
-            }, ShouldThrowOnDbOperationException);
+            });
         }
 
         public void ClearItems(string folderName, string fileName)
@@ -456,7 +456,7 @@ namespace MDo.Common.Data.IO
             if (string.IsNullOrWhiteSpace(fileName))
                 throw new ArgumentNullException("fileName");
 
-            SqlUtility.ExecuteDbOperation(this.DbConnString, (SqlCommand cmd) =>
+            SqlUtility.ExecuteSqlCommand(this.DbConnString, (SqlCommand cmd) =>
             {
                 cmd.CommandType = CommandType.Text;
                 cmd.CommandText = string.Format("TRUNCATE TABLE {0};", GetQualifiedObjectName(folderName, fileName));
@@ -472,7 +472,7 @@ namespace MDo.Common.Data.IO
                 cmd.ExecuteNonQuery();
 
                 return null;
-            }, ShouldThrowOnDbOperationException);
+            });
         }
 
         public void RemoveFile(string folderName, string fileName)
@@ -483,12 +483,12 @@ namespace MDo.Common.Data.IO
             if (string.IsNullOrWhiteSpace(fileName))
                 throw new ArgumentNullException("fileName");
 
-            SqlUtility.ExecuteDbOperation(this.DbConnString, (SqlCommand cmd) =>
+            SqlUtility.ExecuteSqlCommand(this.DbConnString, (SqlCommand cmd) =>
             {
                 DropTable(folderName, fileName, cmd);
 
                 return null;
-            }, ShouldThrowOnDbOperationException);
+            });
         }
 
         #endregion IDataManager
@@ -584,11 +584,6 @@ namespace MDo.Common.Data.IO
                 item[j] = obj;
             }
             return item;
-        }
-
-        private static bool ShouldThrowOnDbOperationException(Exception ex)
-        {
-            return !(ex is SqlException);
         }
 
         #endregion InternalOps
