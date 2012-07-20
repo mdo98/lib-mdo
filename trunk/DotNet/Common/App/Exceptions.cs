@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MDo.Common.App
+namespace System
 {
+    [Serializable]
     public class ArgumentMissingException : Exception
     {
         public ArgumentMissingException() : base() { }

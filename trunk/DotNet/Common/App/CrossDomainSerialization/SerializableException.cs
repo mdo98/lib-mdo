@@ -1,11 +1,10 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 
-namespace MDo.Common.App
+namespace System
 {
     [Serializable]
     public class SerializableException<T> : Exception
@@ -37,7 +36,7 @@ namespace MDo.Common.App
         }
 
 
-        #region Exception overrides
+        #region Error overrides
 
         public override string StackTrace
         {
@@ -50,6 +49,6 @@ namespace MDo.Common.App
             info.AddValue(Serialization_StackTrace, this._stackTrace);
         }
 
-        #endregion Exception overrides
+        #endregion Error overrides
     }
 }

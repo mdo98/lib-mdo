@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics.Random;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace MDo.Common.Numerics.Random.Test
+namespace MDo.Common.Numerics.Test.Random
 {
     public static class RngTestUtil
     {

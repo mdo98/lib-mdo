@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MDo.Common.Numerics.LinearAlgebra
+namespace System.Numerics.LinearAlgebra
 {
     public static class MatrixUtil
     {

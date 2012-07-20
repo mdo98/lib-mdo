@@ -48,9 +48,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\App\CLI\Program.cs" />
     <Compile Include="DataStream.cs" />
     <Compile Include="DeflateStream.cs" />
-    <Compile Include="Program.cs" />
     <Compile Include="TestCommon.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

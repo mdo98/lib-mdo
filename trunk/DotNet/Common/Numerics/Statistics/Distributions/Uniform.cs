@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MDo.Common.Numerics.Statistics.Distributions
+namespace System.Numerics.Statistics.Distributions
 {
     public class Uniform : IContinuousDistribution
     {

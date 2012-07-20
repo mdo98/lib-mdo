@@ -4,7 +4,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace MDo.Common.Numerics.Statistics.Distributions
+namespace System.Numerics.Statistics.Distributions
 {
     public class ChiSquare : IContinuousDistribution
     {

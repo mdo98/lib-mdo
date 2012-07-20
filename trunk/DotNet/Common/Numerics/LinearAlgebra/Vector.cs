@@ -4,7 +4,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace MDo.Common.Numerics.LinearAlgebra
+namespace System.Numerics.LinearAlgebra
 {
     public class Vector<TNumeric>
         where TNumeric : struct, IEquatable<TNumeric>, IComparable<TNumeric>

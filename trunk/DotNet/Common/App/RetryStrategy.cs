@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MDo.Common.App
+namespace System
 {
     public struct RetryStrategy
     {

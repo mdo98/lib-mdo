@@ -4,7 +4,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace MDo.Common.Numerics.Random
+namespace System.Numerics.Random
 {
     public abstract class RandomNumberGenerator : IRandom
     {

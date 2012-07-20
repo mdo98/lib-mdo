@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MDo.Common.Numerics.Random
+namespace System.Numerics.Random
 {
     /// <summary>
     /// Implementation of George Marsaglia's revised Super KISS RNG for 32 and 64-bit machines.

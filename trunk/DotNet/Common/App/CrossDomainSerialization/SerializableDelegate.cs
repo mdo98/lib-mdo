@@ -1,11 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Reflection;
 using System.Runtime.Serialization;
 
-namespace MDo.Common.App
+namespace System
 {
     [Serializable]
     public class SerializableDelegate<TDelegateType> : ISerializable

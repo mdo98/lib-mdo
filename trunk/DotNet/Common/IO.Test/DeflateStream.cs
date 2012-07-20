@@ -6,8 +6,6 @@ using System.Text;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-using MDo.Common.App.CLI;
-
 using Zlib.DotZLib;
 
 namespace MDo.Common.IO.Test
@@ -48,9 +46,10 @@ namespace MDo.Common.IO.Test
         
         #region ConsoleAppModule
 
-        public override void Run(string[] args)
+        public override int Run(string[] args)
         {
             Run();
+            return (int)ReturnCode.Normal;
         }
 
         #endregion ConsoleAppModule

@@ -1,13 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
 using Ionic.BZip2;
 using Ionic.Zlib;
 
-namespace MDo.Common.IO
+namespace System.IO
 {
     [Flags]
     public enum AlgorithmImplementation : int

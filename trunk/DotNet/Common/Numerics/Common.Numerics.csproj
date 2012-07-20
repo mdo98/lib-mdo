@@ -8,7 +8,7 @@
     <ProjectGuid>{32B7261A-CF53-4A10-AA11-FB3C5755BCD6}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MDo.Common.Numerics</RootNamespace>
+    <RootNamespace>System.Numerics</RootNamespace>
     <AssemblyName>MDo.Common.Numerics</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -57,7 +57,7 @@
     <Compile Include="Random\SuperKissRng1.cs" />
     <Compile Include="Random\MT19937Rng.cs" />
     <Compile Include="Random\NRCombinedRng2.cs" />
-    <Compile Include="IRandom.cs" />
+    <Compile Include="Random\IRandom.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Random\NRCombinedRng1.cs" />
     <Compile Include="Random\RandomNumberGenerator.cs" />
@@ -68,7 +68,7 @@
     <Compile Include="Statistics\Distributions\Normal.cs" />
     <Compile Include="Statistics\Distributions\Poisson.cs" />
     <Compile Include="Statistics\Distributions\Gamma.cs" />
-    <Compile Include="IDistribution.cs" />
+    <Compile Include="Statistics\Distributions\IDistribution.cs" />
     <Compile Include="Statistics\Distributions\KolmogorovSmirnov.cs" />
     <Compile Include="Statistics\Distributions\Uniform.cs" />
     <Compile Include="Statistics\Distributions\Utils.cs" />

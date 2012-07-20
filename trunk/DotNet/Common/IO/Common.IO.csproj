@@ -8,7 +8,7 @@
     <ProjectGuid>{E08B4654-FBCA-4C9D-9F20-35136D6AD344}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MDo.Common.IO</RootNamespace>
+    <RootNamespace>System.IO</RootNamespace>
     <AssemblyName>MDo.Common.IO</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>

@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Numerics;
+using System.Numerics.Random;
+using System.Numerics.Statistics.Distributions;
 using System.Text;
 using System.Threading.Tasks;
 
-using MDo.Common.Numerics.Statistics.Distributions;
-
-namespace MDo.Common.Numerics.Random.Test
+namespace MDo.Common.Numerics.Test.Random
 {
     public class RngTest
     {

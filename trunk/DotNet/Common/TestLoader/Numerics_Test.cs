@@ -5,8 +5,8 @@ using System.Text;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-using MDo.Common.Numerics.Random.Test;
-using MDo.Common.Numerics.Statistics.Test;
+using MDo.Common.Numerics.Test.Random;
+using MDo.Common.Numerics.Test.Statistics;
 
 namespace MDo.Common.TestLoader
 {

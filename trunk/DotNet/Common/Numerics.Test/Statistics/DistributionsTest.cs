@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics.Statistics.Distributions;
 using System.Text;
 
-using MDo.Common.Numerics.Statistics.Distributions;
-
-namespace MDo.Common.Numerics.Statistics.Test
+namespace MDo.Common.Numerics.Test.Statistics
 {
     public static partial class StatisticsTest
     {
