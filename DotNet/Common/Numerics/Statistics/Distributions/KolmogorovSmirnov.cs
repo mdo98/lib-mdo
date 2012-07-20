@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-using MDo.Common.Numerics.LinearAlgebra;
+using System.Numerics.LinearAlgebra;
 
-namespace MDo.Common.Numerics.Statistics.Distributions
+namespace System.Numerics.Statistics.Distributions
 {
     public class KolmogorovSmirnov : IContinuousDistribution
     {

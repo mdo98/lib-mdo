@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MDo.Common.Numerics.Random
+namespace System.Numerics.Random
 {
     /// <summary>
     /// Implementation of the Ranq2 combined RNG in Numerical Recipes.

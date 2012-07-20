@@ -1,14 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.IO;
 using System.Linq;
 using System.Text;
 
-using MDo.Common.App.CLI;
-
-namespace MDo.Common.Data.IO.Test
+namespace MDo.Common.Data.Test
 {
     public class CopyData : ConsoleAppModule
     {
+        public const int ReturnCode_Canceled = -1;
+
         public static void Run(
             bool toDb, string baseDir, string server, string database, string userId, string password,
             ICollection<string> files,
@@ -68,7 +70,7 @@ namespace MDo.Common.Data.IO.Test
             SqlUtility.EncryptConnection = encryptState;
         }
 
-        public override void Run(string[] args)
+        public override int Run(string[] args)
         {
             bool toDb = false, txt2db = false, db2txt = false;
             string baseDir = string.Empty;
@@ -149,7 +151,7 @@ namespace MDo.Common.Data.IO.Test
             {
                 baseDir = ConsoleAppUtil.GetInteractiveInput("Data Folder", true);
                 if (null == baseDir)
-                    return;
+                    return ReturnCode_Canceled;
                 baseDir = baseDir.Trim();
             }
 
@@ -157,7 +159,7 @@ namespace MDo.Common.Data.IO.Test
             {
                 server = ConsoleAppUtil.GetInteractiveInput("Server", true);
                 if (null == server)
-                    return;
+                    return ReturnCode_Canceled;
                 server = server.Trim();
             }
 
@@ -165,7 +167,7 @@ namespace MDo.Common.Data.IO.Test
             {
                 database = ConsoleAppUtil.GetInteractiveInput("Database", true);
                 if (null == database)
-                    return;
+                    return ReturnCode_Canceled;
                 database = database.Trim();
             }
 
@@ -187,7 +189,7 @@ namespace MDo.Common.Data.IO.Test
                         break;
 
                     case ConsoleKey.X:
-                        return;
+                        return ReturnCode_Canceled;
 
                     default:
                         continue;
@@ -198,7 +200,7 @@ namespace MDo.Common.Data.IO.Test
 
                 userId = ConsoleAppUtil.GetInteractiveInput("User ID", true);
                 if (null == userId)
-                    return;
+                    return ReturnCode_Canceled;
                 userId = userId.Trim();
             }
 
@@ -209,11 +211,12 @@ namespace MDo.Common.Data.IO.Test
             {
                 password = ConsoleAppUtil.GetInteractiveInput("Password", false);
                 if (null == password)
-                    return;
+                    return ReturnCode_Canceled;
                 password = password.Trim();
             }
 
             Run(toDb, baseDir, server, database, userId, password, files, echoSource, appendDest, encrypt);
+            return (int)ReturnCode.Normal;
         }
 
         public override void PrintUsage()

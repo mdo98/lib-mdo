@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MDo.Common.Numerics.Random
+namespace System.Numerics.Random
 {
     /// <summary>
     /// Wraps System.Random and implements IRandom interface to test its randomness properties.

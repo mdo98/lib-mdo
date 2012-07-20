@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
+﻿using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Reflection;
@@ -10,16 +8,15 @@ using System.Threading;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
 
-using MDo.Common.App;
-
-namespace MDo.Common.Data
+namespace System.Data
 {
     public static class SqlUtility
     {
         public const string SqlServer_MasterDb = "master";
+        public const int DefaultCommandTimeoutInSeconds = 600;
 
         public static bool EncryptConnection = false;
-        private static int CommandTimeoutInSeconds = 600;
+        private static int CommandTimeoutInSeconds = DefaultCommandTimeoutInSeconds;
 
         public static bool DatabaseExists(string server, string database, string userId, string password)
         {
@@ -171,6 +168,48 @@ namespace MDo.Common.Data
                 false);
         }
 
+        public static void GrantServerPermissionToLogin(string server, string userId, string password, string login, params string[] permissions)
+        {
+            if (null != permissions)
+            {
+                ExecuteSqlCommand(
+                    GetSqlConnectionString(server, SqlServer_MasterDb, userId, password),
+                    (SqlCommand cmd) =>
+                    {
+                        foreach (string permission in permissions)
+                        {
+                            cmd.CommandText = string.Format(
+                                "GRANT {0} TO [{1}];",
+                                permission,
+                                login);
+                            cmd.ExecuteNonQuery();
+                        }
+                        return null;
+                    });
+            }
+        }
+
+        public static void DenyServerPermissionToLogin(string server, string userId, string password, string login, params string[] permissions)
+        {
+            if (null != permissions)
+            {
+                ExecuteSqlCommand(
+                    GetSqlConnectionString(server, SqlServer_MasterDb, userId, password),
+                    (SqlCommand cmd) =>
+                    {
+                        foreach (string permission in permissions)
+                        {
+                            cmd.CommandText = string.Format(
+                                "DENY {0} TO [{1}];",
+                                permission,
+                                login);
+                            cmd.ExecuteNonQuery();
+                        }
+                        return null;
+                    });
+            }
+        }
+
         public static void GrantDbPermissionToUser(string server, string database, string userId, string password, string userName, params string[] permissions)
         {
             if (null != permissions)
@@ -183,6 +222,27 @@ namespace MDo.Common.Data
                         {
                             cmd.CommandText = string.Format(
                                 "GRANT {0} TO [{1}];",
+                                permission,
+                                userName);
+                            cmd.ExecuteNonQuery();
+                        }
+                        return null;
+                    });
+            }
+        }
+
+        public static void DenyDbPermissionToUser(string server, string database, string userId, string password, string userName, params string[] permissions)
+        {
+            if (null != permissions)
+            {
+                ExecuteSqlCommand(
+                    GetSqlConnectionString(server, database, userId, password),
+                    (SqlCommand cmd) =>
+                    {
+                        foreach (string permission in permissions)
+                        {
+                            cmd.CommandText = string.Format(
+                                "DENY {0} TO [{1}];",
                                 permission,
                                 userName);
                             cmd.ExecuteNonQuery();

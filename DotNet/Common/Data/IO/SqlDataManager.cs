@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
+﻿using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 
-namespace MDo.Common.Data.IO
+namespace System.Data.IO
 {
     public class SqlDataManager : IDataManager
     {
@@ -14,6 +12,14 @@ namespace MDo.Common.Data.IO
         public SqlDataManager(string connString)
         {
             this.DbConnString = SqlUtility.GetSqlConnectionString(connString);
+
+            SqlConnectionStringBuilder sqlConnString = new SqlConnectionStringBuilder(connString);
+            string server = sqlConnString.DataSource, database = sqlConnString.InitialCatalog,
+                   userId = sqlConnString.IntegratedSecurity ? null : sqlConnString.UserID,
+                   password = sqlConnString.IntegratedSecurity ? null : sqlConnString.Password;
+
+            if (!SqlUtility.DatabaseExists(server, database, userId, password))
+                SqlUtility.CreateDatabase(server, database, userId, password);
         }
 
 

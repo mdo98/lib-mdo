@@ -1,11 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text;
 
-namespace MDo.Common.App
+namespace System
 {
     [Serializable]
     internal sealed class SerializableObject : ISerializable

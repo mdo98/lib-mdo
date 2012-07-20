@@ -3,13 +3,12 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Numerics.Random;
 using System.Text;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-using MDo.Common.App.CLI;
-
-namespace MDo.Common.Numerics.Random.Test
+namespace MDo.Common.Numerics.Test.Random
 {
 #if DEBUG
     public class Numerics_RNG_SuperKissRngImplCheck : ConsoleAppModule
@@ -138,7 +137,7 @@ namespace MDo.Common.Numerics.Random.Test
 
         #region ConsoleAppModule
 
-        public override void Run(string[] args)
+        public override int Run(string[] args)
         {
             int? numSamples = null;
             try
@@ -151,6 +150,8 @@ namespace MDo.Common.Numerics.Random.Test
                 Run();
             else
                 Run(numSamples.Value);
+
+            return (int)ReturnCode.Normal;
         }
 
         public override void PrintUsage()
@@ -171,7 +172,7 @@ namespace MDo.Common.Numerics.Random.Test
 
         #region ConsoleAppModule
 
-        public override void Run(string[] args)
+        public override int Run(string[] args)
         {
             int? numSamples = null;
             try
@@ -184,6 +185,8 @@ namespace MDo.Common.Numerics.Random.Test
                 Run();
             else
                 Run(numSamples.Value);
+
+            return (int)ReturnCode.Normal;
         }
 
         public override void PrintUsage()
@@ -236,7 +239,7 @@ namespace MDo.Common.Numerics.Random.Test
 
         #region ConsoleAppModule
 
-        public override void Run(string[] args)
+        public override int Run(string[] args)
         {
             uint? rngTestFlags = null;
             if (args.Length > 0 && !string.IsNullOrEmpty(args[0]))
@@ -260,6 +263,8 @@ namespace MDo.Common.Numerics.Random.Test
                 Run();
             else
                 Run((RngTestFlag)Enum.ToObject(typeof(RngTestFlag), rngTestFlags.Value));
+
+            return (int)ReturnCode.Normal;
         }
 
         public override void PrintUsage()

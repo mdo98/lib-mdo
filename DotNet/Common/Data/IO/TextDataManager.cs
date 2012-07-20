@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace MDo.Common.Data.IO
+namespace System.Data.IO
 {
     public class TextDataManager : IDataManager
     {

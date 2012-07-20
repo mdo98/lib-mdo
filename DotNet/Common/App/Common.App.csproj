@@ -8,7 +8,7 @@
     <ProjectGuid>{977159D4-FDB7-447E-8D09-04C4A7F88E52}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MDo.Common.App</RootNamespace>
+    <RootNamespace>System</RootNamespace>
     <AssemblyName>MDo.Common.App</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -44,8 +44,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CLI\CmdLineBootstrapper.cs" />
+    <Compile Include="CLI\ConsoleAppBootstrapper.cs" />
     <Compile Include="CLI\ConsoleAppUtil.cs" />
+    <Compile Include="CLI\Program.cs" />
     <Compile Include="CrossDomainSerialization\SerializableDelegate.cs" />
     <Compile Include="CrossDomainSerialization\SerializableException.cs" />
     <Compile Include="CLI\ConsoleAppModule.cs" />
