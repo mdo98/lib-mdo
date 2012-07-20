@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Numerics.Random;
+using System.Numerics.Statistics.Distributions;
 using System.Linq;
 using System.Text;
-
-using MDo.Common.Numerics;
-using MDo.Common.Numerics.Random;
-using MDo.Common.Numerics.Statistics.Distributions;
 
 namespace MDo.Interop.R.Test.DataGeneration
 {

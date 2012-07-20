@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Numerics;
+using System.Numerics.Random;
 using System.Linq;
 using System.Text;
-
-using MDo.Common.App.CLI;
-using MDo.Common.Numerics;
-using MDo.Common.Numerics.Random;
 
 using MDo.Interop.R.Core;
 using MDo.Interop.R.Test;
@@ -163,7 +161,7 @@ namespace MDo.Interop.R.Models.Test
 
         #region ConsoleAppModule
 
-        public override void Run(string[] args)
+        public override int Run(string[] args)
         {
             if (null == args || args.Length == 0)
             {
@@ -224,6 +222,7 @@ namespace MDo.Interop.R.Models.Test
                     numTraining,
                     numTest);
             }
+            return (int)ReturnCode.Normal;
         }
 
         public override void PrintUsage()

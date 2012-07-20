@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Numerics.Random;
 using System.Reflection;
 using System.Text;
-
-using MDo.Common.Numerics.Random;
 
 namespace MDo.Interop.R.Test
 {

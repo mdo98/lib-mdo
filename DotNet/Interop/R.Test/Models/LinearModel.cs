@@ -2,12 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Numerics;
+using System.Numerics.Random;
 using System.Text;
-
-using MDo.Common.App.CLI;
-using MDo.Common.IO;
-using MDo.Common.Numerics;
-using MDo.Common.Numerics.Random;
 
 using MDo.Interop.R.Core;
 using MDo.Interop.R.Test;
@@ -143,12 +140,13 @@ namespace MDo.Interop.R.Models.Test
             }
         }
 
-        public override void Run(string[] args)
+        public override int Run(string[] args)
         {
             if (null == args || args.Length == 0)
                 Execute(true, string.Empty);
             else
                 Execute(true, args);
+            return (int)ReturnCode.Normal;
         }
 
         public override void PrintUsage()
