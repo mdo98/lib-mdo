@@ -402,7 +402,7 @@ namespace System.Data
         {
             if (ex is SqlException)
             {
-                return (ex as SqlException).Errors.Cast<SqlError>().Any(item => RetryableSqlErrorCodes.Keys.Contains(item.Number));
+                return (ex as SqlException).Errors.Cast<SqlError>().Any(item => RetryableSqlErrorCodes.ContainsKey(item.Number));
             }
             else
             {
