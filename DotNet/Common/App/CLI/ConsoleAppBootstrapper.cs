@@ -253,13 +253,13 @@ namespace System
             }
             catch (ArgumentMissingException ex)
             {
-                Trace.TraceError("Error  : In module {0}, missing argument '{1}'.", module.Name, ex.ParameterName);
+                Trace.TraceError("Error  : Module {0}: {1}", module.Name, ex.Message);
                 module.PrintUsage();
                 returnCode = (int)ReturnCode.ArgumentMissing;
             }
             catch (Exception ex)
             {
-                Trace.TraceError("An error occurred: {0}", ex.ToString());
+                Trace.TraceError("Error  : Module {0}: {1}", module.Name, ex.ToString());
                 returnCode = (int)ReturnCode.Error;
             }
             if (time)
