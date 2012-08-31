@@ -47,12 +47,13 @@
     <Compile Include="CLI\ConsoleAppBootstrapper.cs" />
     <Compile Include="CLI\ConsoleAppUtil.cs" />
     <Compile Include="CLI\Program.cs" />
-    <Compile Include="CrossDomainSerialization\SerializableDelegate.cs" />
-    <Compile Include="CrossDomainSerialization\SerializableException.cs" />
+    <Compile Include="Sandbox\Sandbox.cs" />
+    <Compile Include="Sandbox\SerializableDelegate.cs" />
+    <Compile Include="Sandbox\SerializableException.cs" />
     <Compile Include="CLI\ConsoleAppModule.cs" />
     <Compile Include="Exceptions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="CrossDomainSerialization\SerializableObject.cs" />
+    <Compile Include="Sandbox\SerializableObject.cs" />
     <Compile Include="RetryStrategy.cs" />
   </ItemGroup>
   <ItemGroup />
