@@ -7,19 +7,20 @@ namespace System.Data.IO
 {
     public class SqlDataManager : IDataManager
     {
+        private const string RowIdColName = "_ID_";
+
         private readonly string DbConnString;
 
         public SqlDataManager(string connString)
         {
-            this.DbConnString = SqlUtility.GetSqlConnectionString(connString);
-
             SqlConnectionStringBuilder sqlConnString = new SqlConnectionStringBuilder(connString);
             string server = sqlConnString.DataSource, database = sqlConnString.InitialCatalog,
                    userId = sqlConnString.IntegratedSecurity ? null : sqlConnString.UserID,
                    password = sqlConnString.IntegratedSecurity ? null : sqlConnString.Password;
 
-            if (!SqlUtility.DatabaseExists(server, database, userId, password))
-                SqlUtility.CreateDatabase(server, database, userId, password);
+            SqlUtility.CreateDatabase(server, database, userId, password, false);
+            
+            this.DbConnString = SqlUtility.GetSqlConnectionString(connString);
         }
 
 
@@ -133,7 +134,7 @@ namespace System.Data.IO
 
                     foreach (DataRow row in schemaTable.Rows)
                     {
-                        if (((string)row["ColumnName"]).Equals("_ID_", StringComparison.OrdinalIgnoreCase) &&
+                        if (((string)row["ColumnName"]).Equals(RowIdColName, StringComparison.OrdinalIgnoreCase) &&
                             (Type)row["DataType"] == typeof(long) &&
                             (bool)row["AllowDBNull"] == false)
                         {
@@ -149,7 +150,7 @@ namespace System.Data.IO
                             cmd2.Transaction = cmd.Transaction;
 
                             cmd2.CommandType = CommandType.Text;
-                            cmd2.CommandText = string.Format("SELECT COUNT_BIG(_ID_), MIN(_ID_), MAX(_ID_) FROM {0};", qualifiedTableName);
+                            cmd2.CommandText = string.Format("SELECT COUNT_BIG({1}), MIN({1}), MAX({1}) FROM {0};", qualifiedTableName, RowIdColName);
                             cmd2.Parameters.Clear();
 
                             using (SqlDataReader reader2 = cmd2.ExecuteReader())
@@ -229,7 +230,7 @@ namespace System.Data.IO
 
                 cmd.CommandType = CommandType.Text;
                 cmd.CommandText = metadata.SupportsIndexing
-                    ? string.Format("SELECT TOP({2}) * FROM {0} WHERE _ID_ >= {1};", qualifiedTableName, (metadata.StartIndex ?? 0L) + startIndx, numItems)
+                    ? string.Format("SELECT TOP({1}) * FROM {0} WHERE {2} >= {3};", qualifiedTableName, numItems, RowIdColName, (metadata.StartIndex ?? 0L) + startIndx)
                     : string.Format("SELECT TOP({1}) * FROM {0};", qualifiedTableName, startIndx+numItems);
                 cmd.Parameters.Clear();
 
@@ -395,62 +396,32 @@ namespace System.Data.IO
 
             SqlMetadata metadata = (SqlMetadata)this.GetMetadata(folderName, fileName);
 
-            SqlUtility.ExecuteSqlCommand(this.DbConnString, (SqlCommand cmd) =>
+            int numDims = metadata.FieldNames.Length;
+
+            DataTable table = new DataTable();
+            for (int j = 0; j < numDims; j++)
             {
-                int numDims = metadata.FieldNames.Length;
+                table.Columns.Add(metadata.FieldNames[j], metadata.FieldTypes[j]);
+            }
 
-                StringBuilder cmdText = new StringBuilder();
-                cmdText.AppendFormat("INSERT INTO {0} (", GetQualifiedObjectName(metadata.FolderName, metadata.FileName));
-                for (int j = 0; j < numDims; j++)
+            foreach (object[] item in items)
+            {
+                table.Rows.Add(item);
+            }
+
+            SqlUtility.ExecuteSqlOperation(this.DbConnString, (SqlConnection conn) =>
+            {
+                using (SqlBulkCopy bulkCopy = new SqlBulkCopy(conn))
                 {
-                    cmdText.AppendFormat("[{0}]", metadata.FieldNames[j]);
-                    if (j < numDims-1)
-                        cmdText.Append(", ");
-                    else
-                        cmdText.Append(")");
-                }
-                cmdText.Append(" VALUES (");
-                for (int j = 0; j < numDims; j++)
-                {
-                    cmdText.AppendFormat("@P_{0}", j);
-                    if (j < numDims-1)
-                        cmdText.Append(", ");
-                    else
-                        cmdText.Append(")");
-                }
-                cmdText.Append(";");
-
-                cmd.CommandType = CommandType.Text;
-                cmd.CommandText = cmdText.ToString();
-                cmd.Parameters.Clear();
-
-                for (int j = 0; j < numDims; j++)
-                {
-                    cmd.Parameters.Add("@P_" + j, SqlUtility.ToSqlDbType(metadata.FieldTypes[j]));
-                }
-
-                ICollection<Exception> exceptions = new List<Exception>();
-
-                foreach (object[] item in items)
-                {
-                    try
+                    bulkCopy.BulkCopyTimeout = SqlUtility.DefaultCommandTimeoutInSeconds;
+                    for (int j = 0; j < numDims; j++)
                     {
-                        for (int j = 0; j < numDims; j++)
-                        {
-                            cmd.Parameters["@P_" + j].Value = (null == item[j] ? DBNull.Value : item[j]);
-                        }
-                        cmd.ExecuteNonQuery();
+                        bulkCopy.ColumnMappings.Add(metadata.FieldNames[j], metadata.FieldNames[j]);
                     }
-                    catch (SqlException ex)
-                    {
-                        exceptions.Add(ex);
-                    }
+                    bulkCopy.DestinationTableName = GetQualifiedObjectName(folderName, fileName);
+                    bulkCopy.WriteToServer(table);
                 }
-
-                if (exceptions.Count > 0)
-                    throw new AggregateException(exceptions);
-                else
-                    return null;
+                return null;
             });
         }
 
@@ -532,7 +503,7 @@ namespace System.Data.IO
             int numDims = metadata.FieldNames.Length;
             {
                 StringBuilder cmdText = new StringBuilder();
-                cmdText.AppendFormat("CREATE TABLE {0} (_ID_ BIGINT IDENTITY(0,1) PRIMARY KEY", qualifiedTableName);
+                cmdText.AppendFormat("CREATE TABLE {0} ({1} BIGINT IDENTITY(0,1) PRIMARY KEY", qualifiedTableName, RowIdColName);
                 for (int j = 0; j < numDims; j++)
                 {
                     cmdText.AppendFormat(", [{0}] {1}", metadata.FieldNames[j], SqlUtility.ToSqlType(metadata.FieldTypes[j]));

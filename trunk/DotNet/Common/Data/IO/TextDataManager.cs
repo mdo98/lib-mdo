@@ -7,8 +7,8 @@ namespace System.Data.IO
 {
     public class TextDataManager : IDataManager
     {
-        private const string MetaFileExtension = ".meta";
-        private const string DataFileExtension = ".data";
+        public const string MetaFileExtension = ".meta";
+        public const string DataFileExtension = ".data";
 
         private const string Header_FieldCount_Identifier   = "dims";
         private const string Header_ItemCount_Identifier    = "items";
@@ -22,6 +22,7 @@ namespace System.Data.IO
         {
             if (!Directory.Exists(baseDir))
                 Directory.CreateDirectory(baseDir);
+
             this.BaseDir = baseDir;
         }
 
