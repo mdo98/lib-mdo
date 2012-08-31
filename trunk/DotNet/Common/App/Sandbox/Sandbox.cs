@@ -6,7 +6,7 @@ using System.Text;
 
 namespace System
 {
-    public class Sandbox : MarshalByRefObject
+    public sealed class Sandbox : MarshalByRefObject
     {
         private static readonly object SyncRoot = new object();
         private static readonly IDictionary<string, AppDomain> ActiveDomains = new Dictionary<string, AppDomain>();
