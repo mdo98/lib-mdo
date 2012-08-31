@@ -80,7 +80,7 @@ namespace System
                     string inFile = args[++i];
                     try
                     {
-                        Console.SetIn(new StreamReader(File.OpenRead(inFile)));
+                        Console.SetIn(new StreamReader(inFile));
                     }
                     catch (Exception ex)
                     {
@@ -92,7 +92,7 @@ namespace System
                     string outFile = args[++i];
                     try
                     {
-                        Console.SetOut(new StreamWriter(new FileStream(outFile, FileMode.Create, FileAccess.Write, FileShare.Read)));
+                        Console.SetOut(new StreamWriter(outFile, false, Encoding.UTF8));
                     }
                     catch (Exception ex)
                     {
@@ -104,7 +104,7 @@ namespace System
                     string errFile = args[++i];
                     try
                     {
-                        Console.SetError(new StreamWriter(new FileStream(errFile, FileMode.Create, FileAccess.Write, FileShare.Read)));
+                        Console.SetError(new StreamWriter(errFile, false, Encoding.UTF8));
                     }
                     catch (Exception ex)
                     {
@@ -240,19 +240,20 @@ namespace System
         protected int RunModule(IConsoleAppModule module, string[] args, bool time = true)
         {
             int returnCode;
+            Trace.TraceInformation("Module {0}", module.Name);
             DateTime start = DateTime.Now;
             if (time)
             {
-                Console.WriteLine("Module Start  : {0}", start);
+                Trace.TraceInformation("Start  : {0}", start);
             }
             try
             {
                 returnCode = module.Run(args);
-                Console.WriteLine("Module Return : {0}", returnCode);
+                Trace.TraceInformation("Return : {0}", returnCode);
             }
             catch (ArgumentMissingException ex)
             {
-                Trace.TraceError("Module {0}: Missing argument '{1}'.", module.Name, ex.ParameterName);
+                Trace.TraceError("Error  : In module {0}, missing argument '{1}'.", module.Name, ex.ParameterName);
                 module.PrintUsage();
                 returnCode = (int)ReturnCode.ArgumentMissing;
             }
@@ -264,8 +265,8 @@ namespace System
             if (time)
             {
                 DateTime end = DateTime.Now;
-                Console.WriteLine("Module End    : {0}", end);
-                Console.WriteLine("Module Elapsed: {0}", end - start);
+                Trace.TraceInformation("End    : {0}", end);
+                Trace.TraceInformation("Elapsed: {0}", end - start);
             }
             return returnCode;
         }
