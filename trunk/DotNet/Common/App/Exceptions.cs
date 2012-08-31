@@ -6,12 +6,15 @@ using System.Text;
 namespace System
 {
     [Serializable]
-    public class ArgumentMissingException : Exception
+    public class ArgumentMissingException : ArgumentException
     {
-        public ArgumentMissingException() : base() { }
-        public ArgumentMissingException(string paramName) : base() { this.ParameterName = paramName; }
+        private ArgumentMissingException() : base() { }
+        public ArgumentMissingException(string paramName) : base(Message(paramName), paramName) { }
         protected ArgumentMissingException(SerializationInfo info, StreamingContext context) : base(info, context) { }
 
-        public string ParameterName { get; private set; }
+        private static string Message(string paramName)
+        {
+            return string.Format("Missing parameter: {0}", paramName);
+        }
     }
 }
