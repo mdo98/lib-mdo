@@ -16,9 +16,6 @@ namespace System
         private const int NumRequiredArgs = 1;
 
         public static readonly string[] CmdLineArg_Help = { "HELP", "/?", "-?" };
-        public static readonly string[] CmdLineArg_InFile = { "IN", "/IN", "-IN" };
-        public static readonly string[] CmdLineArg_OutFile = { "OUT", "/OUT", "-OUT" };
-        public static readonly string[] CmdLineArg_ErrFile = { "ERR", "/ERR", "-ERR" };
 
         public const string Command_Enumerate = "ENUM";
         public const string Command_Help = "HELP";
@@ -74,42 +71,6 @@ namespace System
                 if (CmdLineArg_Help.Any(expectedArg => expectedArg.Equals(args[i], StringComparison.OrdinalIgnoreCase)))
                 {
                     help = true;
-                }
-                else if (CmdLineArg_InFile.Any(expectedArg => expectedArg.Equals(args[i], StringComparison.OrdinalIgnoreCase)))
-                {
-                    string inFile = args[++i];
-                    try
-                    {
-                        Console.SetIn(new StreamReader(inFile));
-                    }
-                    catch (Exception ex)
-                    {
-                        Trace.TraceError("IN: Unable to open '{0}' for reading; using stdin. The error was: {1}", inFile, ex.ToString());
-                    }
-                }
-                else if (CmdLineArg_OutFile.Any(expectedArg => expectedArg.Equals(args[i], StringComparison.OrdinalIgnoreCase)))
-                {
-                    string outFile = args[++i];
-                    try
-                    {
-                        Console.SetOut(new StreamWriter(outFile, false, Encoding.UTF8));
-                    }
-                    catch (Exception ex)
-                    {
-                        Trace.TraceError("OUT: Unable to open '{0}' for writing; using stdout. The error was: {1}", outFile, ex.ToString());
-                    }
-                }
-                else if (CmdLineArg_ErrFile.Any(expectedArg => expectedArg.Equals(args[i], StringComparison.OrdinalIgnoreCase)))
-                {
-                    string errFile = args[++i];
-                    try
-                    {
-                        Console.SetError(new StreamWriter(errFile, false, Encoding.UTF8));
-                    }
-                    catch (Exception ex)
-                    {
-                        Trace.TraceError("ERR: Unable to open '{0}' for writing; using stderr. The error was: {1}", errFile, ex.ToString());
-                    }
                 }
                 else
                 {
@@ -201,9 +162,6 @@ namespace System
             usage.AppendLine  ("-------------------------");
             usage.AppendLine  ("  [OptionalArgs] :=");
             usage.AppendFormat("      {0}: Prints help.", CmdLineArg_Help[0]);
-            usage.AppendFormat("      {0} [InFile] : Uses [InFile]  as stdin.",  CmdLineArg_InFile[0]);     usage.AppendLine();
-            usage.AppendFormat("      {0} [OutFile]: Uses [OutFile] as stdout.", CmdLineArg_OutFile[0]);    usage.AppendLine();
-            usage.AppendFormat("      {0} [ErrFile]: Uses [ErrFile] as stderr.", CmdLineArg_ErrFile[0]);    usage.AppendLine();
             usage.AppendLine  ("  [ModuleName] := A registered module.");
             usage.AppendLine  ("  [ModuleIndx] := Optionally, specify a 0-based index, if multiple modules have the same name.");
             foreach (string moduleName in this.ModuleNames)
