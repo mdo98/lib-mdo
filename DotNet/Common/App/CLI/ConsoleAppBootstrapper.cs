@@ -36,7 +36,7 @@ namespace System
         #region Fields
 
         protected readonly IList<IConsoleAppModule> Modules = new List<IConsoleAppModule>();
-        protected readonly ISet<string> ModuleNames = new HashSet<string>();
+        protected readonly IDictionary<string, int> ModuleInfos = new Dictionary<string, int>();
 
         protected bool TimeModule = true;
 
@@ -93,7 +93,7 @@ namespace System
             {
                 string[] moduleNameAndId = args[0].Split(new char[] { '#' }, StringSplitOptions.RemoveEmptyEntries);
                 moduleName = StandardizeModuleName(moduleNameAndId[0].Trim());
-                if (!this.ModuleNames.Contains(moduleName))
+                if (!this.ModuleInfos.ContainsKey(moduleName))
                 {
                     Trace.TraceError("Module {0} not found.", moduleName);
                     return (int)ReturnCode.ModuleNotFound;
@@ -101,33 +101,35 @@ namespace System
                 IList<IConsoleAppModule> modules = this.Modules.Where(item => StandardizeModuleName(item.Name) == moduleName).ToList();
                 if (modules.Count > 1)
                 {
-                    int moduleId;
-                    if (moduleNameAndId.Length < 2 || !int.TryParse(moduleNameAndId[1], out moduleId))
+                    if (moduleNameAndId.Length >= 2)
                     {
-                        Console.WriteLine("There are {0} modules named {0}. Select the module you want to run:", modules.Count, moduleName);
-                        while (true)
+                        try
                         {
-                            Console.WriteLine("#ID\tModule");
-                            for (int i = 0; i < modules.Count; i++)
-                            {
-                                Console.WriteLine("{0}\t{1}", i, modules[i].GetType().FullName);
-                            }
-                            Console.Write("Module #ID: ");
-                            string moduleSelection = Console.ReadLine().Trim();
-                            try
-                            {
-                                module = GetModuleFromIndexString(modules, moduleSelection);
-                                break;
-                            }
-                            catch (ArgumentException ex)
-                            {
-                                Console.WriteLine(ex.Message);
-                            }
+                            module = GetModuleFromIndexString(modules, moduleNameAndId[1].Trim());
+                        }
+                        catch (ArgumentException ex)
+                        {
+                            Console.WriteLine(ex.Message);
                         }
                     }
-                    else
+                    while (null == module)
                     {
-                        module = modules[moduleId];
+                        Console.WriteLine("There are {0} modules named {1}. Select the module you want to run:", modules.Count, moduleName);
+                        Console.WriteLine("#ID\tModule");
+                        for (int i = 0; i < modules.Count; i++)
+                        {
+                            Console.WriteLine("{0}\t{1}", i, modules[i].GetType().FullName);
+                        }
+                        Console.Write("Module #ID: ");
+                        string moduleSelection = Console.ReadLine().Trim();
+                        try
+                        {
+                            module = GetModuleFromIndexString(modules, moduleSelection);
+                        }
+                        catch (ArgumentException ex)
+                        {
+                            Console.WriteLine(ex.Message);
+                        }
                     }
                 }
                 else
@@ -161,14 +163,19 @@ namespace System
             usage.AppendFormat("{0}: [OptionalArgs] [ModuleName]#[ModuleIndx] [ModuleArgs]", entryBinary);  usage.AppendLine();
             usage.AppendLine  ("-------------------------");
             usage.AppendLine  ("  [OptionalArgs] :=");
-            usage.AppendFormat("      {0}: Prints help.", CmdLineArg_Help[0]);
+            usage.AppendFormat("      {0}: Prints help.", CmdLineArg_Help[0]);  usage.AppendLine();
+            usage.AppendLine  ("-------------------------");
             usage.AppendLine  ("  [ModuleName] := A registered module.");
-            usage.AppendLine  ("  [ModuleIndx] := Optionally, specify a 0-based index, if multiple modules have the same name.");
-            foreach (string moduleName in this.ModuleNames)
+            foreach (KeyValuePair<string, int> moduleInfo in this.ModuleInfos)
             {
-                usage.AppendFormat("      {0}", moduleName);
-                usage.AppendLine();
+                IList<IConsoleAppModule> modules = this.Modules.Where(item => StandardizeModuleName(item.Name) == moduleInfo.Key).ToList();
+                for (int i = 0; i < moduleInfo.Value; i++)
+                {
+                    usage.AppendFormat("      {0}#{1} ({2})", modules[i].Name, i, modules[i].GetType().FullName);
+                    usage.AppendLine();
+                }
             }
+            usage.AppendLine  ("  [ModuleIndx] := Optionally, specify a 0-based index, if multiple modules have the same name.");
             usage.AppendFormat("  [ModuleArgs] := Module arguments. For more info: {0} {1} [ModuleName]", entryBinary, CmdLineArg_Help[0]); usage.AppendLine();
             usage.AppendLine  ("=========================");
             Console.WriteLine(usage.ToString());
@@ -186,14 +193,16 @@ namespace System
             if (string.IsNullOrWhiteSpace(moduleName))
                 throw new ArgumentNullException("module.Name");
 
-            if (this.ModuleNames.Contains(moduleName))
+            if (this.ModuleInfos.ContainsKey(moduleName))
             {
                 if (!allowDuplicateNames)
                     throw new InvalidOperationException(string.Format("A module is already registered as {0}.", moduleName));
+                else
+                    this.ModuleInfos[moduleName] = this.ModuleInfos[moduleName] + 1;
             }
             else
             {
-                this.ModuleNames.Add(moduleName);
+                this.ModuleInfos.Add(moduleName, 1);
             }
             this.Modules.Add(module);
         }
