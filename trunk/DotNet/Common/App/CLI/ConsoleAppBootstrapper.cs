@@ -194,23 +194,26 @@ namespace System
 
         public void PrintUsage()
         {
+            StringBuilder usage = new StringBuilder();
             string entryBinary = Path.GetFileName(Assembly.GetEntryAssembly().Location);
-            Console.WriteLine("=========================");
-            Console.WriteLine(entryBinary + " [OptionalArgs] [ModuleName]#[ModuleIndx] [ModuleArgs]");
-            Console.WriteLine("-------------------------");
-            Console.WriteLine("  [OptionalArgs] :=");
-            Console.WriteLine("      " + CmdLineArg_Help[0] + ": Prints help.");
-            Console.WriteLine("      " + CmdLineArg_InFile[0] + " [InFile]: Uses [InFile] as stdin.");
-            Console.WriteLine("      " + CmdLineArg_OutFile[0] + " [OutFile]: Uses [OutFile] as stdout.");
-            Console.WriteLine("      " + CmdLineArg_ErrFile[0] + " [ErrFile]: Uses [ErrFile] as stderr.");
-            Console.WriteLine("  [ModuleName] := A registered module.");
-            Console.WriteLine("  [ModuleIndx] := Optionally, specify a 0-based index, if multiple modules have the same name.");
+            usage.AppendLine  ("=========================");
+            usage.AppendFormat("{0}: [OptionalArgs] [ModuleName]#[ModuleIndx] [ModuleArgs]", entryBinary);  usage.AppendLine();
+            usage.AppendLine  ("-------------------------");
+            usage.AppendLine  ("  [OptionalArgs] :=");
+            usage.AppendFormat("      {0}: Prints help.", CmdLineArg_Help[0]);
+            usage.AppendFormat("      {0} [InFile] : Uses [InFile]  as stdin.",  CmdLineArg_InFile[0]);     usage.AppendLine();
+            usage.AppendFormat("      {0} [OutFile]: Uses [OutFile] as stdout.", CmdLineArg_OutFile[0]);    usage.AppendLine();
+            usage.AppendFormat("      {0} [ErrFile]: Uses [ErrFile] as stderr.", CmdLineArg_ErrFile[0]);    usage.AppendLine();
+            usage.AppendLine  ("  [ModuleName] := A registered module.");
+            usage.AppendLine  ("  [ModuleIndx] := Optionally, specify a 0-based index, if multiple modules have the same name.");
             foreach (string moduleName in this.ModuleNames)
             {
-                Console.WriteLine("      " + moduleName);
+                usage.AppendFormat("      {0}", moduleName);
+                usage.AppendLine();
             }
-            Console.WriteLine("  [ModuleArgs] := Module arguments. For more info: " + entryBinary + " " + CmdLineArg_Help[0] + " [ModuleName]");
-            Console.WriteLine("=========================");
+            usage.AppendFormat("  [ModuleArgs] := Module arguments. For more info: {0} {1} [ModuleName]", entryBinary, CmdLineArg_Help[0]); usage.AppendLine();
+            usage.AppendLine  ("=========================");
+            Console.WriteLine(usage.ToString());
         }
 
         #endregion IConsoleAppModule
@@ -322,8 +325,9 @@ namespace System
 
         protected void LoadFrom(Assembly assembly)
         {
-            Type moduleBaseType = typeof(IConsoleAppModule);
-            foreach (Type type in assembly.GetTypes().Where(item => moduleBaseType.IsAssignableFrom(item)).OrderBy(item => item.Name))
+            Type baseType = typeof(IConsoleAppModule);
+            Type thisType = this.GetType();
+            foreach (Type type in assembly.GetTypes().Where(item => !item.IsAbstract && baseType.IsAssignableFrom(item) && !thisType.IsAssignableFrom(item)).OrderBy(item => item.Name))
             {
                 this.RegisterModule(Activator.CreateInstance(type, true) as IConsoleAppModule, true);
             }

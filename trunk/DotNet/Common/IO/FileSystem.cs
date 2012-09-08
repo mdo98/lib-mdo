@@ -6,20 +6,23 @@ namespace System.IO
 {
     public interface IApplyFileOperation
     {
-        object InitFileOperation(object initialState, TextWriter log);
-        object ExecuteFileOperation(string filePath, object state, TextWriter log);
-        void FinalizeFileOperation(object initialState, object finalExecutionState, TextWriter log);
+        object InitFileOperation(object initialState, Action<string> log);
+        object ExecuteFileOperation(string filePath, object state, Action<string> log);
+        void FinalizeFileOperation(object initialState, object finalExecutionState, Action<string> log);
     }
 
     public static partial class FS
     {
-        public static void ApplyFileOperation(IApplyFileOperation fileOperator, string path, bool recursive, object initialState, TextWriter log)
+        public static void ApplyFileOperation(IApplyFileOperation fileOperator, string path, bool recursive, object initialState, Action<string> log)
         {
+            if (string.IsNullOrEmpty(path))
+                throw new ArgumentNullException("path");
+
+            if (null == log)
+                log = (string message) => Console.WriteLine(message);
+
             try
             {
-                if (string.IsNullOrEmpty(path))
-                    throw new ArgumentNullException("path");
-
                 if (!Path.IsPathRooted(path))  // Relative path
                 {
                     try
@@ -42,15 +45,11 @@ namespace System.IO
             }
             catch (Exception ex)
             {
-                log.WriteLine(ex.ToString());
-            }
-            finally
-            {
-                log.Flush();
+                log(ex.ToString());
             }
         }
 
-        private static object ExecuteFileOperation(IApplyFileOperation fileOperator, string path, bool recursive, object state, TextWriter log)
+        private static object ExecuteFileOperation(IApplyFileOperation fileOperator, string path, bool recursive, object state, Action<string> log)
         {
             string pathDir = Path.GetDirectoryName(path),
                    pathFile = Path.GetFileName(path);
@@ -60,11 +59,11 @@ namespace System.IO
 
             string[] filePaths = Directory.GetFiles(pathDir, pathFile);
 
-            log.WriteLine(
+            log(string.Format(
                 "{0}: {1} files in {2}",
                 path,
                 filePaths.Length,
-                pathDir);
+                pathDir));
 
             Array.Sort(filePaths);
 
@@ -76,16 +75,16 @@ namespace System.IO
                 }
                 catch (FileNotFoundException)
                 {
-                    log.WriteLine(
+                    log(string.Format(
                         "File {0} was listed, but is no longer available.",
-                        filePath);
+                        filePath));
                 }
                 catch (Exception ex)
                 {
-                    log.WriteLine(
+                    log(string.Format(
                         "File {0}: {1}",
                         filePath,
-                        ex.ToString());
+                        ex.ToString()));
                 }
             }
 
@@ -93,11 +92,11 @@ namespace System.IO
             {
                 string[] dirPaths = Directory.GetDirectories(pathDir, pathFile);
 
-                log.WriteLine(
+                log(string.Format(
                     "{0}: {1} folders in {2}",
                     path,
                     dirPaths.Length,
-                    pathDir);
+                    pathDir));
 
                 Array.Sort(dirPaths);
 
@@ -109,16 +108,16 @@ namespace System.IO
                     }
                     catch (DirectoryNotFoundException)
                     {
-                        log.WriteLine(
+                        log(string.Format(
                             "Folder {0} was listed, but is no longer available.",
-                            dirPath);
+                            dirPath));
                     }
                     catch (Exception ex)
                     {
-                        log.WriteLine(
+                        log(string.Format(
                             "Folder {0}: {1}",
                             dirPath,
-                            ex.ToString());
+                            ex.ToString()));
                     }
                 }
             }
