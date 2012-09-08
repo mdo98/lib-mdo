@@ -9,10 +9,10 @@ namespace System
     public class ArgumentMissingException : ArgumentException
     {
         private ArgumentMissingException() : base() { }
-        public ArgumentMissingException(string paramName) : base(Message(paramName), paramName) { }
+        public ArgumentMissingException(string paramName) : base(GenerateMessage(paramName), paramName) { }
         protected ArgumentMissingException(SerializationInfo info, StreamingContext context) : base(info, context) { }
 
-        private static string Message(string paramName)
+        private static string GenerateMessage(string paramName)
         {
             return string.Format("Missing parameter: {0}", paramName);
         }

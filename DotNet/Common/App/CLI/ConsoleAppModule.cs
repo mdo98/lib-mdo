@@ -22,9 +22,14 @@ namespace System
 
         public abstract int Run(string[] args);
 
-        public virtual void PrintUsage()
+        public void PrintUsage()
         {
-            Console.WriteLine("{0}: No cmdline parameters required or accepted.", this.Name);
+            Console.WriteLine(this.Usage);
+        }
+
+        public virtual string Usage
+        {
+            get { return string.Format("{0}: No cmdline parameters required or accepted.", this.Name); }
         }
     }
 }
