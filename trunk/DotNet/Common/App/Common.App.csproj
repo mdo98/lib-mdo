@@ -47,6 +47,7 @@
     <Compile Include="CLI\ConsoleAppBootstrapper.cs" />
     <Compile Include="CLI\ConsoleAppUtil.cs" />
     <Compile Include="CLI\Program.cs" />
+    <Compile Include="Reflection\DynamicExecutor.cs" />
     <Compile Include="Sandbox\Sandbox.cs" />
     <Compile Include="Sandbox\SerializableDelegate.cs" />
     <Compile Include="Sandbox\SerializableException.cs" />
