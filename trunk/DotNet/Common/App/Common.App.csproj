@@ -48,13 +48,13 @@
     <Compile Include="CLI\ConsoleAppUtil.cs" />
     <Compile Include="CLI\Program.cs" />
     <Compile Include="Reflection\DynamicExecutor.cs" />
-    <Compile Include="AppDomainContext\AppDomainContext.cs" />
-    <Compile Include="AppDomainContext\SerializableDelegate.cs" />
-    <Compile Include="AppDomainContext\SerializableException.cs" />
+    <Compile Include="AppDomain\AppDomainContext.cs" />
+    <Compile Include="AppDomain\SerializableDelegate.cs" />
+    <Compile Include="AppDomain\SerializableException.cs" />
     <Compile Include="CLI\ConsoleAppModule.cs" />
     <Compile Include="Exceptions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="AppDomainContext\SerializableObject.cs" />
+    <Compile Include="AppDomain\SerializableObject.cs" />
     <Compile Include="RetryStrategy.cs" />
   </ItemGroup>
   <ItemGroup />
